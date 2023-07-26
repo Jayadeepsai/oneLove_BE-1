@@ -1,19 +1,16 @@
 const mysql = require('mysql');
-const express= require('express');
+const express = require('express');
 const app = express();
+require('dotenv').config();
+const connection = require('./dbConnection')
 
-const connection = mysql.createConnection({
-    host: '18.223.134.88',
-    user: 'root',
-    password: 'oneLove@ro-one',
-    database: 'oneLove',
-    multipleStatements: true
-  });
-  
-  connection.connect((error) => {
-    if (error) {
-      console.error('Error connecting to the database: ', error);
-    } else {
-      console.log('Connected to the database!');
-    }
-  });
+const vaccine = require('./apis/vaccine');
+const items = require('./apis/item');
+
+
+
+app.use('/vaccine',vaccine);
+app.use('/items',items);
+
+
+module.exports = app
