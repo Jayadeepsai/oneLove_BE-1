@@ -18,7 +18,7 @@ items.post('/itemEntry', (req, res) => {                 //post api for item ent
     const itemImage = req.body.itemImage;
 
     const sql = `INSERT INTO onelove.items (itemType, itemName, itemPrice, itemDescription, itemImage) 
-    VALUES (?,"${itemName}","${itemPrice}","${itemDescription}","${itemImage}")`;
+    VALUES ("${itemType}","${itemName}","${itemPrice}","${itemDescription}","${itemImage}")`;
 
     db.query(sql, function (err, result) {
         if (!err) {

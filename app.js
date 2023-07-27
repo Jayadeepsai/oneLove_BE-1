@@ -10,8 +10,8 @@ const items = require('./src/item');
 
 
 
-app.use(env.baseUrl+'/vaccine',vaccine);
-app.use(env.baseUrl+'/items',items);
+app.use('/vaccine',vaccine);
+app.use('/items',items);
 
 
 module.exports = app
