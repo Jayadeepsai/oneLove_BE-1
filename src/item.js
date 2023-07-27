@@ -15,9 +15,10 @@ items.post('/itemEntry', (req, res) => {                 //post api for item ent
     const itemName = req.body.itemName;
     const itemPrice = req.body.itemPrice;
     const itemDescription = req.body.itemDescription;
-    const itemImage = req.body.itemImage
+    const itemImage = req.body.itemImage;
 
-    const sql = `INSERT INTO onelove.items (itemType, itemName, itemPrice, itemDescription, itemImage) VALUES ("${itemType}","${itemName}","${itemPrice}","${itemDescription}","${itemImage}")`;
+    const sql = `INSERT INTO onelove.items (itemType, itemName, itemPrice, itemDescription, itemImage) 
+    VALUES (?,"${itemName}","${itemPrice}","${itemDescription}","${itemImage}")`;
 
     db.query(sql, function (err, result) {
         if (!err) {
