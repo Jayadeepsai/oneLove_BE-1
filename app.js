@@ -7,11 +7,13 @@ const connection = require('./dbConnection')
 
 const vaccine = require('./src/vaccine');
 const items = require('./src/item');
+const pets = require('./src/pets');
 
 
 
-app.use('/vaccine',vaccine);
-app.use('/items',items);
+app.use('/onelove/vaccine',vaccine);
+app.use('onelove/items',items);
+app.use('/onelove/pets',pets)
 
 
 module.exports = app
