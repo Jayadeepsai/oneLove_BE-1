@@ -10,10 +10,7 @@ vaccine.use(express.urlencoded({ extended: true })); // To parse URL-encoded bod
 
 vaccine.post('/vaccineEntry', (req, res) => {                 //post api for vaccine entry
 
-    const vaccineName = req.body.vaccineName;
-    const date = req.body.date;
-    const dosage = req.body.dosage;
-    const cost = req.body.cost;
+    const {vaccineName, date, dosage, cost} = req.body;
 
     const sql = `INSERT INTO onelove.vaccination (vaccineName, date, dosage, cost) VALUES ("${vaccineName}","${date}","${dosage}","${cost}")`;
 
@@ -77,10 +74,7 @@ vaccine.post('/vaccineDataByCondition', (req, res) => {                //Fetchin
 vaccine.put('/updateVaccineData/:vaccination_id', (req, res) => {           //Updating data in vaccination table based on vaccination_id
     const vaccination_id = req.params.vaccination_id;
 
-    const vaccineName = req.body.vaccineName;
-    const date = req.body.date;
-    const dosage = req.body.dosage;
-    const cost = req.body.cost;
+    const {vaccineName, date, dosage, cost} = req.body;
 
     // Create the SQL query for the update operation
     let sql = 'UPDATE onelove.vaccination SET';

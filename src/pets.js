@@ -34,29 +34,30 @@ pets.get('/petsData', (req, res) => {                  //Fetching all the Items 
 
 
 
-pets.post('/petPost', (req, res) => {
+pets.post('/petPost', (req, res) => {                             //still working on image 
 
-    const pet_type = req.body.pet_type;
-    const pet_name = req.body.pet_name;
-    const pet_breed = req.body.pet_breed;
-    const pet_gender = req.body.pet_gender;
-    const pet_weight = req.body.pet_weight;
-    const pet_description = req.body.pet_description;
-    const vaccination_id = req.body.vaccination_id;
-    const pet_dob = req.body.pet_dob;
-    const image_id = req.body.image_id;
+    const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id } = req.body;
+
+    // const sql = `
+    // INSERT INTO onelove.pet 
+    // (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id) 
+    // VALUES 
+    // ("${pet_type}", "${pet_name}", "${pet_breed}", "${pet_gender}", "${pet_weight}", "${pet_description}", 
+    // ${vaccination_id === undefined ? 'NULL' : vaccination_id}, "${pet_dob}", ${image_id === undefined ? 'NULL' : image_id})`;
+
 
     const sql = `
     INSERT INTO onelove.pet 
-    (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id) 
+    (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob) 
     VALUES 
     ("${pet_type}", "${pet_name}", "${pet_breed}", "${pet_gender}", "${pet_weight}", "${pet_description}", 
-    ${vaccination_id === undefined ? 'NULL' : vaccination_id}, "${pet_dob}", ${image_id === undefined ? 'NULL' : image_id})`;
+    "${pet_dob}")`;
 
     db.query(sql, function (err, result) {
         if (!err) {
             var data = JSON.parse(JSON.stringify(result));
             console.log(data)
+
             res.status(200).json({
                 data: data,
                 message: "Data posted"
@@ -72,18 +73,79 @@ pets.post('/petPost', (req, res) => {
 
 
 
+
+pets.post('/post', (req, res) => {
+    const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_type, image_url } = req.body;
+
+    const sql = `INSERT INTO onelove.images (image_type, image_url) VALUES ("${image_type}" , "${image_url}")`;
+
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.error("Error inserting record in images", err);
+            return res.status(401).json({ message: "Error inserting record in Template table" });
+        }
+
+        const image_id = result.insertId; // Get the image_id generated from the previous query
+
+        const sql2 = `
+            INSERT INTO onelove.pet 
+            (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, image_id) 
+            VALUES 
+            ("${pet_type}", "${pet_name}", "${pet_breed}", "${pet_gender}", "${pet_weight}", "${pet_description}", "${pet_dob}", ${image_id})`;
+
+        db.query(sql2, (err, petResult) => {
+            if (err) {
+                console.error("Error inserting record in Headers table:", err);
+                return res.status(400).json({ message: "Error inserting record in Headers table", err });
+            }
+
+            return res.status(200).json({ message: "Records inserted successfully", petResult });
+        });
+    });
+});
+
+
+// pets.post('/post', (req, res) => {
+//     const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_type, image_url } = req.body;
+
+//     // Check if image_type and image_url are provided in the request body
+//     const sql = image_type && image_url
+//         ? `INSERT INTO onelove.images (image_type, image_url) VALUES ("${image_type}", "${image_url}")`
+//         : null;
+
+//     db.query(sql, (err, result) => {
+//         if (err) {
+//             console.error("Error inserting record in images", err);
+//             return res.status(401).json({ message: "Error inserting record in Template table" });
+//         }
+
+//         // If image_type and image_url are provided, get the image_id generated from the previous query
+//         const image_id = sql ? result.insertId : null;
+
+//         const sql2 = `
+//             INSERT INTO onelove.pet 
+//             (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, image_id) 
+//             VALUES 
+//             ("${pet_type}", "${pet_name}", "${pet_breed}", "${pet_gender}", "${pet_weight}", "${pet_description}", "${pet_dob}", ${image_id})`;
+
+//         db.query(sql2, (err, petResult) => {
+//             if (err) {
+//                 console.error("Error inserting record in Headers table:", err);
+//                 return res.status(400).json({ message: "Error inserting record in Headers table", err });
+//             }
+
+//             return res.status(200).json({ message: "Records inserted successfully", petResult });
+//         });
+//     });
+// });
+
+
+
 pets.put('/updatePetData/:pet_id', (req, res) => {           //Updating data in pet table based on pet_id
     const pet_id = req.params.pet_id;
 
-    const pet_type = req.body.pet_type;
-    const pet_name = req.body.pet_name;
-    const pet_breed = req.body.pet_breed;
-    const pet_gender = req.body.pet_gender;
-    const pet_weight = req.body.pet_weight;
-    const pet_description = req.body.pet_description;
-    const vaccination_id = req.body.vaccination_id;
-    const pet_dob = req.body.pet_dob;
-    const image_id = req.body.image_id;
+    const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id } = req.body;
+
 
     // Create the SQL query for the update operation
     let sql = 'UPDATE onelove.pet SET';
@@ -201,6 +263,8 @@ pets.delete('/deletePet/:petId', (req, res) => {
         }
     });
 });
+
+
 
 
 

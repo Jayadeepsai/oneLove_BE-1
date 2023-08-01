@@ -357,3 +357,4 @@ select p.pet_id, p.pet_name, p.pet_gender, ...
 select p.*, v.* from onelove.pet p, onelove.vaccination v where p.vaccination_id = v.vaccination_id;
 
 select i.* from images i where i.image_id in (select  p.image_id from pets p where p.pet_id = <petId>);
+

@@ -9,16 +9,12 @@ items.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodie
 
 
 
-items.post('/itemEntry', (req, res) => {                 //post api for item entry
+items.post('/itemEntry', (req, res) => {                 //post api for item entry //image_id is pending
 
-    const itemType = req.body.itemType;
-    const itemName = req.body.itemName;
-    const itemPrice = req.body.itemPrice;
-    const itemDescription = req.body.itemDescription;
-    const itemImage = req.body.itemImage;
+    const {itemType, itemName, itemPrice, itemDescription} = req.body;
 
-    const sql = `INSERT INTO onelove.items (itemType, itemName, itemPrice, itemDescription, itemImage) 
-    VALUES ("${itemType}","${itemName}","${itemPrice}","${itemDescription}","${itemImage}")`;
+    const sql = `INSERT INTO onelove.items (itemType, itemName, itemPrice, itemDescription) 
+    VALUES ("${itemType}","${itemName}","${itemPrice}","${itemDescription}")`;
 
     db.query(sql, function (err, result) {
         if (!err) {
