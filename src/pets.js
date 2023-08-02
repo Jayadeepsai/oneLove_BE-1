@@ -103,7 +103,7 @@ pets.post('/post', (req, res) => {
         });
     });
 });
-
+ 
 
 // pets.post('/post', (req, res) => {
 //     const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_type, image_url } = req.body;
