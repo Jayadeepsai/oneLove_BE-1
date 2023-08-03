@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  # Node.js app service
+  nodejs-app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql-db
+
+  # MySQL database service
+  mysql-db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: onelove@mysql
+      MYSQL_DATABASE: onelovedb
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
