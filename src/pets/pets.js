@@ -2,7 +2,7 @@ const express = require('express');
 const pets = express.Router();
 const bodyParser = require('body-parser');
 
-const db = require('../dbConnection')
+const db = require('../../dbConnection')
 
 pets.use(express.json()); // To parse JSON bodies
 pets.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies

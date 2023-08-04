@@ -2,7 +2,7 @@ const express = require('express');
 const vaccine = express.Router();
 const bodyParser = require('body-parser');
 
-const db = require('../dbConnection')
+const db = require('../../dbConnection')
 
 vaccine.use(express.json()); // To parse JSON bodies
 vaccine.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies

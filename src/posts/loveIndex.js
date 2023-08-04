@@ -2,7 +2,7 @@ const express = require('express');
 const loveIndx = express.Router();
 const bodyParser = require('body-parser');
 
-const db = require('../dbConnection')
+const db = require('../../dbConnection')
 
 loveIndx.use(express.json()); // To parse JSON bodies
 loveIndx.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
