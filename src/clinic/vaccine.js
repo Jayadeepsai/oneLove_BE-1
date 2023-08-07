@@ -8,73 +8,93 @@ vaccine.use(express.json()); // To parse JSON bodies
 vaccine.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-vaccine.post('/vaccineEntry', (req, res) => {                 //post api for vaccine entry
+/**
+ * post api for vaccine 
+ */
+vaccine.post('/vaccine', async (req, res) => {
+    const { vaccine_name, effdt, dosage, cost, enddt } = req.body;
 
-    const {vaccineName, date, dosage, cost} = req.body;
+    const sql = 'INSERT INTO onelove.vaccination (vaccine_name, effdt, dosage, cost, enddt) VALUES (?, ?, ?, ?, ?)';
+    const values = [vaccine_name, effdt, dosage, cost, enddt];
 
-    const sql = `INSERT INTO onelove.vaccination (vaccineName, date, dosage, cost) VALUES ("${vaccineName}","${date}","${dosage}","${cost}")`;
+    try {
+        // Execute the insert query with the values as parameters
+        const [result] = await db.query(sql, values);
 
-    db.query(sql, function (err, result) {
-        if (!err) {
-            var data = JSON.parse(JSON.stringify(result));
-            console.log(data)
-            res.status(200).json({
-                data: data,
-                message: "Data posted"
-            })
-        } else {
-            res.status(400).json({
-                message: err
-            })
-        }
-    });
+        console.log('Data posted successfully.');
+        res.status(200).json({
+            data: result,
+            message: "Data posted"
+        });
+    } catch (err) {
+        console.error('Error posting data:', err.message);
+        res.status(400).json({
+            message: err
+        });
+    }
 });
 
 
-vaccine.get('/vaccineData', (req, res) => {                //Fetching all the vaccination data
+
+/**
+ * Fetching tha vaccine data
+ */
+
+vaccine.get('/vaccine', async (req, res) => {
     const sql = `SELECT * FROM onelove.vaccination`;
-    db.query(sql, function (err, results, fields) {
-        if (!err) {
-            var data = JSON.parse(JSON.stringify(results));
-            console.log(data)
-            res.status(200).json({
-                vaccinationData: data,
-                message: "All Vaccination Data"
-            })
-        } else {
-            res.status(400).json({
-                message: err
-            })
-        }
-    });
+
+    try {
+        // Execute the SELECT query
+        const [results] = await db.query(sql);
+
+        const data = JSON.parse(JSON.stringify(results));
+        console.log(data);
+        res.status(200).json({
+            vaccinationData: data,
+            message: "All Vaccination Data"
+        });
+    } catch (err) {
+        console.error('Error fetching vaccination data:', err.message);
+        res.status(400).json({
+            message: err
+        });
+    }
 });
 
 
-vaccine.post('/vaccineDataByCondition', (req, res) => {                //Fetching vaccination data by passing condition
+vaccine.get('/vaccine-id', async (req, res) => {
+    const vaccination_id = req.query.vaccination_id;
 
-    const vaccination_id = req.body.vaccination_id;
+    if (!vaccination_id) {
+        return res.status(400).json({ message: "vaccination_id is required as a query parameter" });
+    }
+
     const sql = `SELECT * FROM onelove.vaccination WHERE vaccination_id = ?`;
-    db.query(sql, vaccination_id, function (err, result, fields) {
-        if (!err) {
-            var data = JSON.parse(JSON.stringify(result));
-            console.log(data)
-            res.status(200).json({
-                vaccinationData: data,
-                message: "Vaccination Data"
-            })
-        } else {
-            res.status(400).json({
-                message: err
-            })
-        }
-    })
+
+    try {
+        // Execute the SELECT query with parameter binding
+        const [result] = await db.query(sql, [vaccination_id]);
+
+        const data = JSON.parse(JSON.stringify(result));
+        res.status(200).json({
+            vaccinationData: data,
+            message: "Vaccination Data"
+        });
+    } catch (err) {
+        console.error('Error fetching vaccination data:', err.message);
+        res.status(400).json({
+            message: err
+        });
+    }
 });
 
 
-vaccine.put('/updateVaccineData/:vaccination_id', (req, res) => {           //Updating data in vaccination table based on vaccination_id
-    const vaccination_id = req.params.vaccination_id;
 
-    const {vaccineName, date, dosage, cost} = req.body;
+
+vaccine.put('/update-vaccine', async (req, res) => {
+    const vaccination_id = req.query.vaccination_id;
+
+    const { vaccine_name, effdt, dosage, cost, enddt } = req.body;
 
     // Create the SQL query for the update operation
     let sql = 'UPDATE onelove.vaccination SET';
@@ -83,13 +103,13 @@ vaccine.put('/updateVaccineData/:vaccination_id', (req, res) => {           //Up
     const values = [];
 
     // Append the fields to the query only if they are provided in the request body
-    if (vaccineName !== undefined) {
-        sql += ' vaccineName=?,';
-        values.push(vaccineName);
+    if (vaccine_name !== undefined) {
+        sql += ' vaccine_name=?,';
+        values.push(vaccine_name);
     }
-    if (date !== undefined) {
-        sql += ' date=?,';
-        values.push(date);
+    if (effdt !== undefined) {
+        sql += ' effdt=?,';
+        values.push(effdt);
     }
     if (dosage !== undefined) {
         sql += ' dosage=?,';
@@ -99,6 +119,10 @@ vaccine.put('/updateVaccineData/:vaccination_id', (req, res) => {           //Up
         sql += ' cost=?,';
         values.push(cost);
     }
+    if (enddt !== undefined) {
+        sql += ' enddt=?,';
+        values.push(enddt);
+    }
 
     // Remove the trailing comma from the SQL query
     sql = sql.slice(0, -1);
@@ -106,42 +130,45 @@ vaccine.put('/updateVaccineData/:vaccination_id', (req, res) => {           //Up
     sql += ' WHERE vaccination_id=?';
     values.push(vaccination_id);
 
-    // Execute the update query
-    db.query(sql, values, (err, result) => {
-        if (err) {
-            console.error('Error updating data:', err.message);
-            res.status(400).json({ message: 'Failed to update data.' });
-        } else {
-            console.log('Data updated successfully.');
-            res.status(200).json({
-                updatedData: result,
-                message: 'Data updated successfully.',
-            });
-            console.log(result)
-        }
-    });
+    try {
+        // Execute the update query with parameter binding
+        const [result] = await db.query(sql, values);
+
+        console.log('Data updated successfully.');
+        res.status(200).json({
+            updatedData: result,
+            message: 'Data updated successfully.',
+        });
+    } catch (err) {
+        console.error('Error updating data:', err.message);
+        res.status(400).json({ message: 'Failed to update data.' });
+    }
 });
 
 
-vaccine.delete('/deleteVaccideData/:vaccination_id', (req, res) => {              //delete api for vaccination data based on vaccination_id
-    const vaccination_id = (req.params.vaccination_id)
-    const sql = 'DELETE FROM `vaccination` WHERE `vaccination_id`=?'
-    db.query(sql, vaccination_id, function (err, results, fields) {
-        if (!err) {
-            var data = JSON.parse(JSON.stringify(results));
-            console.log(data)
-            res.status(200).json({
-                data: data,
-                message: "Data Deleted"
-            })
-            console.log('Data is Deleted');
-        } else {
-            res.status(400).json({
-                message: err
-            })
-        }
-    });
+
+vaccine.delete('/delete-vaccine', async (req, res) => {
+    const vaccination_id = req.query.vaccination_id;
+    const sql = 'DELETE FROM `vaccination` WHERE `vaccination_id`=?';
+
+    try {
+        // Execute the delete query with parameter binding
+        const [results] = await db.query(sql, vaccination_id);
+        var data = JSON.parse(JSON.stringify(results));
+
+        console.log('Data is Deleted');
+        res.status(200).json({
+            data: data,
+            message: "Data Deleted"
+        });
+    } catch (err) {
+        console.error('Error deleting data:', err.message);
+        res.status(400).json({
+            message: err
+        });
+    }
 });
+
 
 
 module.exports = vaccine

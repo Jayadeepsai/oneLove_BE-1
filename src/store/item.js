@@ -9,7 +9,7 @@ items.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodie
 
 
 
-items.post('/itemEntry', (req, res) => {                 //post api for item entry //image_id is pending
+items.post('/item-entry', (req, res) => {                
 
     const {itemType, itemName, itemPrice, itemDescription} = req.body;
 

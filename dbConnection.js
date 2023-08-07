@@ -29,4 +29,4 @@ connection.connect(function (error) {
 })
 
 
-module.exports = connection
+module.exports = connection.promise();

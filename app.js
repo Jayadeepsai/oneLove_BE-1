@@ -8,13 +8,19 @@ const vaccine = require('./src/clinic/vaccine');
 const items = require('./src/store/item');
 const pets = require('./src/pets/pets');
 const loveIndx = require('./src/posts/loveIndex');
+const address = require('./src/registrartion/address');
+const contact = require('./src/registrartion/contactDetails');
+const registration = require('./src/registrartion/registration');
 
 
 
 app.use('/onelove/vaccine',vaccine);
-app.use('onelove/items',items);
-app.use('/onelove/pets',pets)
+app.use('/onelove/items',items);
+app.use('/onelove/pets',pets);
 app.use('/onelove/loveIndex',loveIndx);
+app.use('/onelove/address',address);
+app.use('/onelove/contact',contact);
+app.use('/onelove/registration',registration)
 
 
 module.exports = app

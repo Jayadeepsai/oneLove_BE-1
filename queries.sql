@@ -358,3 +358,9 @@ select p.*, v.* from onelove.pet p, onelove.vaccination v where p.vaccination_id
 
 select i.* from images i where i.image_id in (select  p.image_id from pets p where p.pet_id = <petId>);
 
+     `
+     INSERT INTO onelove.pet 
+     (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id) 
+     VALUES 
+     ("${pet_type}", "${pet_name}", "${pet_breed}", "${pet_gender}", "${pet_weight}", "${pet_description}", 
+     ${vaccination_id === undefined ? 'NULL' : vaccination_id}, "${pet_dob}", ${image_id === undefined ? 'NULL' : image_id})`;
