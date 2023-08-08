@@ -1,8 +1,8 @@
 const express = require('express');
 const registration = express.Router();
 const bodyParser = require('body-parser');
-
 const connection = require('../../dbConnection')
+const messages = require('../messages/constants')
 
 registration.use(express.json()); // To parse JSON bodies
 registration.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies

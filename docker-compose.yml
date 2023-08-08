@@ -1,22 +1,24 @@
-version: "3.8"
+version: "2"  
 
 services:
-  # Node.js app service
-  nodejs-app:
-    build: .
+  node_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     depends_on:
-      - mysql-db
+      - mysql
 
-  # MySQL database service
-  mysql-db:
-    image: mysql:latest
+  mysql:
+    image: mysql:5.7
     environment:
       MYSQL_ROOT_PASSWORD: onelove@mysql
-      MYSQL_DATABASE: onelovedb
+      MYSQL_DATABASE: onelove
+      MYSQL_USER: userrone
+      MYSQL_PASSWORD: mysql@onelove
+    ports:
+      - "3306:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/init.sql
 
-volumes:
-  db_data:
