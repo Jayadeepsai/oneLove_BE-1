@@ -31,31 +31,4 @@ connection.connect(function (error) {
 
 module.exports = connection.promise();
 
-// const mysql = require('mysql2/promise'); // Import mysql2/promise for better promises support
-// require('dotenv').config();
 
-// const pool = mysql.createPool({
-//     host: 'localhost',
-//     port: process.env.DB_PORT,
-//     user: process.env.DB_USER,
-//     password: process.env.DB_PASSWORD,
-//     database: process.env.DB_DATABASE,
-  
-// });
-
-// (async () => {
-//     try {
-//         const connection = await pool.getConnection();
-//         console.log('Connected to MySQL database');
-
-//         // You can use the connection to perform database operations
-//         // For example:
-//         // const [rows, fields] = await connection.query('SELECT * FROM your_table');
-        
-//         connection.release(); // Release the connection back to the pool when done
-//     } catch (error) {
-//         console.error('Error connecting to MySQL database:', error);
-//     }
-// })();
-
-// module.exports = pool;
