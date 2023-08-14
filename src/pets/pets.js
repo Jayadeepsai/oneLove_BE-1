@@ -10,10 +10,11 @@ pets.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 pets.get('/pets', async (req, res) => { // Add "async" keyword
     try {
-        const sql = `SELECT p.*, v.*, i.* 
+        const sql = `SELECT p.*, v.*, i.*, u.* 
                      FROM onelove.pet p
                      LEFT JOIN vaccination v ON p.vaccination_id = v.vaccination_id
-                     LEFT JOIN images i ON p.image_id = i.image_id`;
+                     LEFT JOIN images i ON p.image_id = i.image_id
+                     LEFT JOIN users u ON p.user_id=u.user_id`;
 
         const [results] = await db.query(sql); // Use await to execute the query
 
@@ -32,43 +33,9 @@ pets.get('/pets', async (req, res) => { // Add "async" keyword
 });
 
 
-
 pets.post('/pet-post', async (req, res) => { // Add "async" keyword
     try {
-        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id } = req.body;
-
-        const sql = `
-        INSERT INTO onelove.pet 
-        (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob) 
-        VALUES 
-        (?, ?, ?, ?, ?, ?, ?)`; // Use placeholders for values
-
-        const values = [pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob];
-
-        const [result] = await db.query(sql, values); // Use await to execute the query
-
-        const data = JSON.parse(JSON.stringify(result));
-        console.log(data);
-
-        res.status(200).json({
-            data: data,
-            message: "Data posted"
-        });
-    } catch (err) {
-        res.status(400).json({
-            message: err.message // Send the error message back to the client
-        });
-        console.log(err);
-    }
-});
-
-
-
-
-
-pets.post('/post', async (req, res) => { // Add "async" keyword
-    try {
-        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_type, image_url } = req.body;
+        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_type, image_url, user_id } = req.body;
 
         // Insert into images table
         const sql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
@@ -81,10 +48,10 @@ pets.post('/post', async (req, res) => { // Add "async" keyword
         // Insert into pet table
         const sql2 = `
             INSERT INTO onelove.pet 
-            (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, image_id) 
+            (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, image_id, user_id) 
             VALUES 
-            (?, ?, ?, ?, ?, ?, ?, ?)`;
-        const petValues = [pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, image_id];
+            (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const petValues = [pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, image_id, user_id];
 
         const [petResult] = await db.query(sql2, petValues); // Use await to execute the query
 
@@ -97,47 +64,11 @@ pets.post('/post', async (req, res) => { // Add "async" keyword
 
  
 
-// pets.post('/post', (req, res) => {
-//     const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_type, image_url } = req.body;
-
-//     // Check if image_type and image_url are provided in the request body
-//     const sql = image_type && image_url
-//         ? `INSERT INTO onelove.images (image_type, image_url) VALUES ("${image_type}", "${image_url}")`
-//         : null;
-
-//     db.query(sql, (err, result) => {
-//         if (err) {
-//             console.error("Error inserting record in images", err);
-//             return res.status(401).json({ message: "Error inserting record in Template table" });
-//         }
-
-//         // If image_type and image_url are provided, get the image_id generated from the previous query
-//         const image_id = sql ? result.insertId : null;
-
-//         const sql2 = `
-//             INSERT INTO onelove.pet 
-//             (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, image_id) 
-//             VALUES 
-//             ("${pet_type}", "${pet_name}", "${pet_breed}", "${pet_gender}", "${pet_weight}", "${pet_description}", "${pet_dob}", ${image_id})`;
-
-//         db.query(sql2, (err, petResult) => {
-//             if (err) {
-//                 console.error("Error inserting record in Headers table:", err);
-//                 return res.status(400).json({ message: "Error inserting record in Headers table", err });
-//             }
-
-//             return res.status(200).json({ message: "Records inserted successfully", petResult });
-//         });
-//     });
-// });
-
-
-
 pets.put('/update-pet', async (req, res) => { // Use "async" keyword
     try {
         const pet_id = req.query.pet_id; // Use "req.query" instead of "req.params"
 
-        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id } = req.body;
+        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id, user_id } = req.body;
 
         // Create the SQL query for the update operation
         let sql = 'UPDATE onelove.pet SET';
@@ -182,6 +113,10 @@ pets.put('/update-pet', async (req, res) => { // Use "async" keyword
             sql += ' image_id=?,';
             values.push(image_id);
         }
+        if (user_id !== undefined) {
+            sql += ' user_id=?,';
+            values.push(user_id);
+        }
 
         // Remove the trailing comma from the SQL query
         sql = sql.slice(0, -1);
@@ -206,14 +141,14 @@ pets.put('/update-pet', async (req, res) => { // Use "async" keyword
 
 
 
-pets.get('/pets-images', async (req, res) => { // Use "async" keyword
+pets.get('/pets-images', async (req, res) => { 
     try {
-        const pet_id = req.query.pet_id; // Use "req.query" instead of "req.params"
+        const pet_id = req.query.pet_id; 
 
-        // SQL query to fetch images with the given petId
+      
         const sql = `SELECT i.* FROM images i WHERE i.image_id IN (SELECT p.image_id FROM pets p WHERE p.pet_id = ?)`;
 
-        const [results] = await db.query(sql, [pet_id]); // Use await to execute the query
+        const [results] = await db.query(sql, [pet_id]); 
 
         const images = JSON.parse(JSON.stringify(results));
         res.status(200).json({
@@ -224,6 +159,28 @@ pets.get('/pets-images', async (req, res) => { // Use "async" keyword
         console.error('Error fetching images:', err);
         res.status(500).json({
             message: 'Failed to fetch images',
+        });
+    }
+});
+
+
+pets.get('/pets-users', async (req, res) => { 
+    try {
+        const pet_id = req.query.pet_id; 
+
+        const sql = `SELECT u.* FROM users u WHERE u.user_id IN (SELECT p.user_id FROM pet p WHERE p.pet_id = ?)`;
+
+        const [results] = await db.query(sql, [pet_id]); // Use await to execute the query
+
+        const user = JSON.parse(JSON.stringify(results));
+        res.status(200).json({
+            user,
+            message: 'Fetched successfully',
+        });
+    } catch (err) {
+        console.error('Error fetching :', err);
+        res.status(500).json({
+            message: 'Failed to fetch',
         });
     }
 });
@@ -256,6 +213,7 @@ pets.delete('/delete-pet', async (req, res) => {
         });
     }
 });
+
 
 
 

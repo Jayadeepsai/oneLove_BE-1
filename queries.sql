@@ -59,25 +59,16 @@ CREATE TABLE onelove.images (
 
 
 
-  CREATE TABLE `onelove`.`service` (
-  `service_id` INT NOT NULL AUTO_INCREMENT, 
-  `price` VARCHAR(45) NULL,
-  `service_name` VARCHAR(45) NULL, 
-  `start_time` VARCHAR(45) NULL, 
-  `end_time` VARCHAR(45) NULL, 
-  PRIMARY KEY (`service_id`)); 
-
-
-
-
-  ALTER TABLE onelove.service
-     DROP COLUMN start_time,
-     DROP COLUMN end_time,
-     ADD COLUMN service_description VARCHAR(999),
-     CHANGE COLUMN price service_price DECIMAL(8, 2) NOT NULL,
-     ADD COLUMN time_id INT,
-     ADD CONSTRAINT fk_time_id
-     FOREIGN KEY (time_id) REFERENCES onelove.time(time_id)
+CREATE TABLE onelove.service (
+    service_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    service_price DECIMAL(8, 2) NOT NULL,
+    service_name VARCHAR(45),
+    service_description VARCHAR(999),
+    time_id INT(11),
+    user_id INT(11),
+    FOREIGN KEY (time_id) REFERENCES onelove.time(time_id),
+    FOREIGN KEY (user_id) REFERENCES onelove.users(user_id)
+);
 
 
 
@@ -148,53 +139,34 @@ CREATE TABLE onelove.images (
   CREATE TABLE onelove.posts (
     post_id INT AUTO_INCREMENT PRIMARY KEY,
     post_type VARCHAR(45),
-    content VARCHAR(45), 
-    image_or_video VARCHAR(45), 
+    post_description VARCHAR(100), 
+    video VARCHAR(45),
     love_index_id INT,
-    FOREIGN KEY (love_index_id) REFERENCES onelove.love_index(love_index_id)
+    image_id INT,
+    user_id INT NOT NULL,
+    FOREIGN KEY (love_index_id) REFERENCES onelove.love_index(love_index_id),
+    FOREIGN KEY (image_id) REFERENCES onelove.images(image_id),
+    FOREIGN KEY (user_id) REFERENCES onelove.users(user_id)
 );
-
-
-ALTER TABLE onelove.posts
-     CHANGE COLUMN content post_description VARCHAR(100),
-     DROP COLUMN image_or_video,
-     ADD COLUMN video VARCHAR(45);
-
-
-ALTER TABLE onelove.posts
-     ADD COLUMN image_id INT,
-     ADD CONSTRAINT fk_image_id_new
-     FOREIGN KEY (image_id) REFERENCES onelove.images(image_id);
-
 
 
 
 CREATE TABLE onelove.pet (
     pet_id INT AUTO_INCREMENT PRIMARY KEY,
-    pet_type VARCHAR(45),
-    pet_name VARCHAR(45), 
+    pet_type VARCHAR(45) NOT NULL,
+    pet_name VARCHAR(99) NOT NULL, 
     pet_breed VARCHAR(45),
     pet_gender VARCHAR(45),
-    pet_profile VARCHAR(45),
     pet_weight VARCHAR(45),
     pet_description VARCHAR(199), 
     vaccination_id INT,
-    FOREIGN KEY (vaccination_id) REFERENCES onelove.vaccination(vaccination_id)
+    pet_dob date DEFAULT NULL,
+    image_id INT,
+    user_id INT NOT NULL,
+    FOREIGN KEY (vaccination_id) REFERENCES onelove.vaccination(vaccination_id),
+    FOREIGN KEY (image_id) REFERENCES onelove.images(image_id),
+    FOREIGN KEY (user_id) REFERENCES onelove.users(user_id)
 );
-
-
-ALTER TABLE onelove.pet
-     MODIFY COLUMN pet_type VARCHAR(45) NOT NULL,
-     MODIFY COLUMN pet_name VARCHAR(99) NOT NULL,
-     DROP COLUMN pet_profile,
-     ADD COLUMN pet_dob DATE;
-
-
-ALTER TABLE onelove.pet
-     ADD COLUMN image_id INT,
-     ADD CONSTRAINT fk_image_id_pet
-     FOREIGN KEY (image_id) REFERENCES onelove.images(image_id);
-
 
 
 
@@ -242,6 +214,16 @@ CREATE TABLE onelove.users (
 ALTER TABLE onelove.users
      MODIFY COLUMN user_type VARCHAR(45) NOT NULL,
      ADD COLUMN user_name VARCHAR(100) NOT NULL;
+
+ALTER TABLE `onelove`.`users` 
+DROP FOREIGN KEY `users_ibfk_4`,
+DROP FOREIGN KEY `users_ibfk_3`;
+ALTER TABLE `onelove`.`users` 
+DROP COLUMN `post_id`,
+DROP COLUMN `pet_id`,
+DROP INDEX `post_id` ,
+DROP INDEX `pet_id` ;
+;
 
 
 
@@ -430,3 +412,5 @@ select i.* from images i where i.image_id in (select  p.image_id from pets p whe
      VALUES
      ("${pet_type}", "${pet_name}", "${pet_breed}", "${pet_gender}", "${pet_weight}", "${pet_description}",
      ${vaccination_id === undefined ? 'NULL' : vaccination_id}, "${pet_dob}", ${image_id === undefined ? 'NULL' : image_id})`;
+
+
