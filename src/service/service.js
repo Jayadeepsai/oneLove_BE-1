@@ -12,16 +12,16 @@ service.use(express.urlencoded({ extended: true })); // To parse URL-encoded bod
 
 
 async function serviceQueries(req, res) { // Pass req and res as arguments
-    // const connection = await db.getConnection();
+
 
     try {
         // Start the transaction
         await db.beginTransaction();
 
         
-        const { week_start_date, week_end_date, service_start_time, service_end_time } = req.body;
-        const timeQuery = 'INSERT INTO onelove.time (week_start_date, week_end_date, service_start_time, service_end_time) VALUES (?, ?, ?, ?)';
-        const timeValues = [week_start_date, week_end_date, service_start_time, service_end_time];
+        const { week_start_day, week_end_day, service_start_time, service_end_time } = req.body;
+        const timeQuery = 'INSERT INTO onelove.time (week_start_day, week_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?)';
+        const timeValues = [week_start_day, week_end_day, service_start_time, service_end_time];
 
         const [timeResult] = await db.query(timeQuery, timeValues);
         const time_id = timeResult.insertId;
@@ -40,7 +40,7 @@ async function serviceQueries(req, res) { // Pass req and res as arguments
         console.log('Transaction committed successfully.');
 
         // Send a success response to the client
-        res.status(200).json({ message: 'Transaction committed successfully.' });
+        res.status(200).json({ message:messages.POST_SUCCESS });
     } catch (error) {
         // Rollback the transaction if any query fails
         await db.rollback();
@@ -77,12 +77,6 @@ service.get('/service-user-id', async(req,res)=>{
         });
     }
 
-    // const sql = `SELECT s.*, t.*, u.* 
-    // FROM service s
-    // LEFT JOIN time t ON s.time_id = t.time_id
-    // LEFT JOIN users u ON s.user_id = u.user_id
-    // WHERE s.user_id = ?`;
-    
     const sql = `
     SELECT u.*, a.*, c.*, s.*, t.*
     FROM service s
@@ -102,7 +96,7 @@ service.get('/service-user-id', async(req,res)=>{
             });
         } else {
             res.status(404).json({
-                message: messages.NO_POSTS,
+                message: messages.NO_DATA,
             });
         }
 

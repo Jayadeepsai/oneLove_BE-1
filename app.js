@@ -13,6 +13,8 @@ const contact = require('./src/registrartion/contactDetails');
 const registration = require('./src/registrartion/registration');
 const posts = require('./src/posts/posts');
 const service = require('./src/service/service');
+const clinic = require('./src/clinic/clinicAdd');
+const user = require('./src/registrartion/users');
 
 
 
@@ -25,6 +27,8 @@ app.use('/onelove/contact',contact);
 app.use('/onelove/registration',registration);
 app.use('/onelove/posts',posts);
 app.use('/onelove/services',service);
+app.use('/onelove/clinic',clinic);
+app.use('/onelove/users',user);
 
 
 module.exports = app

@@ -124,7 +124,7 @@ posts.get('/user-posts', async (req, res) => {
             });
         } else {
             res.status(404).json({
-                message: messages.NO_POSTS,
+                message: messages.NO_DATA,
             });
         }
 

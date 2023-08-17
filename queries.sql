@@ -22,6 +22,10 @@ CREATE TABLE onelove.time (
         service_end_time TIME
     );
 
+ALTER TABLE `onelove`.`time` 
+CHANGE COLUMN `week_start_date` `week_start_day` VARCHAR(45) NULL DEFAULT NULL ,
+CHANGE COLUMN `week_end_date` `week_end_day` VARCHAR(45) NULL DEFAULT NULL ;
+
 
 
 
@@ -170,30 +174,21 @@ CREATE TABLE onelove.pet (
 
 
 
-CREATE TABLE onelove.clinics (
+CREATE TABLE clinics (
     clinic_id INT AUTO_INCREMENT PRIMARY KEY,
-    clinic_name VARCHAR(45),
-    start_time VARCHAR(45), 
-    end_time VARCHAR(45),
+    clinic_name VARCHAR(99) NOT NULL,
     specialisation VARCHAR(45),
     clinic_license VARCHAR(45),
-    address_id INT,
-    contact_id INT,
-    FOREIGN KEY (address_id) REFERENCES onelove.address(address_id),
-    FOREIGN KEY (contact_id) REFERENCES onelove.contact_details(contact_id)
+    time_id INT,
+    user_id INT,
+    CONSTRAINT fk_clinics_time FOREIGN KEY (time_id) REFERENCES time(time_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_clinics_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
-
-
-ALTER TABLE onelove.clinics
-     MODIFY COLUMN clinic_name VARCHAR(99) NOT NULL,
-     DROP COLUMN start_time,
-     DROP COLUMN end_time,
-     ADD COLUMN time_id INT,
-     ADD CONSTRAINT fk_time_id_clinic
-     FOREIGN KEY (time_id) REFERENCES onelove.time(time_id);
-
+ALTER TABLE `onelove`.`clinics` 
+ADD COLUMN `experience` VARCHAR(45) NULL AFTER `clinic_license`,
+ADD COLUMN `education` VARCHAR(45) NULL AFTER `experience`;
 
 
 
