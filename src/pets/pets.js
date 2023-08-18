@@ -1,6 +1,7 @@
 const express = require('express');
 const pets = express.Router();
 const bodyParser = require('body-parser');
+const messages = require('../messages/constants');
 
 const db = require('../../dbConnection')
 
@@ -165,25 +166,38 @@ pets.get('/pets-images', async (req, res) => {
 
 
 pets.get('/pets-users', async (req, res) => { 
-    try {
-        const pet_id = req.query.pet_id; 
+   
+        const user_id = req.query.user_id; 
 
-        const sql = `SELECT u.* FROM users u WHERE u.user_id IN (SELECT p.user_id FROM pet p WHERE p.pet_id = ?)`;
+        if (!user_id) {
+            return res.status(400).json({
+                message: messages.INVALID_ID,
+            });
+        }
 
-        const [results] = await db.query(sql, [pet_id]); // Use await to execute the query
+        const sql = `SELECT p.*, v.*, i.*, u.* 
+                 FROM onelove.pet p
+                 LEFT JOIN vaccination v ON p.vaccination_id = v.vaccination_id
+                 LEFT JOIN images i ON p.image_id = i.image_id
+                 LEFT JOIN users u ON p.user_id = u.user_id
+                 WHERE p.user_id = ?`;
+     try {
+        const [results] = await db.query(sql, [user_id]); // Use await to execute the query
+        const pet = JSON.parse(JSON.stringify(results));
 
-        const user = JSON.parse(JSON.stringify(results));
+       
         res.status(200).json({
-            user,
-            message: 'Fetched successfully',
+            pet,
+            message:messages.SUCCESS_MESSAGE,
         });
     } catch (err) {
         console.error('Error fetching :', err);
         res.status(500).json({
-            message: 'Failed to fetch',
+            message: messages.FAILURE_MESSAGE,
         });
     }
 });
+
 
 
 

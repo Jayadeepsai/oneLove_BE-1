@@ -134,59 +134,71 @@ try{
 });
 
 
+
 registration.put('/update-reg', async (req, res) => {
     try {
         const reg_id = req.query.reg_id;
 
-        const { address, city, state, zip, country, landmark, address_type, mobile_number, email, user_type, user_name  } = req.body;
+        const { address, city, state, zip, country, landmark, address_type, mobile_number, email, user_type, user_name } = req.body;
 
-        let regSql = 'UPDATE onelove.registrations SET'
         let addressSql = 'UPDATE address SET';
         let contact_detailsSql = 'UPDATE contact_details SET';
-        let usersSql  = 'UPDATE users SET';
+        let usersSql = 'UPDATE users SET';
 
-        const regValues =[];
-        const addressvalues = [];
-        const contact_detailsValues = [];
+        const addressValues = [];
+        const contactDetailsValues = [];
         const usersValues = [];
 
+        // Update address table
         if (address !== undefined) {
             addressSql += ' address=?,';
-            addressvalues.push(address);
+            addressValues.push(address);
         }
         if (city !== undefined) {
             addressSql += ' city=?,';
-            addressvalues.push(city);
+            addressValues.push(city);
         }
         if (state !== undefined) {
             addressSql += ' state=?,';
-            addressvalues.push(state);
+            addressValues.push(state);
         }
         if (zip !== undefined) {
             addressSql += ' zip=?,';
-            addressvalues.push(zip);
+            addressValues.push(zip);
         }
         if (country !== undefined) {
             addressSql += ' country=?,';
-            addressvalues.push(country);
+            addressValues.push(country);
         }
         if (landmark !== undefined) {
             addressSql += ' landmark=?,';
-            addressvalues.push(landmark);
+            addressValues.push(landmark);
         }
         if (address_type !== undefined) {
             addressSql += ' address_type=?,';
-            addressvalues.push(address_type);
+            addressValues.push(address_type);
         }
 
+        addressSql = addressSql.slice(0, -1);
+        addressSql += ' WHERE address_id=(SELECT address_id FROM registrations WHERE reg_id=?)';
+        addressValues.push(reg_id);
+
+        // Update contact_details table
         if (mobile_number !== undefined) {
             contact_detailsSql += ' mobile_number=?,';
-            contact_detailsValues.push(mobile_number);
+            contactDetailsValues.push(mobile_number);
         }
         if (email !== undefined) {
             contact_detailsSql += ' email=?,';
-            contact_detailsValues.push(email);
+            contactDetailsValues.push(email);
         }
+    
+
+        contact_detailsSql = contact_detailsSql.slice(0, -1);
+        contact_detailsSql += ' WHERE contact_id=(SELECT contact_id FROM registrations WHERE reg_id=?)';
+        contactDetailsValues.push(reg_id);
+
+        // Update users table
         if (user_type !== undefined) {
             usersSql += ' user_type=?,';
             usersValues.push(user_type);
@@ -196,28 +208,14 @@ registration.put('/update-reg', async (req, res) => {
             usersValues.push(user_name);
         }
 
-        regSql = regSql.slice(0, -1);
-        regSql += ' WHERE reg_id=?';
-        regValues.push(reg_id);
-
-        addressSql = addressSql.slice(0, -1);
-        addressSql += ' WHERE reg_id=(SELECT address_id FROM registations WHERE reg_id=?)';
-        addressvalues.push(reg_id);
-
-        contact_detailsSql = contact_detailsSql.slice(0, -1);
-        contact_detailsSql += ' WHERE reg_id=(SELECT contact_id FROM registrations WHERE reg_id=?)';
-        contact_detailsValues.push(reg_id);
-
         usersSql = usersSql.slice(0, -1);
-        usersSql += ' WHERE reg_id=(SELECT user_id FROM registrations WHERE reg_id=?)';
+        usersSql += ' WHERE user_id=(SELECT user_id FROM registrations WHERE reg_id=?)';
         usersValues.push(reg_id);
 
         await connection.beginTransaction();
 
-       
-        await connection.query(regSql, regValues);
-        await connection.query(addressSql, addressvalues);
-        await connection.query(contact_detailsSql, contact_detailsValues);
+        await connection.query(addressSql, addressValues);
+        await connection.query(contact_detailsSql, contactDetailsValues);
         await connection.query(usersSql, usersValues);
 
         await connection.commit();
@@ -232,95 +230,6 @@ registration.put('/update-reg', async (req, res) => {
     }
 });
 
-
-// registration.put('/update-reg', async (req, res) => {
-//     try {
-//         const reg_id = req.query.reg_id;
-
-//         const { address, city, state, zip, country, landmark, address_type, mobile_number, email, user_type, user_name } = req.body;
-
-//         let regSql = 'UPDATE onelove.registrations SET';
-//         let addressSql = 'UPDATE address SET';
-//         let contact_detailsSql = 'UPDATE contact_details SET';
-//         let usersSql = 'UPDATE users SET';
-
-//         const regValues = [];
-//         const addressValues = [];
-//         const contactDetailsValues = [];
-//         const usersValues = [];
-
-//         // Update registrations table
-//         if (address !== undefined) {
-//             regSql += ' address=?,';
-//             regValues.push(address);
-//         }
-//         // Other fields in registrations table ...
-
-//         regSql = regSql.slice(0, -1);
-//         regSql += ' WHERE reg_id=?';
-//         regValues.push(reg_id);
-
-//         // Fetch corresponding IDs for other tables
-//         const [addressRow] = await connection.query('SELECT address_id FROM registrations WHERE reg_id = ?', [reg_id]);
-//         const address_id = addressRow[0].address_id;
-
-//         const [contactDetailsRow] = await connection.query('SELECT contact_id FROM registrations WHERE reg_id = ?', [reg_id]);
-//         const contact_id = contactDetailsRow[0].contact_id;
-
-//         const [usersRow] = await connection.query('SELECT user_id FROM registrations WHERE reg_id = ?', [reg_id]);
-//         const user_id = usersRow[0].user_id;
-
-//         // Update address table
-//         if (city !== undefined) {
-//             addressSql += ' city=?,';
-//             addressValues.push(city);
-//         }
-//         // Other fields in address table ...
-
-//         addressSql = addressSql.slice(0, -1);
-//         addressSql += ' WHERE address_id=?';
-//         addressValues.push(address_id);
-
-//         // Update contact_details table
-//         if (mobile_number !== undefined) {
-//             contact_detailsSql += ' mobile_number=?,';
-//             contactDetailsValues.push(mobile_number);
-//         }
-//         // Other fields in contact_details table ...
-
-//         contact_detailsSql = contact_detailsSql.slice(0, -1);
-//         contact_detailsSql += ' WHERE contact_id=?';
-//         contactDetailsValues.push(contact_id);
-
-//         // Update users table
-//         if (user_type !== undefined) {
-//             usersSql += ' user_type=?,';
-//             usersValues.push(user_type);
-//         }
-//         // Other fields in users table ...
-
-//         usersSql = usersSql.slice(0, -1);
-//         usersSql += ' WHERE user_id=?';
-//         usersValues.push(user_id);
-
-//         await connection.beginTransaction();
-
-//         await connection.query(regSql, regValues);
-//         await connection.query(addressSql, addressValues);
-//         await connection.query(contact_detailsSql, contactDetailsValues);
-//         await connection.query(usersSql, usersValues);
-
-//         await connection.commit();
-
-//         res.status(200).json({
-//             message: messages.DATA_UPDATED,
-//         });
-//     } catch (err) {
-//         await connection.rollback();
-//         console.error('Error updating data:', err.message);
-//         res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
-//     }
-// });
 
 
 

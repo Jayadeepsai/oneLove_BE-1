@@ -14,10 +14,9 @@ connection.connect(function (error) {
     if (error) throw error
      else{
         console.log('connected to mysql database')
-    //  var sql = `ALTER TABLE onelove.inventory
-    //  ADD COLUMN address_id INT,
-    //  ADD CONSTRAINT fk_address_id_inventory
-    //  FOREIGN KEY (address_id) REFERENCES onelove.address(address_id);`
+    //  var sql = `ALTER TABLE onelove.posts
+    //  ADD COLUMN pet_id INT,
+    //  ADD FOREIGN KEY (pet_id) REFERENCES onelove.pet(pet_id);`
      
     
 

@@ -153,6 +153,10 @@ CREATE TABLE onelove.service (
     FOREIGN KEY (user_id) REFERENCES onelove.users(user_id)
 );
 
+ALTER TABLE onelove.posts
+ADD COLUMN pet_id INT,
+ADD FOREIGN KEY (pet_id) REFERENCES onelove.pet(pet_id);
+
 
 
 CREATE TABLE onelove.pet (
