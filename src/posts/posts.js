@@ -110,11 +110,13 @@ posts.get('/user-posts', async (req, res) => {
         });
     }
 
-    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
+    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*, a.*, c.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
     FROM onelove.posts p
     LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
     LEFT JOIN images i1 ON p.image_id = i1.image_id
     LEFT JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN address a ON u.address_id = a.address_id
+    LEFT JOIN contact_details c on u.contact_id = c.contact_id
     LEFT JOIN pet e ON p.pet_id = e.pet_id
     LEFT JOIN images i2 ON e.image_id = i2.image_id
     WHERE p.user_id = ?`;
@@ -164,11 +166,13 @@ posts.get('/posts-pet-user', async (req, res) => {
             values.push(pet_id);
         }
 
-        let sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
+        let sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*,a.*,c.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
         FROM onelove.posts p
         LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
         LEFT JOIN images i1 ON p.image_id = i1.image_id
         LEFT JOIN users u ON p.user_id = u.user_id
+        LEFT JOIN address a ON u.address_id = a.address_id
+        LEFT JOIN contact_details c on u.contact_id = c.contact_id
         LEFT JOIN pet e ON p.pet_id = e.pet_id
         LEFT JOIN images i2 ON e.image_id = i2.image_id
        `;

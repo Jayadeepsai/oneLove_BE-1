@@ -127,27 +127,27 @@ try{
     });
 
 }catch(error){
-    console.log("Error", err);
+    console.log("Error", error);
     res.status(500).json({ message: "Failed to fetch register data." });
 }
 
 });
 
 
-registration.get('/registration-contact-id', async(req,res)=>{
+registration.get('/registration-mobile-number', async(req,res)=>{
 
-    const contact_id = req.query.contact_id;
+    const mobile_number = req.query.mobile_number;
     try{
-        if (!contact_id) {
-            return res.status(400).json({ message: "contact_id is required as a query parameter" });
+        if (!mobile_number) {
+            return res.status(400).json({ message: "mobile_number is required as a query parameter" });
         }
     
         const sql =`SELECT a.*, c.*, u.*, r.*
         FROM onelove.registrations r
         LEFT JOIN address a ON r.address_id = a.address_id
         LEFT JOIN contact_details c ON r.contact_id = c.contact_id
-        LEFT JOIN users u ON r.user_id = u.user_id WHERE r.contact_id=?`;
-        const [data] = await connection.query(sql,[contact_id]);
+        LEFT JOIN users u ON r.user_id = u.user_id WHERE c.mobile_number=?`;
+        const [data] = await connection.query(sql,[mobile_number]);
     
         if (data.length === 0) {
             return res.status(404).json({ message: "Registration not found" });
@@ -159,7 +159,7 @@ registration.get('/registration-contact-id', async(req,res)=>{
         });
     
     }catch(error){
-        console.log("Error", err);
+        console.log("Error", error);
         res.status(500).json({ message: "Failed to fetch register data." });
     }
     
