@@ -33,12 +33,13 @@ posts.post('/posts',async (req,res)=>{
 
 posts.get('/posts', async (req,res)=>{
 
-    const sql = `SELECT p.*, l.*, i.*, u.*,e.*
-                     FROM onelove.posts p
-                     LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
-                     LEFT JOIN images i ON p.image_id = i.image_id
-                     LEFT JOIN users u ON p.user_id=u.user_id
-                     LEFT JOIN pet e ON p.pet_id=e.pet_id`;
+    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
+    FROM onelove.posts p
+    LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
+    LEFT JOIN images i1 ON p.image_id = i1.image_id
+    LEFT JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN pet e ON p.pet_id = e.pet_id
+    LEFT JOIN images i2 ON e.image_id = i2.image_id`;
 
     try{
          const [results]= await db.query(sql);
@@ -66,12 +67,13 @@ posts.get('/posts-id', async (req, res) => {
         });
     }
 
-    const sql = `SELECT p.*, l.*, i.*, u.*,e.* 
-                 FROM onelove.posts p
-                 LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
-                 LEFT JOIN images i ON p.image_id = i.image_id
-                 LEFT JOIN users u ON p.user_id = u.user_id
-                 LEFT JOIN pet e ON p.pet_id=e.pet_id
+    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
+    FROM onelove.posts p
+    LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
+    LEFT JOIN images i1 ON p.image_id = i1.image_id
+    LEFT JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN pet e ON p.pet_id = e.pet_id
+    LEFT JOIN images i2 ON e.image_id = i2.image_id
                  WHERE p.post_id = ?`; 
 
     try {
@@ -108,13 +110,14 @@ posts.get('/user-posts', async (req, res) => {
         });
     }
 
-    const sql = `SELECT p.*, l.*, i.*, u.*,e.* 
-                 FROM onelove.posts p
-                 LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
-                 LEFT JOIN images i ON p.image_id = i.image_id
-                 LEFT JOIN users u ON p.user_id = u.user_id
-                 LEFT JOIN pet e ON p.pet_id=e.pet_id
-                 WHERE p.user_id = ?`;
+    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
+    FROM onelove.posts p
+    LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
+    LEFT JOIN images i1 ON p.image_id = i1.image_id
+    LEFT JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN pet e ON p.pet_id = e.pet_id
+    LEFT JOIN images i2 ON e.image_id = i2.image_id
+    WHERE p.user_id = ?`;
 
     try {
         const [results] = await db.query(sql, [userId]);
@@ -161,12 +164,14 @@ posts.get('/posts-pet-user', async (req, res) => {
             values.push(pet_id);
         }
 
-        let sql = `SELECT p.*, l.*, i.*, u.*,e.* 
+        let sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
         FROM onelove.posts p
         LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
-        LEFT JOIN images i ON p.image_id = i.image_id
+        LEFT JOIN images i1 ON p.image_id = i1.image_id
         LEFT JOIN users u ON p.user_id = u.user_id
-        LEFT JOIN pet e ON p.pet_id=e.pet_id`;
+        LEFT JOIN pet e ON p.pet_id = e.pet_id
+        LEFT JOIN images i2 ON e.image_id = i2.image_id
+       `;
         
         if (condition) {
             sql += ' WHERE ' + condition;
@@ -178,11 +183,11 @@ posts.get('/posts-pet-user', async (req, res) => {
         if (postData.length > 0) {
             res.status(200).json({
                 postData,
-                message:messages.SUCCESS_MESSAGE,
+                message: messages.SUCCESS_MESSAGE,
             });
         } else {
             res.status(404).json({
-                message:  messages.NO_DATA,
+                message: messages.NO_DATA,
             });
         }
     } catch (err) {
@@ -192,6 +197,8 @@ posts.get('/posts-pet-user', async (req, res) => {
         });
     }
 });
+
+
 
 
 
