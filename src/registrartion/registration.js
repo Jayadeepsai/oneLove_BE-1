@@ -134,6 +134,36 @@ try{
 });
 
 
+registration.get('/registration-contact-id', async(req,res)=>{
+
+    const contact_id = req.query.contact_id;
+    try{
+        if (!contact_id) {
+            return res.status(400).json({ message: "contact_id is required as a query parameter" });
+        }
+    
+        const sql =`SELECT a.*, c.*, u.*, r.*
+        FROM onelove.registrations r
+        LEFT JOIN address a ON r.address_id = a.address_id
+        LEFT JOIN contact_details c ON r.contact_id = c.contact_id
+        LEFT JOIN users u ON r.user_id = u.user_id WHERE r.contact_id=?`;
+        const [data] = await connection.query(sql,[contact_id]);
+    
+        if (data.length === 0) {
+            return res.status(404).json({ message: "Registration not found" });
+        }
+    
+        res.status(200).json({
+            registrationData: data,
+            message: "Registration Data"
+        });
+    
+    }catch(error){
+        console.log("Error", err);
+        res.status(500).json({ message: "Failed to fetch register data." });
+    }
+    
+    });
 
 registration.put('/update-reg', async (req, res) => {
     try {
