@@ -7,8 +7,8 @@ const messages = require('../messages/constants')
 registration.use(express.json()); // To parse JSON bodies
 registration.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
-async function performTransaction(req, res) { // Pass req and res as arguments
-    // const connection = await db.getConnection();
+
+async function performTransaction(req, res) {
 
     try {
         // Start the transaction
@@ -30,27 +30,98 @@ async function performTransaction(req, res) { // Pass req and res as arguments
         const [contactResult] = await connection.query(contactQuery, contactValues);
         const contact_id = contactResult.insertId;
 
-        // Insert into users table
         const { user_type, user_name } = req.body;
-        const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id) VALUES (?, ?, ?, ?)';
-        const userValues = [user_type, user_name, address_id, contact_id];
+        
+        // Initialize clinic_id and service_id as null
+        let clinic_id = null;
+        let service_id = null;
+        let store_id = null;
 
-        const [userResult] = await connection.query(userQuery, userValues);
-        const user_id = userResult.insertId;
+        if (user_type === 'pet_owner') {
+            // Insert into users and registrations tables for pet_owner
+            const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+            const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
 
-        // Insert into registrations table
-        const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
-        const regValues = [user_id, address_id, contact_id];
+            const [userResult] = await connection.query(userQuery, userValues);
+            const user_id = userResult.insertId;
 
-        await connection.query(regQuery, regValues);
+            // Insert into registrations table
+            const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+            const regValues = [user_id, address_id, contact_id];
+
+            await connection.query(regQuery, regValues);
+        } else if (user_type === 'pet_trainer') {
+            // Insert into service table for pet_doctor
+            const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming } = req.body;
+            const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+            const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming];
+            
+            const [serviceResult] = await connection.query(serviceQuery, serviceValues);
+            service_id = serviceResult.insertId;
+
+            // Insert into users and registrations tables for pet_doctor
+            const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+            const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+
+            const [userResult] = await connection.query(userQuery, userValues);
+            const user_id = userResult.insertId;
+
+            // Insert into registrations table
+            const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+            const regValues = [user_id, address_id, contact_id];
+
+            await connection.query(regQuery, regValues);
+        } else if (user_type === 'pet_doctor') {
+            // Insert into clinic table for pet_trainer
+            const { clinic_name, specialisation, clinic_license, experience, education } = req.body;
+            const clinicQuery = 'INSERT INTO onelove.clinics (clinic_name, specialisation, clinic_license, experience, education) VALUES (?, ?, ?, ?, ?)';
+            const clinicValues = [clinic_name, specialisation, clinic_license, experience, education];
+
+            const [clinicResult] = await connection.query(clinicQuery, clinicValues);
+            clinic_id = clinicResult.insertId;
+
+            // Insert into users and registrations tables for pet_trainer
+            const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+            const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+
+            const [userResult] = await connection.query(userQuery, userValues);
+            const user_id = userResult.insertId;
+
+            // Insert into registrations table
+            const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+            const regValues = [user_id, address_id, contact_id];
+
+            await connection.query(regQuery, regValues);
+        }else if(user_type === 'pet_store') {
+            const { store_name, discounts, item_id, order_id, payment_id, inventory_id } = req.body;
+            const storeQuery = 'INSERT INTO onelove.store (store_name, discounts, item_id, order_id, payment_id, inventory_id) VALUES (?, ?, ?, ?, ?, ?)';
+            const storeValues =[ store_name, discounts, item_id, order_id, payment_id, inventory_id ];
+
+            const [storeResult] = await connection.query(storeQuery,storeValues);
+            store_id = storeResult.insertId;
+
+             // Insert into users and registrations tables for pet_trainer
+             const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+             const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+ 
+             const [userResult] = await connection.query(userQuery, userValues);
+             const user_id = userResult.insertId;
+ 
+             // Insert into registrations table
+             const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+             const regValues = [user_id, address_id, contact_id];
+ 
+             await connection.query(regQuery, regValues);
+        }
 
         // Commit the transaction if all queries are successful
         await connection.commit();
 
-        console.log('Transaction committed successfully.');
+        
 
         // Send a success response to the client
         res.status(200).json({ message: 'Transaction committed successfully.' });
+        console.log('Transaction committed successfully.');
     } catch (error) {
         // Rollback the transaction if any query fails
         await connection.rollback();
@@ -90,13 +161,13 @@ registration.get('/registration', async (req, res) => {
 
         res.status(200).json({
             registrationData: data,
-            message: "All registers data"
+            message: messages.SUCCESS_MESSAGE
         });
 
     } catch (error) {
         console.error('Error fetching registers data:', error.message);
         res.status(500).json({
-            message: 'Failed to fetch registers data.'
+            message: messages.FAILURE_MESSAGE
         });
     }
 });
@@ -107,7 +178,7 @@ registration.get('/registration-id', async(req,res)=>{
 const reg_id = req.query.reg_id;
 try{
     if (!reg_id) {
-        return res.status(400).json({ message: "reg_id is required as a query parameter" });
+        return res.status(400).json({ message:messages.NO_DATA });
     }
 
     const sql =`SELECT a.*, c.*, u.*, r.*
@@ -118,7 +189,7 @@ try{
     const [data] = await connection.query(sql,[reg_id]);
 
     if (data.length === 0) {
-        return res.status(404).json({ message: "Registration not found" });
+        return res.status(404).json({ message: messages.SUCCESS_MESSAGE  });
     }
 
     res.status(200).json({
@@ -128,7 +199,7 @@ try{
 
 }catch(error){
     console.log("Error", error);
-    res.status(500).json({ message: "Failed to fetch register data." });
+    res.status(500).json({ message:messages.FAILURE_MESSAGE});
 }
 
 });
@@ -139,7 +210,7 @@ registration.get('/registration-mobile-number', async(req,res)=>{
     const mobile_number = req.query.mobile_number;
     try{
         if (!mobile_number) {
-            return res.status(400).json({ message: "mobile_number is required as a query parameter" });
+            return res.status(400).json({ message: messages.NO_DATA });
         }
     
         const sql =`SELECT a.*, c.*, u.*, r.*
@@ -150,7 +221,7 @@ registration.get('/registration-mobile-number', async(req,res)=>{
         const [data] = await connection.query(sql,[mobile_number]);
     
         if (data.length === 0) {
-            return res.status(404).json({ message: "Registration not found" });
+            return res.status(404).json({ message: messages.SUCCESS_MESSAGE });
         }
     
         res.status(200).json({
@@ -160,10 +231,13 @@ registration.get('/registration-mobile-number', async(req,res)=>{
     
     }catch(error){
         console.log("Error", error);
-        res.status(500).json({ message: "Failed to fetch register data." });
+        res.status(500).json({ message:messages.FAILURE_MESSAGE});
     }
     
     });
+
+
+    
 
 registration.put('/update-reg', async (req, res) => {
     try {
@@ -261,7 +335,23 @@ registration.put('/update-reg', async (req, res) => {
 });
 
 
+registration.delete('/delete-registration-data', async (req, res) => {
+    const reg_id = req.query.reg_id;
+    const sql = 'DELETE FROM `registrations` WHERE `reg_id`=?';
 
+    try {
+        // Execute the delete query
+        const [result] = await connection.query(sql, reg_id);
+
+        res.status(200).json({
+            deletedData: result,
+            message: messages.DATA_DELETED
+        });
+    } catch (err) {
+        console.error("Error deleting data", err.message);
+        res.status(400).json({ message: messages.FAILED_TO_DELETE });
+    }
+});
 
 
 module.exports=registration;

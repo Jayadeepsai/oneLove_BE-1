@@ -35,6 +35,8 @@ CREATE TABLE onelove.images (
         image_url BLOB
     );
 
+ALTER TABLE `onelove`.`images` 
+CHANGE COLUMN `image_url` `image_url` VARCHAR(60000) NULL DEFAULT NULL ;
 
 
 
@@ -73,6 +75,26 @@ CREATE TABLE onelove.service (
     FOREIGN KEY (time_id) REFERENCES onelove.time(time_id),
     FOREIGN KEY (user_id) REFERENCES onelove.users(user_id)
 );
+
+ALTER TABLE onelove.service
+DROP COLUMN service_price,
+DROP COLUMN service_name,
+DROP COLUMN service_description,
+ADD COLUMN pet_walking BOOLEAN,
+ADD COLUMN pet_sitting BOOLEAN,
+ADD COLUMN pet_boarding BOOLEAN,
+ADD COLUMN event_training BOOLEAN,
+ADD COLUMN training_workshop BOOLEAN,
+ADD COLUMN adoption_drives BOOLEAN,
+ADD COLUMN pet_intelligence_rank_card BOOLEAN,
+ADD COLUMN pet_grooming BOOLEAN;
+
+ALTER TABLE `onelove`.`service` 
+DROP FOREIGN KEY `service_ibfk_2`;
+ALTER TABLE `onelove`.`service` 
+DROP COLUMN `user_id`,
+DROP INDEX `user_id` ;
+;
 
 
 
@@ -194,7 +216,12 @@ ALTER TABLE `onelove`.`clinics`
 ADD COLUMN `experience` VARCHAR(45) NULL AFTER `clinic_license`,
 ADD COLUMN `education` VARCHAR(45) NULL AFTER `experience`;
 
-
+ALTER TABLE `onelove`.`clinics` 
+DROP FOREIGN KEY `fk_clinics_user`;
+ALTER TABLE `onelove`.`clinics` 
+DROP COLUMN `user_id`,
+DROP INDEX `fk_clinics_user` ;
+;
 
 CREATE TABLE onelove.users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -213,6 +240,17 @@ CREATE TABLE onelove.users (
 ALTER TABLE onelove.users
      MODIFY COLUMN user_type VARCHAR(45) NOT NULL,
      ADD COLUMN user_name VARCHAR(100) NOT NULL;
+
+
+ALTER TABLE onelove.users
+     ADD COLUMN store_id INT,
+     ADD COLUMN service_id INT,
+     ADD COLUMN clinic_id INT,
+     ADD FOREIGN KEY (store_id) REFERENCES onelove.store(store_id),
+     ADD FOREIGN KEY (service_id) REFERENCES onelove.service(service_id),
+     ADD FOREIGN KEY (clinic_id) REFERENCES onelove.clinics(clinic_id);
+
+     
 
 ALTER TABLE `onelove`.`users` 
 DROP FOREIGN KEY `users_ibfk_4`,
@@ -322,6 +360,14 @@ CREATE TABLE onelove.store (
 
 ALTER TABLE onelove.store
 ADD COLUMN store_name VARCHAR(99) NOT NULL AFTER store_id;
+
+
+ALTER TABLE `onelove`.`store` 
+DROP FOREIGN KEY `store_ibfk_2`;
+ALTER TABLE `onelove`.`store` 
+DROP COLUMN `address_id`,
+DROP INDEX `address_id` ;
+;
 
 
 

@@ -14,9 +14,13 @@ connection.connect(function (error) {
     if (error) throw error
      else{
         console.log('connected to mysql database')
-    //  var sql = `ALTER TABLE onelove.posts
-    //  ADD COLUMN pet_id INT,
-    //  ADD FOREIGN KEY (pet_id) REFERENCES onelove.pet(pet_id);`
+    //  var sql = `ALTER TABLE onelove.users
+    //  ADD COLUMN store_id INT,
+    //  ADD COLUMN service_id INT,
+    //  ADD COLUMN clinic_id INT,
+    //  ADD FOREIGN KEY (store_id) REFERENCES onelove.store(store_id),
+    //  ADD FOREIGN KEY (service_id) REFERENCES onelove.service(service_id),
+    //  ADD FOREIGN KEY (clinic_id) REFERENCES onelove.clinics(clinic_id);`
      
     
 
