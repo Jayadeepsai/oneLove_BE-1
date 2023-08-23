@@ -21,9 +21,9 @@ try{
         const [timeResult] = await db.query(timeQuery, timeValues);
         const time_id = timeResult.insertId;
 
-        const {clinic_name, specialisation, clinic_license, experience, education, user_id} = req.body;
-        const clinicQuery ='INSERT INTO onelove.clinics(clinic_name, specialisation, clinic_license, experience, education, time_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        const clinicValues = [clinic_name, specialisation, clinic_license, experience, education, time_id, user_id]
+        const {clinic_name, specialisation, clinic_license, experience, education} = req.body;
+        const clinicQuery ='INSERT INTO onelove.clinics(clinic_name, specialisation, clinic_license, experience, education, time_id) VALUES (?, ?, ?, ?, ?, ?)';
+        const clinicValues = [clinic_name, specialisation, clinic_license, experience, education, time_id]
 
         await db.query(clinicQuery,clinicValues)
 
@@ -57,12 +57,12 @@ clinic.post('/clinic', (req, res) => {
 clinic.get('/clinic',async(req,res)=>{
 
     const sql = `
-    SELECT u.*, a.*, c.*, s.*, t.*
-    FROM clinics s
-    LEFT JOIN time t ON s.time_id = t.time_id
-    LEFT JOIN users u ON s.user_id = u.user_id
+    SELECT  s.*, t.*,u.*,a.*,c.*
+    FROM users u
     LEFT JOIN address a ON u.address_id = a.address_id
-    LEFT JOIN contact_details c ON u.contact_id = c.contact_id`;
+    LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+    LEFT JOIN clinics s ON u.clinic_id = s.clinic_id
+    LEFT JOIN time t ON s.time_id = t.time_id`;
 
     try{
     const [results] = await db.query(sql);
@@ -98,13 +98,13 @@ clinic.get('/clinic-user-id', async(req,res)=>{
     }
 
     const sql = `
-    SELECT u.*, a.*, c.*, s.*, t.*
-    FROM clinics s
-    LEFT JOIN time t ON s.time_id = t.time_id
-    LEFT JOIN users u ON s.user_id = u.user_id
+    SELECT  s.*, t.*,u.*,a.*,c.*
+    FROM users u
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-    WHERE s.user_id = ?`;
+    LEFT JOIN clinics s ON u.clinic_id = s.clinic_id
+    LEFT JOIN time t ON s.time_id = t.time_id
+    WHERE u.user_id = ?`;
     try{
         const [results] = await db.query(sql, [userId]);
         const clinicData = JSON.parse(JSON.stringify(results));
@@ -129,10 +129,17 @@ clinic.get('/clinic-user-id', async(req,res)=>{
 });
 
 
-clinic.put('/update-clinic', async (req, res) => {
-    try {
-        const user_id = req.query.user_id;
 
+clinic.put('/update-clinic', async (req, res) => {
+    const clinic_id = req.query.clinic_id;
+
+    if (!clinic_id) {
+        return res.status(400).json({
+            message: messages.INVALID_ID,
+        });
+    }
+
+    try {
         const { clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, service_start_time, service_end_time } = req.body;
 
         let clinicSql = 'UPDATE onelove.clinics SET';
@@ -180,12 +187,12 @@ clinic.put('/update-clinic', async (req, res) => {
         }
 
         clinicSql = clinicSql.slice(0, -1);
-        clinicSql += ' WHERE user_id=?';
-        values.push(user_id);
+        clinicSql += ' WHERE clinic_id=?';
+        values.push(clinic_id);
 
         timeSql = timeSql.slice(0, -1);
-        timeSql += ' WHERE time_id=(SELECT time_id FROM clinics WHERE user_id=?)';
-        timeValues.push(user_id);
+        timeSql += ' WHERE time_id=(SELECT time_id FROM clinics WHERE clinic_id=?)';
+        timeValues.push(clinic_id);
 
         await db.beginTransaction();
 
@@ -208,31 +215,7 @@ clinic.put('/update-clinic', async (req, res) => {
 });
 
 
-clinic.delete('/delete-clinic', async (req, res) => {
-    try {
-        const user_id = req.query.user_id;
 
-        const sql = `DELETE FROM onelove.clinics WHERE user_id = ?`;
-
-        const [result] = await db.query(sql, [user_id]); 
-
-        // Check if the post was deleted successfully
-        if (result.affectedRows === 0) {
-            res.status(404).json({
-                message: messages.INVALID_ID,
-            });
-        } else {
-            res.status(200).json({
-                message: messages.DATA_DELETED,
-            });
-        }
-    } catch (err) {
-        console.error('Error deleting post:', err);
-        res.status(500).json({
-            message: messages.FAILED_TO_DELETE,
-        });
-    }
-});
 
 
 

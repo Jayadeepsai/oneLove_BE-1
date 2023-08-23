@@ -8,120 +8,258 @@ registration.use(express.json()); // To parse JSON bodies
 registration.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-async function performTransaction(req, res) {
+// async function performTransaction(req, res) {
 
+//     try {
+//         // Start the transaction
+//         await connection.beginTransaction();
+
+//         // Insert into address table
+//         const { address, city, state, zip, country, landmark, address_type } = req.body;
+//         const addressQuery = 'INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type) VALUES (?, ?, ?, ?, ?, ?, ?)';
+//         const addressValues = [address, city, state, zip, country, landmark, address_type];
+
+//         const [addressResult] = await connection.query(addressQuery, addressValues);
+//         const address_id = addressResult.insertId;
+
+//         // Insert into contact_details table
+//         const { mobile_number, email } = req.body;
+//         const contactQuery = 'INSERT INTO onelove.contact_details (mobile_number, email) VALUES (?, ?)';
+//         const contactValues = [mobile_number, email];
+
+//         const [contactResult] = await connection.query(contactQuery, contactValues);
+//         const contact_id = contactResult.insertId;
+
+//         const { user_type, user_name } = req.body;
+        
+//         // Initialize clinic_id and service_id as null
+//         let clinic_id = null;
+//         let service_id = null;
+//         let store_id = null;
+
+//         if (user_type === 'pet_owner') {
+//             // Insert into users and registrations tables for pet_owner
+//             const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+//             const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+
+//             const [userResult] = await connection.query(userQuery, userValues);
+//             const user_id = userResult.insertId;
+
+//             // Insert into registrations table
+//             const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+//             const regValues = [user_id, address_id, contact_id];
+
+//             await connection.query(regQuery, regValues);
+//         } else if (user_type === 'pet_trainer') {
+//             // Insert into service table for pet_doctor
+//             const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming } = req.body;
+//             const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+//             const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming];
+            
+//             const [serviceResult] = await connection.query(serviceQuery, serviceValues);
+//             service_id = serviceResult.insertId;
+
+//             // Insert into users and registrations tables for pet_doctor
+//             const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+//             const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+
+//             const [userResult] = await connection.query(userQuery, userValues);
+//             const user_id = userResult.insertId;
+
+//             // Insert into registrations table
+//             const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+//             const regValues = [user_id, address_id, contact_id];
+
+//             await connection.query(regQuery, regValues);
+//         } else if (user_type === 'pet_doctor') {
+//             // Insert into clinic table for pet_trainer
+//             const { clinic_name, specialisation, clinic_license, experience, education } = req.body;
+//             const clinicQuery = 'INSERT INTO onelove.clinics (clinic_name, specialisation, clinic_license, experience, education) VALUES (?, ?, ?, ?, ?)';
+//             const clinicValues = [clinic_name, specialisation, clinic_license, experience, education];
+
+//             const [clinicResult] = await connection.query(clinicQuery, clinicValues);
+//             clinic_id = clinicResult.insertId;
+
+//             // Insert into users and registrations tables for pet_trainer
+//             const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+//             const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+
+//             const [userResult] = await connection.query(userQuery, userValues);
+//             const user_id = userResult.insertId;
+
+//             // Insert into registrations table
+//             const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+//             const regValues = [user_id, address_id, contact_id];
+
+//             await connection.query(regQuery, regValues);
+//         }else if(user_type === 'pet_store') {
+//             const { store_name, discounts, item_id, order_id, payment_id, inventory_id } = req.body;
+//             const storeQuery = 'INSERT INTO onelove.store (store_name, discounts, item_id, order_id, payment_id, inventory_id) VALUES (?, ?, ?, ?, ?, ?)';
+//             const storeValues =[ store_name, discounts, item_id, order_id, payment_id, inventory_id ];
+
+//             const [storeResult] = await connection.query(storeQuery,storeValues);
+//             store_id = storeResult.insertId;
+
+//              // Insert into users and registrations tables for pet_trainer
+//              const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+//              const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+ 
+//              const [userResult] = await connection.query(userQuery, userValues);
+//              const user_id = userResult.insertId;
+ 
+//              // Insert into registrations table
+//              const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+//              const regValues = [user_id, address_id, contact_id];
+ 
+//              await connection.query(regQuery, regValues);
+//         }
+
+//         // Commit the transaction if all queries are successful
+//         await connection.commit();
+
+        
+
+//         // Send a success response to the client
+//         res.status(200).json({ message: 'Transaction committed successfully.' });
+//         console.log('Transaction committed successfully.');
+//     } catch (error) {
+//         // Rollback the transaction if any query fails
+//         await connection.rollback();
+
+//         console.error('Error in transaction:', error.message);
+
+//         // Send an error response to the client
+//         res.status(500).json({ message: 'Failed to perform transaction.' });
+//     }
+//     //  finally {
+//     //     // Release the connection back to the pool
+//     //     connection.release();
+//     // }
+// }
+
+
+async function performTransaction(req, res) {
     try {
         // Start the transaction
         await connection.beginTransaction();
 
-        // Insert into address table
-        const { address, city, state, zip, country, landmark, address_type } = req.body;
-        const addressQuery = 'INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        const addressValues = [address, city, state, zip, country, landmark, address_type];
+       // Insert into address table
+       const { address, city, state, zip, country, landmark, address_type } = req.body;
+       const addressQuery = 'INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type) VALUES (?, ?, ?, ?, ?, ?, ?)';
+       const addressValues = [address, city, state, zip, country, landmark, address_type];
 
-        const [addressResult] = await connection.query(addressQuery, addressValues);
-        const address_id = addressResult.insertId;
+       const [addressResult] = await connection.query(addressQuery, addressValues);
+       const address_id = addressResult.insertId;
 
-        // Insert into contact_details table
-        const { mobile_number, email } = req.body;
-        const contactQuery = 'INSERT INTO onelove.contact_details (mobile_number, email) VALUES (?, ?)';
-        const contactValues = [mobile_number, email];
+       // Insert into contact_details table
+       const { mobile_number, email } = req.body;
+       const contactQuery = 'INSERT INTO onelove.contact_details (mobile_number, email) VALUES (?, ?)';
+       const contactValues = [mobile_number, email];
 
-        const [contactResult] = await connection.query(contactQuery, contactValues);
-        const contact_id = contactResult.insertId;
+       const [contactResult] = await connection.query(contactQuery, contactValues);
+       const contact_id = contactResult.insertId;
 
         const { user_type, user_name } = req.body;
         
-        // Initialize clinic_id and service_id as null
+        // Initialize clinic_id, service_id, and store_id as null
         let clinic_id = null;
         let service_id = null;
         let store_id = null;
 
-        if (user_type === 'pet_owner') {
-            // Insert into users and registrations tables for pet_owner
-            const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-            const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+        switch (user_type) {
+            case 'pet_owner':
+                const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+                const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+    
+                const [userResult] = await connection.query(userQuery, userValues);
+                const user_id = userResult.insertId;
+    
+                // Insert into registrations table
+                const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+                const regValues = [user_id, address_id, contact_id];
+    
+                await connection.query(regQuery, regValues);
+                break;
 
-            const [userResult] = await connection.query(userQuery, userValues);
-            const user_id = userResult.insertId;
-
-            // Insert into registrations table
-            const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
-            const regValues = [user_id, address_id, contact_id];
-
-            await connection.query(regQuery, regValues);
-        } else if (user_type === 'pet_trainer') {
-            // Insert into service table for pet_doctor
-            const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming } = req.body;
-            const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-            const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming];
-            
-            const [serviceResult] = await connection.query(serviceQuery, serviceValues);
-            service_id = serviceResult.insertId;
+            case 'pet_trainer':
+               // Insert into service table for pet_doctor
+                const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming } = req.body;
+                const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming];
+             
+                const [serviceResult] = await connection.query(serviceQuery, serviceValues);
+                service_id = serviceResult.insertId;
 
             // Insert into users and registrations tables for pet_doctor
-            const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-            const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+                const userQuery1 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+                const userValues1 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
 
-            const [userResult] = await connection.query(userQuery, userValues);
-            const user_id = userResult.insertId;
-
-            // Insert into registrations table
-            const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
-            const regValues = [user_id, address_id, contact_id];
-
-            await connection.query(regQuery, regValues);
-        } else if (user_type === 'pet_doctor') {
-            // Insert into clinic table for pet_trainer
-            const { clinic_name, specialisation, clinic_license, experience, education } = req.body;
-            const clinicQuery = 'INSERT INTO onelove.clinics (clinic_name, specialisation, clinic_license, experience, education) VALUES (?, ?, ?, ?, ?)';
-            const clinicValues = [clinic_name, specialisation, clinic_license, experience, education];
-
-            const [clinicResult] = await connection.query(clinicQuery, clinicValues);
-            clinic_id = clinicResult.insertId;
-
-            // Insert into users and registrations tables for pet_trainer
-            const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-            const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
-
-            const [userResult] = await connection.query(userQuery, userValues);
-            const user_id = userResult.insertId;
+                const [userResult1] = await connection.query(userQuery1, userValues1);
+                const user_id1 = userResult1.insertId;
 
             // Insert into registrations table
-            const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
-            const regValues = [user_id, address_id, contact_id];
+                const regQuery1 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+                const regValues1 = [user_id1, address_id, contact_id];
 
-            await connection.query(regQuery, regValues);
-        }else if(user_type === 'pet_store') {
-            const { store_name, discounts, item_id, order_id, payment_id, inventory_id } = req.body;
-            const storeQuery = 'INSERT INTO onelove.store (store_name, discounts, item_id, order_id, payment_id, inventory_id) VALUES (?, ?, ?, ?, ?, ?)';
-            const storeValues =[ store_name, discounts, item_id, order_id, payment_id, inventory_id ];
+            await connection.query(regQuery1, regValues1);
+                break;
 
-            const [storeResult] = await connection.query(storeQuery,storeValues);
-            store_id = storeResult.insertId;
+            case 'pet_doctor':
+                const { clinic_name, specialisation, clinic_license, experience, education } = req.body;
+                const clinicQuery = 'INSERT INTO onelove.clinics (clinic_name, specialisation, clinic_license, experience, education) VALUES (?, ?, ?, ?, ?)';
+                const clinicValues = [clinic_name, specialisation, clinic_license, experience, education];
+    
+                const [clinicResult] = await connection.query(clinicQuery, clinicValues);
+                clinic_id = clinicResult.insertId;
+    
+                // Insert into users and registrations tables for pet_trainer
+                const userQuery2 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+                const userValues2 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+    
+                const [userResult2] = await connection.query(userQuery2, userValues2);
+                const user_id2 = userResult2.insertId;
+    
+                // Insert into registrations table
+                const regQuery2 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+                const regValues2 = [user_id2, address_id, contact_id];
+    
+                await connection.query(regQuery2, regValues2);
+                break;
+
+            case 'pet_store':
+                const { store_name, discounts, item_id, order_id, payment_id, inventory_id } = req.body;
+                const storeQuery = 'INSERT INTO onelove.store (store_name, discounts, item_id, order_id, payment_id, inventory_id) VALUES (?, ?, ?, ?, ?, ?)';
+                const storeValues =[ store_name, discounts, item_id, order_id, payment_id, inventory_id ];
+
+                const [storeResult] = await connection.query(storeQuery,storeValues);
+                store_id = storeResult.insertId;
 
              // Insert into users and registrations tables for pet_trainer
-             const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-             const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+                const userQuery3 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+                const userValues3 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
  
-             const [userResult] = await connection.query(userQuery, userValues);
-             const user_id = userResult.insertId;
+                const [userResult3] = await connection.query(userQuery3, userValues3);
+                const user_id3 = userResult3.insertId;
  
              // Insert into registrations table
-             const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
-             const regValues = [user_id, address_id, contact_id];
+                const regQuery3 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
+                const regValues3 = [user_id3, address_id, contact_id];
  
-             await connection.query(regQuery, regValues);
+             await connection.query(regQuery3, regValues3);
+                break;
+
+            default:
+                res.status(400).json({message:"user_type you have choosen is invalid"});
+                break;
         }
 
         // Commit the transaction if all queries are successful
         await connection.commit();
 
-        
+        console.log('Transaction committed successfully.');
 
         // Send a success response to the client
         res.status(200).json({ message: 'Transaction committed successfully.' });
-        console.log('Transaction committed successfully.');
     } catch (error) {
         // Rollback the transaction if any query fails
         await connection.rollback();
@@ -131,11 +269,8 @@ async function performTransaction(req, res) {
         // Send an error response to the client
         res.status(500).json({ message: 'Failed to perform transaction.' });
     }
-    //  finally {
-    //     // Release the connection back to the pool
-    //     connection.release();
-    // }
 }
+
 
 
 registration.post('/registration', (req, res) => {
@@ -330,7 +465,7 @@ registration.put('/update-reg', async (req, res) => {
     } catch (err) {
         await connection.rollback();
         console.error('Error updating data:', err.message);
-        res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
+        res.status(400).json({ message: messages.DATA_UPDATE_FALIED }); 
     }
 });
 

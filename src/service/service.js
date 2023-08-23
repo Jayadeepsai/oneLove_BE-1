@@ -28,9 +28,9 @@ async function serviceQueries(req, res) { // Pass req and res as arguments
         const time_id = timeResult.insertId;
 
        
-        const { service_price, service_name, service_description, user_id } = req.body;
-        const serviceQuery = 'INSERT INTO onelove.service (service_price, service_name, service_description, time_id, user_id) VALUES (?, ?, ?, ?, ?)';
-        const serviceValues = [service_price, service_name, service_description, time_id, user_id ];
+        const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming } = req.body;
+        const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, time_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, time_id ];
 
     
         await db.query(serviceQuery, serviceValues);
@@ -79,13 +79,14 @@ service.get('/service-user-id', async(req,res)=>{
     }
 
     const sql = `
-    SELECT u.*, a.*, c.*, s.*, t.*
-    FROM service s
-    LEFT JOIN time t ON s.time_id = t.time_id
-    LEFT JOIN users u ON s.user_id = u.user_id
+    SELECT  s.*,t.*,u.*,a.*,c.*
+    FROM users u
+    LEFT JOIN service s ON u.service_id = s.service_id
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-    WHERE s.user_id = ?`;
+    LEFT JOIN time t ON s.time_id = t.time_id
+    WHERE u.user_id = ?`;
+
     try{
         const [results] = await db.query(sql, [userId]);
         const servicesData = JSON.parse(JSON.stringify(results));
@@ -110,11 +111,65 @@ service.get('/service-user-id', async(req,res)=>{
 });
 
 
+// service.get('/service-user-id', async (req, res) => {
+//     const userId = req.query.user_id;
+
+//     if (!userId) {
+//         return res.status(400).json({
+//             message: messages.INVALID_ID,
+//         });
+//     }
+
+//     const sql = `
+//     SELECT  s.*, t.*, u.*, a.*, c.*
+//     FROM users u
+//     LEFT JOIN service s ON u.service_id = s.service_id
+//     LEFT JOIN address a ON u.address_id = a.address_id
+//     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+//     LEFT JOIN time t ON s.time_id = t.time_id
+//     WHERE u.user_id = ?`;
+
+//     try {
+//         const [results] = await db.query(sql, [userId]);
+//         const servicesData = JSON.parse(JSON.stringify(results));
+
+//         if (servicesData.length > 0) {
+//             // Convert numeric boolean values to actual boolean values in the response
+//             const convertedServicesData = servicesData.map(item => ({
+//                 ...item,
+//                 pet_walking: item.pet_walking === 1,
+//                 pet_sitting: item.pet_sitting === 1,
+//                 pet_boarding: item.pet_boarding === 1,
+//                 event_training: item.event_training === 1,
+//                 training_workshop: item.training_workshop === 1,
+//                 adoption_drives: item.adoption_drives === 1,
+//                 pet_intelligence_rank_card: item.pet_intelligence_rank_card === 1,
+//                 pet_grooming: item.pet_grooming === 1,
+//             }));
+
+//             res.status(200).json({
+//                 servicesData: convertedServicesData,
+//                 message: messages.SUCCESS_MESSAGE,
+//             });
+//         } else {
+//             res.status(404).json({
+//                 message: messages.NO_DATA,
+//             });
+//         }
+//     } catch (err) {
+//         console.error('Error fetching data:', err);
+//         res.status(500).json({
+//             message: messages.FAILURE_MESSAGE,
+//         });
+//     }
+// });
+
+
 service.put('/update-service', async (req, res) => {
     try {
-        const user_id = req.query.user_id;
+        const service_id = req.query.service_id;
 
-        const { week_start_day, week_end_day, service_start_time, service_end_time, service_price, service_name, service_description } = req.body;
+        const { week_start_day, week_end_day, service_start_time, service_end_time, pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming  } = req.body;
 
         let timeSql = 'UPDATE time SET';
         let serviceSql = 'UPDATE service SET';
@@ -143,31 +198,56 @@ service.put('/update-service', async (req, res) => {
         }
 
         timeSql = timeSql.slice(0, -1);
-        timeSql += ' WHERE time_id=(SELECT time_id FROM service WHERE user_id=?)';
-        timeValues.push(user_id);
+        timeSql += ' WHERE time_id=(SELECT time_id FROM service WHERE service_id=?)';
+        timeValues.push(service_id);
 
         await db.beginTransaction();
 
         await db.query(timeSql, timeValues);
 
-        if (service_price !== undefined) {
-            serviceSql += ' service_price=?,';
-            serviceValues.push(service_price);
+        if (pet_walking !== undefined) {
+            serviceSql += ' pet_walking=?,';
+            serviceValues.push(pet_walking);
         }
-
-        if (service_name !== undefined) {
-            serviceSql += ' service_name=?,';
-            serviceValues.push(service_name);
+    
+        if (pet_sitting !== undefined) {
+            serviceSql += ' pet_sitting=?,';
+            serviceValues.push(pet_sitting);
         }
-
-        if (service_description !== undefined) {
-            serviceSql += ' service_description=?,';
-            serviceValues.push(service_description);
+    
+        if (pet_boarding !== undefined) {
+            serviceSql += ' pet_boarding=?,';
+            serviceValues.push(pet_boarding);
         }
-
+    
+        if (event_training !== undefined) {
+            serviceSql += ' event_training=?,';
+            serviceValues.push(event_training);
+        }
+    
+        if (training_workshop !== undefined) {
+            serviceSql += ' training_workshop=?,';
+            serviceValues.push(training_workshop);
+        }
+    
+        if (adoption_drives !== undefined) {
+            serviceSql += ' adoption_drives=?,';
+            serviceValues.push(adoption_drives);
+        }
+    
+        if (pet_intelligence_rank_card !== undefined) {
+            serviceSql += ' pet_intelligence_rank_card=?,';
+            serviceValues.push(pet_intelligence_rank_card);
+        }
+    
+        if (pet_grooming !== undefined) {
+            serviceSql += ' pet_grooming=?,';
+            serviceValues.push(pet_grooming);
+        }
+       
         serviceSql = serviceSql.slice(0, -1);
-        serviceSql += ' WHERE service_id=(SELECT service_id FROM service WHERE user_id=?)';
-        serviceValues.push(user_id);
+        serviceSql += ' WHERE service_id=?';
+        serviceValues.push(service_id);
 
         await db.query(serviceSql, serviceValues);
 

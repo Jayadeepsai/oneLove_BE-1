@@ -147,27 +147,27 @@ vaccine.put('/update-vaccine', async (req, res) => {
 
 
 
-vaccine.delete('/delete-vaccine', async (req, res) => {
-    const vaccination_id = req.query.vaccination_id;
-    const sql = 'DELETE FROM `vaccination` WHERE `vaccination_id`=?';
+// vaccine.delete('/delete-vaccine', async (req, res) => {
+//     const vaccination_id = req.query.vaccination_id;
+//     const sql = 'DELETE FROM `vaccination` WHERE `vaccination_id`=?';
 
-    try {
-        // Execute the delete query with parameter binding
-        const [results] = await db.query(sql, vaccination_id);
-        var data = JSON.parse(JSON.stringify(results));
+//     try {
+//         // Execute the delete query with parameter binding
+//         const [results] = await db.query(sql, vaccination_id);
+//         var data = JSON.parse(JSON.stringify(results));
 
-        console.log('Data is Deleted');
-        res.status(200).json({
-            data: data,
-            message: "Data Deleted"
-        });
-    } catch (err) {
-        console.error('Error deleting data:', err.message);
-        res.status(400).json({
-            message: err
-        });
-    }
-});
+//         console.log('Data is Deleted');
+//         res.status(200).json({
+//             data: data,
+//             message: "Data Deleted"
+//         });
+//     } catch (err) {
+//         console.error('Error deleting data:', err.message);
+//         res.status(400).json({
+//             message: err
+//         });
+//     }
+// });
 
 
 
