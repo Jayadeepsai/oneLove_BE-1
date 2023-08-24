@@ -159,6 +159,21 @@ async function performTransaction(req, res) {
        const [contactResult] = await connection.query(contactQuery, contactValues);
        const contact_id = contactResult.insertId;
 
+       let image_id = null; // Initialize image_id as null
+       const { image_type, image_url } = req.body;
+       if (image_type && image_url) {
+           const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
+           const imageValues = [image_type, image_url];
+
+        try {
+            const [imageResult] = await connection.query(imageQuery, imageValues);
+            image_id = imageResult.insertId;
+        } catch (error) {
+            console.error('Error inserting image:', error);
+        
+    }
+}      
+
         const { user_type, user_name } = req.body;
         
         // Initialize clinic_id, service_id, and store_id as null
@@ -168,15 +183,15 @@ async function performTransaction(req, res) {
 
         switch (user_type) {
             case 'pet_owner':
-                const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-                const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+                const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id];
     
                 const [userResult] = await connection.query(userQuery, userValues);
                 const user_id = userResult.insertId;
     
                 // Insert into registrations table
-                const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
-                const regValues = [user_id, address_id, contact_id];
+                const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
+                const regValues = [user_id, address_id, contact_id, image_id];
     
                 await connection.query(regQuery, regValues);
                 break;
@@ -191,15 +206,15 @@ async function performTransaction(req, res) {
                 service_id = serviceResult.insertId;
 
             // Insert into users and registrations tables for pet_doctor
-                const userQuery1 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-                const userValues1 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+                const userQuery1 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                const userValues1 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id];
 
                 const [userResult1] = await connection.query(userQuery1, userValues1);
                 const user_id1 = userResult1.insertId;
 
             // Insert into registrations table
-                const regQuery1 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
-                const regValues1 = [user_id1, address_id, contact_id];
+                const regQuery1 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
+                const regValues1 = [user_id1, address_id, contact_id, image_id];
 
             await connection.query(regQuery1, regValues1);
                 break;
@@ -213,15 +228,15 @@ async function performTransaction(req, res) {
                 clinic_id = clinicResult.insertId;
     
                 // Insert into users and registrations tables for pet_trainer
-                const userQuery2 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-                const userValues2 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+                const userQuery2 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                const userValues2 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id];
     
                 const [userResult2] = await connection.query(userQuery2, userValues2);
                 const user_id2 = userResult2.insertId;
     
                 // Insert into registrations table
-                const regQuery2 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
-                const regValues2 = [user_id2, address_id, contact_id];
+                const regQuery2 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
+                const regValues2 = [user_id2, address_id, contact_id, image_id];
     
                 await connection.query(regQuery2, regValues2);
                 break;
@@ -235,15 +250,15 @@ async function performTransaction(req, res) {
                 store_id = storeResult.insertId;
 
              // Insert into users and registrations tables for pet_trainer
-                const userQuery3 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-                const userValues3 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id];
+                const userQuery3 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                const userValues3 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id];
  
                 const [userResult3] = await connection.query(userQuery3, userValues3);
                 const user_id3 = userResult3.insertId;
  
              // Insert into registrations table
-                const regQuery3 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id) VALUES (?, ?, ?)';
-                const regValues3 = [user_id3, address_id, contact_id];
+                const regQuery3 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
+                const regValues3 = [user_id3, address_id, contact_id, image_id];
  
              await connection.query(regQuery3, regValues3);
                 break;
@@ -264,7 +279,7 @@ async function performTransaction(req, res) {
         // Rollback the transaction if any query fails
         await connection.rollback();
 
-        console.error('Error in transaction:', error.message);
+        console.error('Error in transaction:', error);
 
         // Send an error response to the client
         res.status(500).json({ message: 'Failed to perform transaction.' });
@@ -286,11 +301,12 @@ registration.post('/registration', (req, res) => {
 
 registration.get('/registration', async (req, res) => {
     try {
-        const sql = `SELECT a.*, c.*, u.*, r.*
+        const sql = `SELECT a.*, c.*, u.*, r.*,i.*
                      FROM onelove.registrations r
                      LEFT JOIN address a ON r.address_id = a.address_id
                      LEFT JOIN contact_details c ON r.contact_id = c.contact_id
-                     LEFT JOIN users u ON r.user_id = u.user_id`;
+                     LEFT JOIN users u ON r.user_id = u.user_id
+                     LEFT JOIN images i ON r.image_id = i.image_id`;
 
         const [data] = await connection.query(sql);
 
@@ -316,11 +332,12 @@ try{
         return res.status(400).json({ message:messages.NO_DATA });
     }
 
-    const sql =`SELECT a.*, c.*, u.*, r.*
+    const sql =`SELECT a.*, c.*, u.*, r.*,i.*
     FROM onelove.registrations r
     LEFT JOIN address a ON r.address_id = a.address_id
     LEFT JOIN contact_details c ON r.contact_id = c.contact_id
-    LEFT JOIN users u ON r.user_id = u.user_id WHERE r.reg_id=?`;
+    LEFT JOIN users u ON r.user_id = u.user_id
+    LEFT JOIN images i ON r.image_id = i.image_id WHERE r.reg_id=?`;
     const [data] = await connection.query(sql,[reg_id]);
 
     if (data.length === 0) {
@@ -348,11 +365,12 @@ registration.get('/registration-mobile-number', async(req,res)=>{
             return res.status(400).json({ message: messages.NO_DATA });
         }
     
-        const sql =`SELECT a.*, c.*, u.*, r.*
+        const sql =`SELECT a.*, c.*, u.*, r.*, i.*
         FROM onelove.registrations r
         LEFT JOIN address a ON r.address_id = a.address_id
         LEFT JOIN contact_details c ON r.contact_id = c.contact_id
-        LEFT JOIN users u ON r.user_id = u.user_id WHERE c.mobile_number=?`;
+        LEFT JOIN users u ON r.user_id = u.user_id
+        LEFT JOIN images i ON r.image_id = i.image_id WHERE c.mobile_number=?`;
         const [data] = await connection.query(sql,[mobile_number]);
     
         if (data.length === 0) {

@@ -85,7 +85,42 @@ service.get('/service-user-id', async(req,res)=>{
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
     LEFT JOIN time t ON s.time_id = t.time_id
-    WHERE u.user_id = ?`;
+    WHERE u.user_id = ? AND u.user_type = 'pet_trainer'`;
+
+    try{
+        const [results] = await db.query(sql, [userId]);
+        const servicesData = JSON.parse(JSON.stringify(results));
+
+        if (servicesData.length > 0) {
+            res.status(200).json({
+                servicesData,
+                message:messages.SUCCESS_MESSAGE,
+            });
+        } else {
+            res.status(404).json({
+                message: messages.NO_DATA,
+            });
+        }
+
+    }catch(err){
+        console.error('Error fetching data:', err);
+        res.status(500).json({
+            message: messages.FAILURE_MESSAGE,
+        });
+    }
+});
+
+service.get('/service', async(req,res)=>{
+
+
+    const sql = `
+    SELECT  s.*,t.*,u.*,a.*,c.*
+    FROM users u
+    LEFT JOIN service s ON u.service_id = s.service_id
+    LEFT JOIN address a ON u.address_id = a.address_id
+    LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+    LEFT JOIN time t ON s.time_id = t.time_id
+    WHERE u.user_type = 'pet_trainer'`;
 
     try{
         const [results] = await db.query(sql, [userId]);

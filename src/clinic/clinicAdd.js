@@ -62,7 +62,7 @@ clinic.get('/clinic',async(req,res)=>{
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
     LEFT JOIN clinics s ON u.clinic_id = s.clinic_id
-    LEFT JOIN time t ON s.time_id = t.time_id`;
+    LEFT JOIN time t ON s.time_id = t.time_id WHERE u.user_type = 'pet_doctor'`;
 
     try{
     const [results] = await db.query(sql);
@@ -104,7 +104,7 @@ clinic.get('/clinic-user-id', async(req,res)=>{
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
     LEFT JOIN clinics s ON u.clinic_id = s.clinic_id
     LEFT JOIN time t ON s.time_id = t.time_id
-    WHERE u.user_id = ?`;
+    WHERE u.user_id = ? AND u.user_type = 'pet_doctor'`;
     try{
         const [results] = await db.query(sql, [userId]);
         const clinicData = JSON.parse(JSON.stringify(results));
