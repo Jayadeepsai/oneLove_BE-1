@@ -90,6 +90,9 @@ ADD COLUMN pet_intelligence_rank_card BOOLEAN,
 ADD COLUMN pet_grooming BOOLEAN;
 
 ALTER TABLE `onelove`.`service` 
+ADD COLUMN `trainer_experience` VARCHAR(45) NULL AFTER `pet_grooming`;
+
+ALTER TABLE `onelove`.`service` 
 DROP FOREIGN KEY `service_ibfk_2`;
 ALTER TABLE `onelove`.`service` 
 DROP COLUMN `user_id`,

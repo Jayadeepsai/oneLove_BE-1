@@ -160,7 +160,9 @@ async function performTransaction(req, res) {
        const contact_id = contactResult.insertId;
 
        let image_id = null; // Initialize image_id as null
+
        const { image_type, image_url } = req.body;
+
        if (image_type && image_url) {
            const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
            const imageValues = [image_type, image_url];
@@ -171,8 +173,8 @@ async function performTransaction(req, res) {
         } catch (error) {
             console.error('Error inserting image:', error);
         
-    }
-}      
+        }
+      }      
 
         const { user_type, user_name } = req.body;
         
@@ -198,9 +200,9 @@ async function performTransaction(req, res) {
 
             case 'pet_trainer':
                // Insert into service table for pet_doctor
-                const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming } = req.body;
-                const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-                const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming];
+                const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience } = req.body;
+                const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience];
              
                 const [serviceResult] = await connection.query(serviceQuery, serviceValues);
                 service_id = serviceResult.insertId;

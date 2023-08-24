@@ -28,9 +28,9 @@ async function serviceQueries(req, res) { // Pass req and res as arguments
         const time_id = timeResult.insertId;
 
        
-        const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming } = req.body;
-        const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, time_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, time_id ];
+        const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience } = req.body;
+        const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, time_id, trainer_experience) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, time_id, trainer_experience ];
 
     
         await db.query(serviceQuery, serviceValues);
@@ -123,7 +123,7 @@ service.get('/service', async(req,res)=>{
     WHERE u.user_type = 'pet_trainer'`;
 
     try{
-        const [results] = await db.query(sql, [userId]);
+        const [results] = await db.query(sql);
         const servicesData = JSON.parse(JSON.stringify(results));
 
         if (servicesData.length > 0) {
@@ -204,7 +204,7 @@ service.put('/update-service', async (req, res) => {
     try {
         const service_id = req.query.service_id;
 
-        const { week_start_day, week_end_day, service_start_time, service_end_time, pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming  } = req.body;
+        const { week_start_day, week_end_day, service_start_time, service_end_time, pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience  } = req.body;
 
         let timeSql = 'UPDATE time SET';
         let serviceSql = 'UPDATE service SET';
@@ -278,6 +278,11 @@ service.put('/update-service', async (req, res) => {
         if (pet_grooming !== undefined) {
             serviceSql += ' pet_grooming=?,';
             serviceValues.push(pet_grooming);
+        }
+
+        if (trainer_experience !== undefined) {
+            serviceSql += ' trainer_experience=?,';
+            serviceValues.push(trainer_experience);
         }
        
         serviceSql = serviceSql.slice(0, -1);
