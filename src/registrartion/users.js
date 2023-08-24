@@ -13,7 +13,7 @@ users.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodie
 users.get('/users-id',async(req,res)=>{
     const user_id=req.query.user_id;
     const sql=`
-    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,t.*
+    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,t.*,i.*
     FROM users u
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
@@ -21,9 +21,84 @@ users.get('/users-id',async(req,res)=>{
     LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
     LEFT JOIN store s1 ON u.store_id = s1.store_id
     LEFT JOIN time t ON c1.time_id = t.time_id
+    LEFT JOIN images i ON u.image_id = i.image_id
     WHERE u.user_id = ?`;
 try{
     const [results] = await db.query(sql, [user_id]);
+    const userData = JSON.parse(JSON.stringify(results));
+
+    if (userData.length > 0) {
+        res.status(200).json({
+            userData,
+            message:messages.SUCCESS_MESSAGE,
+        });
+    } else {
+        res.status(404).json({
+            message: messages.NO_DATA,
+        });
+    }
+
+}catch(err){
+    console.error('Error fetching data:', err);
+    res.status(500).json({
+        message: messages.FAILURE_MESSAGE,
+    });
+}
+});
+
+
+
+users.get('/users-pet-owners-user-id',async(req,res)=>{
+    const user_id=req.query.user_id;
+    const sql=`
+    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,t.*,i.*
+    FROM users u
+    LEFT JOIN address a ON u.address_id = a.address_id
+    LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
+    LEFT JOIN service s ON u.service_id = s.service_id
+    LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
+    LEFT JOIN store s1 ON u.store_id = s1.store_id
+    LEFT JOIN time t ON c1.time_id = t.time_id
+    LEFT JOIN images i ON u.image_id = i.image_id
+    WHERE u.user_id = ? AND u.user_type='pet_owner'`;
+try{
+    const [results] = await db.query(sql, [user_id]);
+    const userData = JSON.parse(JSON.stringify(results));
+
+    if (userData.length > 0) {
+        res.status(200).json({
+            userData,
+            message:messages.SUCCESS_MESSAGE,
+        });
+    } else {
+        res.status(404).json({
+            message: messages.NO_DATA,
+        });
+    }
+
+}catch(err){
+    console.error('Error fetching data:', err);
+    res.status(500).json({
+        message: messages.FAILURE_MESSAGE,
+    });
+}
+});
+
+
+users.get('/users-pet-owners',async(req,res)=>{
+    const sql=`
+    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,t.*,i.*
+    FROM users u
+    LEFT JOIN address a ON u.address_id = a.address_id
+    LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
+    LEFT JOIN service s ON u.service_id = s.service_id
+    LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
+    LEFT JOIN store s1 ON u.store_id = s1.store_id
+    LEFT JOIN time t ON c1.time_id = t.time_id
+    LEFT JOIN images i ON u.image_id = i.image_id
+    WHERE u.user_type='pet_owner'`;
+try{
+    const [results] = await db.query(sql);
     const userData = JSON.parse(JSON.stringify(results));
 
     if (userData.length > 0) {
