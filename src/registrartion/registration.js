@@ -277,7 +277,7 @@ async function performTransaction(req, res) {
 
         // Send a success response to the client
         res.status(200).json({ message: 'Transaction committed successfully.' });
-    } catch (error) {
+    } catch (error) { 
         // Rollback the transaction if any query fails
         await connection.rollback();
 

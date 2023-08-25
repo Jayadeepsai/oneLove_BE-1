@@ -9,26 +9,54 @@ posts.use(express.json()); // To parse JSON bodies
 posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-posts.post('/posts',async (req,res)=>{
-
-    const {post_type, post_description, video, love_index_id, image_id, user_id, pet_id} = req.body;
-    const sql = 'INSERT INTO onelove.posts (post_type, post_description, video, love_index_id, image_id, user_id, pet_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const values = [post_type, post_description, video, love_index_id, image_id, user_id, pet_id];
-
+async function performTransaction(req,res){
     try{
-    const [result]=await db.query(sql,values)
-    res.status(200).json({
-        data: result,
-        message: messages.POST_SUCCESS
-    });
+        await db.beginTransaction();
+       
+         const {love_tags, share, hoots} = req.body;
+         const loveIndexSql = 'INSERT INTO onelove.love_index (love_tags, share, hoots) VALUES (?, ?, ?)';
+         const loveIndexValues = [love_tags, share, hoots];
+         const [loveIndexResul] = await db.query(loveIndexSql,loveIndexValues);
+         const love_index_id = loveIndexResul.insertId;
+
+         const {image_type, image_url} = req.body;
+         const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
+         const imageValues = [image_type, image_url];
+         const [imageResult] = await db.query(imageQuery,imageValues);
+         const image_id = imageResult.insertId;
+
+         const {post_type, post_description, video, user_id, pet_id} = req.body;
+         const postSql = 'INSERT INTO onelove.posts (post_type, post_description, video, love_index_id, image_id, user_id, pet_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+         const postValues = [post_type, post_description, video, love_index_id, image_id, user_id, pet_id];
+         await db.query(postSql,postValues);
+
+         await db.commit();
+         console.log('Transaction committed successfully.');
+
+         // Send a success response to the client
+         res.status(200).json({ message: 'Transaction committed successfully.' });
 
     }catch(err){
-       console.error('Error posting data:', err.message);
-        res.status(400).json({
-            message: err
-        });
+   await db.rollback();
+
+        console.error('Error in transaction:', error);
+
+        // Send an error response to the client
+        res.status(500).json({ message: 'Failed to perform transaction.' });
     }
-});
+}
+
+posts.post('/post-feed',(req,res)=>{
+    performTransaction(req, res)
+    .then(() => {
+        console.log('Transaction completed successfully');
+    })
+    .catch((err) => {
+        console.error('Error in address.post API:', err);
+    });
+})
+
+
 
 
 posts.get('/posts', async (req,res)=>{
