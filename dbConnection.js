@@ -14,9 +14,13 @@
         if (error) throw error
         else{
             console.log('connected to mysql database')
-        //  var sql = `ALTER TABLE onelove.users
-        //  ADD COLUMN image_id INT,
-        //  ADD FOREIGN KEY (image_id) REFERENCES onelove.images(image_id);`
+        //  var sql = `ALTER TABLE store
+        //  ADD COLUMN address_id int(11),
+        //  ADD COLUMN contact_id int(11),
+        //  ADD CONSTRAINT fk_store_address
+        //  FOREIGN KEY (address_id) REFERENCES address(address_id),
+        //  ADD CONSTRAINT fk_store_contact
+        //  FOREIGN KEY (contact_id) REFERENCES contact_details(contact_id);`
         
         
 

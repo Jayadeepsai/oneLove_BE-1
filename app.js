@@ -15,6 +15,7 @@ const posts = require('./src/posts/posts');
 const service = require('./src/service/service');
 const clinic = require('./src/clinic/clinicAdd');
 const user = require('./src/registrartion/users');
+const subCate = require('./src/store/subCategory');
 
 
 
@@ -29,6 +30,7 @@ app.use('/onelove/posts',posts);
 app.use('/onelove/services',service);
 app.use('/onelove/clinic',clinic);
 app.use('/onelove/users',user);
+app.use('/onelove/sub-cate',subCate);
 
 
 module.exports = app

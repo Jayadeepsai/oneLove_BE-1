@@ -244,9 +244,9 @@ async function performTransaction(req, res) {
                 break;
 
             case 'pet_store':
-                const { store_name, discounts, item_id, order_id, payment_id, inventory_id } = req.body;
-                const storeQuery = 'INSERT INTO onelove.store (store_name, discounts, item_id, order_id, payment_id, inventory_id) VALUES (?, ?, ?, ?, ?, ?)';
-                const storeValues =[ store_name, discounts, item_id, order_id, payment_id, inventory_id ];
+                const { store_name, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale } = req.body;
+                const storeQuery = 'INSERT INTO onelove.store (store_name, address_id, contact_id, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const storeValues =[ store_name, address_id, contact_id, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale ];
 
                 const [storeResult] = await connection.query(storeQuery,storeValues);
                 store_id = storeResult.insertId;

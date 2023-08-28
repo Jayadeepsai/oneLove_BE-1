@@ -39,7 +39,7 @@ async function performTransaction(req,res){
     }catch(err){
    await db.rollback();
 
-        console.error('Error in transaction:', error);
+        console.error('Error in transaction:', err);
 
         // Send an error response to the client
         res.status(500).json({ message: 'Failed to perform transaction.' });

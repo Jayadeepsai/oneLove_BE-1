@@ -56,12 +56,36 @@ CHANGE COLUMN `image_url` `image_url` VARCHAR(60000) NULL DEFAULT NULL ;
      MODIFY COLUMN item_description VARCHAR(500),
      DROP COLUMN item_image;
 
+ALTER TABLE items
+DROP COLUMN item_type,
+DROP COLUMN item_name,
+DROP COLUMN item_price;
 
- ALTER TABLE onelove.items
-     ADD COLUMN image_id INT,
-     ADD CONSTRAINT fk_image_id
-     FOREIGN KEY (image_id) REFERENCES onelove.images(image_id);
+ALTER TABLE items
+ADD COLUMN brand_name varchar(99) AFTER item_id,
+ADD COLUMN product_title varchar(99) AFTER brand_name,
+ADD COLUMN product_details varchar(999);
 
+
+ALTER TABLE items
+ADD COLUMN sub_cate_id INT,
+ADD CONSTRAINT fk_items_sub_category FOREIGN KEY (sub_cate_id) REFERENCES sub_category(sub_cate_id),
+ADD COLUMN store_id INT,
+ADD CONSTRAINT fk_items_store FOREIGN KEY (store_id) REFERENCES store(store_id),
+ADD COLUMN image_id INT,
+ADD CONSTRAINT fk_items_images FOREIGN KEY (image_id) REFERENCES images(image_id);
+
+
+CREATE TABLE quantity (
+    quantity_id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    quantity_type VARCHAR(45),
+    quantity VARCHAR(45),
+    mrp INT,
+    discount INT,
+    total_price INT,
+    item_id INT,
+    FOREIGN KEY (item_id) REFERENCES items(item_id)
+);
 
 
 
@@ -400,9 +424,34 @@ ALTER TABLE onelove.inventory
      ADD COLUMN address_id INT,
      ADD CONSTRAINT fk_address_id_inventory
      FOREIGN KEY (address_id) REFERENCES onelove.address(address_id);
+  
+
+ALTER TABLE store
+         ADD COLUMN address_id int(11),
+         ADD COLUMN contact_id int(11),
+         ADD CONSTRAINT fk_store_address
+         FOREIGN KEY (address_id) REFERENCES address(address_id),
+         ADD CONSTRAINT fk_store_contact
+         FOREIGN KEY (contact_id) REFERENCES contact_details(contact_id);  
+
+ALTER TABLE `onelove`.`store` 
+ADD COLUMN `food_treats` TINYINT NULL AFTER `contact_id`,
+ADD COLUMN `accessories` TINYINT NULL AFTER `food_treats`,
+ADD COLUMN `toys` TINYINT NULL AFTER `accessories`,
+ADD COLUMN `health_care` TINYINT NULL AFTER `toys`,
+ADD COLUMN `dog_service` TINYINT NULL AFTER `health_care`,
+ADD COLUMN `breader_adoption_sale` TINYINT NULL AFTER `dog_service`;
 
 
-
+CREATE TABLE onelove.sub_category (
+    sub_cate_id INT(11) NOT NULL AUTO_INCREMENT,
+    collection_name VARCHAR(99),
+    sub_category_name VARCHAR(99),
+    products_count INT,
+    store_id INT(11),
+    PRIMARY KEY (sub_cate_id),
+    FOREIGN KEY (store_id) REFERENCES onelove.store(store_id)
+);
 
 CREATE TABLE onelove.pet_trainer (
     pet_trainer_id INT AUTO_INCREMENT PRIMARY KEY,
