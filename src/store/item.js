@@ -11,14 +11,14 @@ items.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodie
 
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
-  accessKeyId: 'AKIAVMRPENK3IVSXIVXR',
-  secretAccessKey: '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',
+    accessKeyId: 'AKIAVMRPENK3CKWKGCGU',
+    secretAccessKey: '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',
 });
 
 
 async function uploadImageToS3(imageData, filename) {
     const params = {
-      Bucket: 'laxmi-bucket',
+      Bucket: 'onelovemysql',
       Key: filename,
       Body: imageData,
       ACL: "public-read"
@@ -42,6 +42,9 @@ async function performTransaction(req,res){
         const [imageResult] = await db.query(imageSql,imageValues);
         const image_id = imageResult.insertId;
 
+        console.log('Received req.body:', req.body);
+        console.log('Received req.files:', req.files);
+
         const { brand_name, product_title, item_description, product_details, sub_cate_id, store_id } = req.body;
         const itemSql = `INSERT INTO onelove.items (brand_name, product_title, item_description, product_details, sub_cate_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?)`;
         const itemValues = [brand_name, product_title, item_description, product_details, sub_cate_id, store_id, image_id];
@@ -52,6 +55,7 @@ async function performTransaction(req,res){
         const quantityPackages = req.body.quantityPackages;
 
         if (!Array.isArray(quantityPackages)) {
+            console.error("error in transaction")
             return res.status(400).json({ message: 'Invalid quantityPackages data.' });
           }
         
@@ -64,8 +68,10 @@ async function performTransaction(req,res){
             const quantityValues = [quantity_type, quantity, item_count, mrp, discount, total_price, item_id];
             await db.query(quantitySql, quantityValues);
         }
-
+       
+        
         await db.commit();
+       
         console.log('Transaction committed successfully.');
 
         // Send a success response to the client

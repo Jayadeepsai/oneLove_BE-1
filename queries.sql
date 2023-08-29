@@ -225,7 +225,8 @@ CREATE TABLE onelove.pet (
     FOREIGN KEY (user_id) REFERENCES onelove.users(user_id)
 );
 
-
+ALTER TABLE `onelove`.`pet` 
+ADD COLUMN `spay_neuter` VARCHAR(45) NULL AFTER `user_id`;
 
 CREATE TABLE clinics (
     clinic_id INT AUTO_INCREMENT PRIMARY KEY,

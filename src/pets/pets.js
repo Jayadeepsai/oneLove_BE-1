@@ -8,6 +8,59 @@ const db = require('../../dbConnection')
 pets.use(express.json()); // To parse JSON bodies
 pets.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3({
+    accessKeyId: 'AKIAVMRPENK3CKWKGCGU',
+    secretAccessKey: '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',
+});
+
+
+async function uploadImageToS3(imageData, filename) {
+    const params = {
+      Bucket: 'onelovemysql',
+      Key: filename,
+      Body: imageData,
+      ACL: "public-read"
+    };
+  
+    const uploadResult = await s3.upload(params).promise();
+    return uploadResult.Location; // S3 object URL
+  }
+
+
+
+pets.post('/pet-post', async (req, res) => { // Add "async" keyword
+    try {
+        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, spay_neuter, image_type, user_id } = req.body;
+
+        const imageFile = req.files.image;
+        const s3ImageUrl = await uploadImageToS3(imageFile.data, imageFile.name);
+        // Insert into images table
+        const sql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
+        const imageValues = [image_type, s3ImageUrl];
+
+        const [imageResult] = await db.query(sql, imageValues); // Use await to execute the query
+
+        const image_id = imageResult.insertId; // Get the image_id generated from the previous query
+
+        // Insert into pet table
+        const sql2 = `
+            INSERT INTO onelove.pet 
+            (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, spay_neuter, image_id, user_id) 
+            VALUES 
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const petValues = [pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, spay_neuter, image_id, user_id];
+
+        const [petResult] = await db.query(sql2, petValues); // Use await to execute the query
+
+        return res.status(200).json({ message: "Records inserted successfully", petResult });
+    } catch (err) {
+        console.error("Error inserting records:", err);
+        return res.status(400).json({ message: "Error inserting records", err});
+    }
+});
+
+
 
 pets.get('/pets', async (req, res) => { // Add "async" keyword
     try {
@@ -32,38 +85,6 @@ pets.get('/pets', async (req, res) => { // Add "async" keyword
         });
     }
 });
-
-
-pets.post('/pet-post', async (req, res) => { // Add "async" keyword
-    try {
-        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_type, image_url, user_id } = req.body;
-
-        // Insert into images table
-        const sql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
-        const imageValues = [image_type, image_url];
-
-        const [imageResult] = await db.query(sql, imageValues); // Use await to execute the query
-
-        const image_id = imageResult.insertId; // Get the image_id generated from the previous query
-
-        // Insert into pet table
-        const sql2 = `
-            INSERT INTO onelove.pet 
-            (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, image_id, user_id) 
-            VALUES 
-            (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        const petValues = [pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, image_id, user_id];
-
-        const [petResult] = await db.query(sql2, petValues); // Use await to execute the query
-
-        return res.status(200).json({ message: "Records inserted successfully", petResult });
-    } catch (err) {
-        console.error("Error inserting records:", err);
-        return res.status(400).json({ message: "Error inserting records", err});
-    }
-});
-
- 
 
 pets.put('/update-pet', async (req, res) => { // Use "async" keyword
     try {
@@ -137,6 +158,31 @@ pets.put('/update-pet', async (req, res) => { // Use "async" keyword
     } catch (err) {
         console.error('Error updating data:', err.message);
         res.status(400).json({ message: 'Failed to update data.' });
+    }
+});
+
+
+
+pets.put('/pet-update-image', async (req, res) => {
+    try {
+        const petId = req.query.petId; // Get the pet ID from the URL parameter
+
+        const imageFile = req.files.image;
+        const s3ImageUrl = await uploadImageToS3(imageFile.data, imageFile.name);
+        const { image_type } = req.body; 
+        // Update the image_url in the images table
+        const updateImageSql = `
+        UPDATE onelove.images
+        SET image_type = ?, image_url = ?
+        WHERE image_id = (SELECT image_id FROM onelove.pet WHERE pet_id = ?)`;
+    const updateImageValues = [image_type, s3ImageUrl, petId];
+
+        await db.query(updateImageSql, updateImageValues);
+
+        return res.status(200).json({ message: "Image URL updated successfully" });
+    } catch (err) {
+        console.error("Error updating image URL:", err);
+        return res.status(400).json({ message: "Error updating image URL", err });
     }
 });
 

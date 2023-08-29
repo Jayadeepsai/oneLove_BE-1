@@ -10,14 +10,14 @@ posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodie
 
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
-  accessKeyId: 'AKIAVMRPENK3IVSXIVXR',
-  secretAccessKey: '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',
+    accessKeyId: 'AKIAVMRPENK3CKWKGCGU',
+    secretAccessKey: '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',
 });
 
 
 async function uploadImageToS3(imageData, filename) {
     const params = {
-      Bucket: 'laxmi-bucket',
+      Bucket: 'onelovemysql',
       Key: filename,
       Body: imageData,
       ACL: "public-read"

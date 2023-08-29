@@ -7,6 +7,24 @@ const messages = require('../messages/constants')
 registration.use(express.json()); // To parse JSON bodies
 registration.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3({
+  accessKeyId: 'AKIAVMRPENK3CKWKGCGU',
+  secretAccessKey: '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',
+});
+
+
+async function uploadImageToS3(imageData, filename) {
+    const params = {
+      Bucket: 'onelovemysql',
+      Key: filename,
+      Body: imageData,
+      ACL: "public-read"
+    };
+  
+    const uploadResult = await s3.upload(params).promise();
+    return uploadResult.Location; // S3 object URL
+  }
 
 // async function performTransaction(req, res) {
 
@@ -161,11 +179,13 @@ async function performTransaction(req, res) {
 
        let image_id = null; // Initialize image_id as null
 
-       const { image_type, image_url } = req.body;
+       const imageFile = req.files.image;
+       const s3ImageUrl = await uploadImageToS3(imageFile.data, imageFile.name);
+       const { image_type } = req.body;
 
-       if (image_type && image_url) {
+       if (image_type && imageFile) {
            const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
-           const imageValues = [image_type, image_url];
+           const imageValues = [image_type, s3ImageUrl];
 
         try {
             const [imageResult] = await connection.query(imageQuery, imageValues);
@@ -266,7 +286,7 @@ async function performTransaction(req, res) {
                 break;
 
             default:
-                res.status(400).json({message:"user_type you have choosen is invalid"});
+              return res.status(400).json({message:"user_type you have choosen is invalid"});
                 break;
         }
 
@@ -276,7 +296,7 @@ async function performTransaction(req, res) {
         console.log('Transaction committed successfully.');
 
         // Send a success response to the client
-        res.status(200).json({ message: 'Transaction committed successfully.' });
+       return res.status(200).json({ message: 'Transaction committed successfully.' });
     } catch (error) { 
         // Rollback the transaction if any query fails
         await connection.rollback();
@@ -284,7 +304,7 @@ async function performTransaction(req, res) {
         console.error('Error in transaction:', error);
 
         // Send an error response to the client
-        res.status(500).json({ message: 'Failed to perform transaction.' });
+       return res.status(500).json({ message: 'Failed to perform transaction.' });
     }
 }
 
