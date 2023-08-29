@@ -2,7 +2,9 @@ const mysql = require('mysql');
 const express = require('express');
 const app = express();
 require('dotenv').config();
-const connection = require('./dbConnection')
+const connection = require('./dbConnection');
+const fileUpload = require('express-fileupload');
+
 
 const vaccine = require('./src/clinic/vaccine');
 const items = require('./src/store/item');
@@ -18,7 +20,7 @@ const user = require('./src/registrartion/users');
 const subCate = require('./src/store/subCategory');
 
 
-
+app.use(fileUpload());
 app.use('/onelove/vaccine',vaccine);
 app.use('/onelove/items',items);
 app.use('/onelove/pets',pets);

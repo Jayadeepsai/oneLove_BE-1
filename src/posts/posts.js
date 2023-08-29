@@ -8,6 +8,25 @@ const db = require('../../dbConnection')
 posts.use(express.json()); // To parse JSON bodies
 posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3({
+  accessKeyId: 'AKIAVMRPENK3IVSXIVXR',
+  secretAccessKey: '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',
+});
+
+
+async function uploadImageToS3(imageData, filename) {
+    const params = {
+      Bucket: 'laxmi-bucket',
+      Key: filename,
+      Body: imageData,
+      ACL: "public-read"
+    };
+  
+    const uploadResult = await s3.upload(params).promise();
+    return uploadResult.Location; // S3 object URL
+  }
+
 
 async function performTransaction(req,res){
     try{
@@ -19,9 +38,13 @@ async function performTransaction(req,res){
          const [loveIndexResul] = await db.query(loveIndexSql,loveIndexValues);
          const love_index_id = loveIndexResul.insertId;
 
-         const {image_type, image_url} = req.body;
+
+         const imageFile = req.files.image;
+         const s3ImageUrl = await uploadImageToS3(imageFile.data, imageFile.name);
+
+         const {image_type} = req.body;
          const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
-         const imageValues = [image_type, image_url];
+         const imageValues = [image_type, s3ImageUrl];
          const [imageResult] = await db.query(imageQuery,imageValues);
          const image_id = imageResult.insertId;
 
