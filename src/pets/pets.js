@@ -2,7 +2,7 @@ const express = require('express');
 const pets = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
-
+require('dotenv').config();
 const db = require('../../dbConnection')
 
 pets.use(express.json()); // To parse JSON bodies
@@ -10,8 +10,8 @@ pets.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
-    accessKeyId: 'AKIAVMRPENK3CKWKGCGU',
-    secretAccessKey: '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',
+    accessKeyId: process.env.AWS_ID,
+    secretAccessKey: process.env.SECRET_KEY,
 });
 
 
@@ -165,26 +165,34 @@ pets.put('/update-pet', async (req, res) => { // Use "async" keyword
 
 pets.put('/pet-update-image', async (req, res) => {
     try {
-        const petId = req.query.petId; // Get the pet ID from the URL parameter
+        const pet_id = req.query.pet_id; // Get the pet ID from the query parameter
 
         const imageFile = req.files.image;
         const s3ImageUrl = await uploadImageToS3(imageFile.data, imageFile.name);
-        const { image_type } = req.body; 
-        // Update the image_url in the images table
+        const { image_type } = req.body; // Get the updated image_type from the request body
+        
+        // Update the image_url and image_type in the images table
         const updateImageSql = `
-        UPDATE onelove.images
-        SET image_type = ?, image_url = ?
-        WHERE image_id = (SELECT image_id FROM onelove.pet WHERE pet_id = ?)`;
-    const updateImageValues = [image_type, s3ImageUrl, petId];
+            UPDATE onelove.images
+            SET image_type = ?, image_url = ?
+            WHERE image_id = (SELECT image_id FROM onelove.pet WHERE pet_id = ?)`;
+        const updateImageValues = [image_type, s3ImageUrl, pet_id];
 
-        await db.query(updateImageSql, updateImageValues);
+        // Execute the update query for images table
+        const [updateImageResult] = await db.query(updateImageSql, updateImageValues);
 
-        return res.status(200).json({ message: "Image URL updated successfully" });
+        if (updateImageResult.affectedRows === 0) {
+            return res.status(404).json({ message: "Pet not found or image update failed" });
+        }
+
+        return res.status(200).json({ message: "Image details updated successfully" });
     } catch (err) {
-        console.error("Error updating image URL:", err);
-        return res.status(400).json({ message: "Error updating image URL", err });
+        console.error("Error updating image details:", err);
+        return res.status(500).json({ message: "Error updating image details", err });
     }
 });
+
+
 
 
 

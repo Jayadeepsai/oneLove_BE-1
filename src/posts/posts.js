@@ -2,7 +2,7 @@ const express = require('express');
 const posts = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
-
+require('dotenv').config();
 const db = require('../../dbConnection')
 
 posts.use(express.json()); // To parse JSON bodies
@@ -10,8 +10,8 @@ posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodie
 
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
-    accessKeyId: 'AKIAVMRPENK3CKWKGCGU',
-    secretAccessKey: '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',
+    accessKeyId: process.env.AWS_ID,
+    secretAccessKey: process.env.SECRET_KEY,
 });
 
 
