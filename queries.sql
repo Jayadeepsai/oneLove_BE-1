@@ -75,6 +75,11 @@ ADD CONSTRAINT fk_items_store FOREIGN KEY (store_id) REFERENCES store(store_id),
 ADD COLUMN image_id INT,
 ADD CONSTRAINT fk_items_images FOREIGN KEY (image_id) REFERENCES images(image_id);
 
+ALTER TABLE quantity
+ADD CONSTRAINT fk_item_id
+FOREIGN KEY (item_id) REFERENCES items(item_id)
+ON DELETE CASCADE;
+
 
 CREATE TABLE quantity (
     quantity_id INT(11) AUTO_INCREMENT PRIMARY KEY,
