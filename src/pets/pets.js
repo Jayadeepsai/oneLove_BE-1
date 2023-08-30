@@ -110,11 +110,12 @@ pets.post('/pet-post', async (req, res) => { // Add "async" keyword
 
 pets.get('/pets', async (req, res) => { // Add "async" keyword
     try {
-        const sql = `SELECT p.*, v.*, i.*, u.* 
-                     FROM onelove.pet p
-                     LEFT JOIN vaccination v ON p.vaccination_id = v.vaccination_id
-                     LEFT JOIN images i ON p.image_id = i.image_id
-                     LEFT JOIN users u ON p.user_id=u.user_id`;
+        const sql = `SELECT p.*, v.*, i1.image_id AS pet_image_id, i1.image_url AS pet_image_url, u.* , i2.image_id AS user_image_id, i2.image_url AS user_image_url
+        FROM onelove.pet p
+        LEFT JOIN vaccination v ON p.vaccination_id = v.vaccination_id
+        LEFT JOIN images i1 ON p.image_id = i1.image_id
+        LEFT JOIN users u ON p.user_id = u.user_id
+        LEFT JOIN images i2 ON u.image_id = i2.image_id`;
 
         const [results] = await db.query(sql); // Use await to execute the query
 
@@ -275,11 +276,12 @@ pets.get('/pets-users', async (req, res) => {
             });
         }
 
-        const sql = `SELECT p.*, v.*, i.*, u.* 
+        const sql = `SELECT p.*, v.*, i1.image_id AS pet_image_id, i1.image_url AS pet_image_url, u.* , i2.image_id AS user_image_id, i2.image_url AS user_image_url
                  FROM onelove.pet p
                  LEFT JOIN vaccination v ON p.vaccination_id = v.vaccination_id
-                 LEFT JOIN images i ON p.image_id = i.image_id
+                 LEFT JOIN images i1 ON p.image_id = i1.image_id
                  LEFT JOIN users u ON p.user_id = u.user_id
+                 LEFT JOIN images i2 ON u.image_id = i2.image_id
                  WHERE p.user_id = ?`;
      try {
         const [results] = await db.query(sql, [user_id]); // Use await to execute the query
