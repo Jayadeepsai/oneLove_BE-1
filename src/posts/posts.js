@@ -91,7 +91,7 @@ posts.get('/posts', async (req,res)=>{
     LEFT JOIN users u ON p.user_id = u.user_id
     LEFT JOIN pet e ON p.pet_id = e.pet_id
     LEFT JOIN images i2 ON e.image_id = i2.image_id
-    ORDER BY p.insertion_timestamp DESC`;
+    ORDER BY p.post_id DESC`;
 
     try{
          const [results]= await db.query(sql);
