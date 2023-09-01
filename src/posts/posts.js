@@ -57,7 +57,7 @@ async function performTransaction(req,res){
          console.log('Transaction committed successfully.');
 
          // Send a success response to the client
-         res.status(200).json({ message: 'Transaction committed successfully.' });
+         res.status(200).json({ message: 'Transaction committed successfully.' }); 
 
     }catch(err){
    await db.rollback();
@@ -67,7 +67,7 @@ async function performTransaction(req,res){
         // Send an error response to the client
         res.status(500).json({ message: 'Failed to perform transaction.' });
     }
-}
+}   
 
 posts.post('/post-feed',(req,res)=>{
     performTransaction(req, res)

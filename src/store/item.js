@@ -355,4 +355,39 @@ items.delete('/delete-items', async (req, res) => {
 });
 
 
+
+items.get('/stores',async(req,res)=>{
+
+    const sql = `
+    SELECT  s.*,u.*,a.*,c.*,i.*
+    FROM users u
+    LEFT JOIN address a ON u.address_id = a.address_id
+    LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+    LEFT JOIN store s ON u.store_id = s.store_id
+    LEFT JOIN images i ON u.image_id = i.image_id
+     WHERE u.user_type = 'pet_store'`;
+
+    try{
+    const [results] = await db.query(sql);
+        const storesData = JSON.parse(JSON.stringify(results));
+
+        if (storesData.length > 0) {
+            res.status(200).json({
+                storesData,
+                message:messages.SUCCESS_MESSAGE,
+            });
+        } else {
+            res.status(404).json({
+                message: messages.NO_DATA,
+            });
+        }
+    }catch(err){
+        console.error('Error fetching data:', err);
+        res.status(500).json({
+            message: messages.FAILURE_MESSAGE,
+        });
+    }
+});
+
+
 module.exports = items;
