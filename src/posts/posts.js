@@ -2,30 +2,12 @@ const express = require('express');
 const posts = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
-require('dotenv').config();
+
 const db = require('../../dbConnection')
 
 posts.use(express.json()); // To parse JSON bodies
 posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ID,
-    secretAccessKey: process.env.SECRET_KEY,
-});
-
-
-async function uploadImageToS3(imageData, filename) {
-    const params = {
-      Bucket: 'onelovemysql',
-      Key: filename,
-      Body: imageData,
-      ACL: "public-read"
-    };
-  
-    const uploadResult = await s3.upload(params).promise();
-    return uploadResult.Location; // S3 object URL
-  }
 
 
 async function performTransaction(req,res){
@@ -39,12 +21,9 @@ async function performTransaction(req,res){
          const love_index_id = loveIndexResul.insertId;
 
 
-         const imageFile = req.files.image;
-         const s3ImageUrl = await uploadImageToS3(imageFile.data, imageFile.name);
-
-         const {image_type} = req.body;
+         const {image_type, image_url} = req.body;
          const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
-         const imageValues = [image_type, s3ImageUrl];
+         const imageValues = [image_type, image_url];
          const [imageResult] = await db.query(imageQuery,imageValues);
          const image_id = imageResult.insertId;
 

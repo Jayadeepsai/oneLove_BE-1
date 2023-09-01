@@ -2,42 +2,20 @@ const express = require('express');
 const pets = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
-require('dotenv').config();
+
 const db = require('../../dbConnection')
 
 pets.use(express.json()); // To parse JSON bodies
 pets.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ID,
-    secretAccessKey: process.env.SECRET_KEY,
-});
-
-
-async function uploadImageToS3(imageData, filename) {
-    const params = {
-      Bucket: 'onelovemysql',
-      Key: filename,
-      Body: imageData,
-      ACL: "public-read"
-    };
-  
-    const uploadResult = await s3.upload(params).promise();
-    return uploadResult.Location; // S3 object URL
-  }
-
-
 
 pets.post('/pet-post', async (req, res) => { // Add "async" keyword
     try {
-        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, spay_neuter, image_type, user_id } = req.body;
+        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, spay_neuter, image_type, image_url, user_id } = req.body;
 
-        const imageFile = req.files.image;
-        const s3ImageUrl = await uploadImageToS3(imageFile.data, imageFile.name);
         // Insert into images table
         const sql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
-        const imageValues = [image_type, s3ImageUrl];
+        const imageValues = [image_type, image_url];
 
         const [imageResult] = await db.query(sql, imageValues); // Use await to execute the query
 
@@ -213,17 +191,15 @@ pets.put('/update-pet', async (req, res) => { // Use "async" keyword
 pets.put('/pet-update-image', async (req, res) => {
     try {
         const pet_id = req.query.pet_id; // Get the pet ID from the query parameter
-
-        const imageFile = req.files.image;
-        const s3ImageUrl = await uploadImageToS3(imageFile.data, imageFile.name);
-        const { image_type } = req.body; // Get the updated image_type from the request body
+        
+        const { image_type, image_url } = req.body; // Get the updated image_type from the request body
         
         // Update the image_url and image_type in the images table
         const updateImageSql = `
             UPDATE onelove.images
             SET image_type = ?, image_url = ?
             WHERE image_id = (SELECT image_id FROM onelove.pet WHERE pet_id = ?)`;
-        const updateImageValues = [image_type, s3ImageUrl, pet_id];
+        const updateImageValues = [image_type, image_url, pet_id];
 
         // Execute the update query for images table
         const [updateImageResult] = await db.query(updateImageSql, updateImageValues);

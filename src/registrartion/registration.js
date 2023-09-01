@@ -180,13 +180,13 @@ async function performTransaction(req, res) {
 
        let image_id = null; // Initialize image_id as null
 
-       const imageFile = req.files.image;
-       const s3ImageUrl = await uploadImageToS3(imageFile.data, imageFile.name);
-       const { image_type } = req.body;
+    //    const imageFile = req.files.image;
+    //    const s3ImageUrl = await uploadImageToS3(imageFile.data, imageFile.name);
+       const { image_type, image_url } = req.body;
 
        if (image_type && imageFile) {
            const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
-           const imageValues = [image_type, s3ImageUrl];
+           const imageValues = [image_type, image_url];
 
         try {
             const [imageResult] = await connection.query(imageQuery, imageValues);
