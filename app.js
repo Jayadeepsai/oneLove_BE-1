@@ -18,7 +18,8 @@ const service = require('./src/service/service');
 const clinic = require('./src/clinic/clinicAdd');
 const user = require('./src/registrartion/users');
 const subCate = require('./src/store/subCategory');
-const images = require('./src/imagesS3/images')
+const images = require('./src/imagesS3/images');
+const video = require('./src/imagesS3/video');
 
 
 app.use(fileUpload());
@@ -35,6 +36,7 @@ app.use('/onelove/clinic',clinic);
 app.use('/onelove/users',user);
 app.use('/onelove/sub-cate',subCate);
 app.use('/onelove/image',images);
+app.use('/onelove/video',video);
 
 
 module.exports = app

@@ -47,4 +47,34 @@ AWS.config.update({
   });
 
 
+  images.post('/multi-upload', (req, res) => {
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ message: 'No files were uploaded.' });
+    }
+  
+    const uploadedFiles = req.files.images; // 'images' should match your HTML form field name
+  
+    // Iterate through the uploaded files and upload them to S3
+    const uploadPromises = uploadedFiles.map((file) => {
+      const params = {
+        Bucket: 'onelovemysql',
+        Key: file.name,
+        Body: file.data,
+      };
+  
+      return s3.upload(params).promise();
+    });
+  
+    Promise.all(uploadPromises)
+      .then((results) => {
+        res.status(200).json({ message: 'Files uploaded successfully', results });
+      })
+      .catch((err) => {
+        console.error('Error uploading files to S3:', err);
+        res.status(500).json({ message: 'Error uploading files to S3', error: err });
+      });
+  });
+
+  
+
   module.exports = images;
