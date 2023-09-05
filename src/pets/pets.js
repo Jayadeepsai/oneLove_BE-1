@@ -38,54 +38,6 @@ pets.post('/pet-post', async (req, res) => { // Add "async" keyword
     }
 });
 
-
-// pets.post('/pet-post-multiple-images', async (req, res) => {
-//     try {
-//       await db.beginTransaction();
-  
-//       const { images, love_tags, share, hoots, post_type, post_description, video, user_id, pet_id } = req.body;
-  
-//       const imageIds = [];
-  
-//       for (const image of images) {
-//         const s3ImageUrl = await uploadImageToS3(image.image_data, image.image_type);
-  
-//         const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
-//         const imageValues = [image.image_type, s3ImageUrl];
-//         const [imageResult] = await db.query(imageQuery, imageValues);
-//         const image_id = imageResult.insertId;
-  
-//         imageIds.push(image_id);
-//       }
-  
-//       const loveIndexSql = 'INSERT INTO onelove.love_index (love_tags, share, hoots) VALUES (?, ?, ?)';
-//       const loveIndexValues = [love_tags, share, hoots];
-//       const [loveIndexResult] = await db.query(loveIndexSql, loveIndexValues);
-//       const love_index_id = loveIndexResult.insertId;
-  
-//       // Assuming you want to associate each image with the same post details
-//       for (const image_id of imageIds) {
-//         const postSql = 'INSERT INTO onelove.posts (post_type, post_description, video, love_index_id, image_id, user_id, pet_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-//         const postValues = [post_type, post_description, video, love_index_id, image_id, user_id, pet_id];
-//         await db.query(postSql, postValues);
-//       }
-  
-//       await db.commit();
-//       console.log('Transaction committed successfully.');
-  
-//       // Send a success response to the client
-//       res.status(200).json({ message: 'Transaction committed successfully.' });
-//     } catch (err) {
-//       await db.rollback();
-//       console.error('Error in transaction:', err);
-  
-//       // Send an error response to the client
-//       res.status(500).json({ message: 'Failed to perform transaction.' });
-//     }
-//   });
-  
-
-
 pets.get('/pets', async (req, res) => { // Add "async" keyword
     try {
         const sql = `SELECT p.*, v.*, i1.image_id AS pet_image_id, i1.image_url AS pet_image_url, u.* , i2.image_id AS user_image_id, i2.image_url AS user_image_url,c.*

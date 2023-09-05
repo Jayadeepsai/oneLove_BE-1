@@ -7,46 +7,59 @@ const db = require('../../dbConnection')
 
 posts.use(express.json()); // To parse JSON bodies
 posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+  
 
-
-
-async function performTransaction(req,res){
-    try{
+async function performTransaction(req, res) {
+    try {
         await db.beginTransaction();
-       
-         const {love_tags, share, hoots} = req.body;
-         const loveIndexSql = 'INSERT INTO onelove.love_index (love_tags, share, hoots) VALUES (?, ?, ?)';
-         const loveIndexValues = [love_tags, share, hoots];
-         const [loveIndexResul] = await db.query(loveIndexSql,loveIndexValues);
-         const love_index_id = loveIndexResul.insertId;
+
+        const { love_tags, share, hoots, image_urls, image_type } = req.body;
+
+        // Insert love_index data
+        const loveIndexSql = 'INSERT INTO onelove.love_index (love_tags, share, hoots) VALUES (?, ?, ?)';
+        const loveIndexValues = [love_tags, share, hoots];
+        const [loveIndexResult] = await db.query(loveIndexSql, loveIndexValues);
+        const love_index_id = loveIndexResult.insertId;
+
+        // Insert images data
+        const imageInsertSql = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
+        const imageValues = [image_type, JSON.stringify(image_urls)];
+            const [imageResult] = await db.query(imageInsertSql, imageValues);
+            const image_id = imageResult.insertId;
+            console.log(image_id)
+            
+        const { video_type, video_url} = req.body;
+        let video_id = null;
+        if(video_type && video_url){
+            const videoSql = 'INSERT INTO onelove.videos (video_type, video_url) VALUES (?, ?)';
+            const videoValues = [video_type, JSON.stringify(video_url)];
+            const [videoResult] = await db.query(videoSql, videoValues);
+             video_id = videoResult.insertId;
+        }   
+    
+        // Insert posts data
+        const { post_type, post_description, user_id, pet_id } = req.body;
+        const postSql = 'INSERT INTO onelove.posts (post_type, post_description, video_id, love_index_id, image_id, user_id, pet_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        const postValues = [post_type, post_description, video_id, love_index_id, image_id, user_id, pet_id];
+        const [postResult] = await db.query(postSql, postValues);
+        const post_id = postResult.insertId;
 
 
-         const {image_type, image_url} = req.body;
-         const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
-         const imageValues = [image_type, image_url];
-         const [imageResult] = await db.query(imageQuery,imageValues);
-         const image_id = imageResult.insertId;
+        await db.commit();
+        console.log('Transaction committed successfully.');
 
-         const {post_type, post_description, video, user_id, pet_id} = req.body;
-         const postSql = 'INSERT INTO onelove.posts (post_type, post_description, video, love_index_id, image_id, user_id, pet_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-         const postValues = [post_type, post_description, video, love_index_id, image_id, user_id, pet_id];
-         await db.query(postSql,postValues);
-
-         await db.commit();
-         console.log('Transaction committed successfully.');
-
-         // Send a success response to the client
-         res.status(200).json({ message: 'Transaction committed successfully.' }); 
-
-    }catch(err){
-   await db.rollback();
+        // Send a success response to the client
+        res.status(200).json({ message: 'Transaction committed successfully.' });
+    } catch (err) {
+        await db.rollback();
 
         console.error('Error in transaction:', err);
 
         // Send an error response to the client
         res.status(500).json({ message: 'Failed to perform transaction.' });
     }
-}   
+}
+
 
 posts.post('/post-feed',(req,res)=>{
     performTransaction(req, res)
@@ -63,14 +76,18 @@ posts.post('/post-feed',(req,res)=>{
 
 posts.get('/posts', async (req,res)=>{
 
-    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
+    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, i1.image_type AS post_image_type, u.*, e.*, v.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
     FROM onelove.posts p
     LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
     LEFT JOIN images i1 ON p.image_id = i1.image_id
     LEFT JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN videos v ON p.video_id = v.video_id
     LEFT JOIN pet e ON p.pet_id = e.pet_id
     LEFT JOIN images i2 ON e.image_id = i2.image_id
+    WHERE i1.image_type = 'post_image'
     ORDER BY p.post_id DESC`;
+    
+    
 
     try{
          const [results]= await db.query(sql);
@@ -98,12 +115,13 @@ posts.get('/posts-id', async (req, res) => {
         });
     }
 
-    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*,a.*,c.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url, i3.image_id AS user_image_id, i3.image_url AS user_image_url
+    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*,a.*,c.*,v.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url, i3.image_id AS user_image_id, i3.image_url AS user_image_url
     FROM onelove.posts p
     LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
     LEFT JOIN images i1 ON p.image_id = i1.image_id
     LEFT JOIN users u ON p.user_id = u.user_id
     LEFT JOIN images i3 ON u.image_id = i3.image_id
+    LEFT JOIN videos v ON p.video_id = v.video_id
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c on u.contact_id = c.contact_id
     LEFT JOIN pet e ON p.pet_id = e.pet_id
@@ -144,10 +162,11 @@ posts.get('/user-posts', async (req, res) => {
         });
     }
 
-    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*,a.*,c.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url, i3.image_id AS user_image_id, i3.image_url AS user_image_url
+    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*,a.*,c.*,v.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url, i3.image_id AS user_image_id, i3.image_url AS user_image_url
     FROM onelove.posts p
     LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
     LEFT JOIN images i1 ON p.image_id = i1.image_id
+    LEFT JOIN videos v ON p.video_id = v.video_id
     LEFT JOIN users u ON p.user_id = u.user_id
     LEFT JOIN images i3 ON u.image_id = i3.image_id
     LEFT JOIN address a ON u.address_id = a.address_id
@@ -201,10 +220,11 @@ posts.get('/posts-pet-user', async (req, res) => {
             values.push(pet_id);
         }
 
-        let sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*,a.*,c.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url, i3.image_id AS user_image_id, i3.image_url AS user_image_url
+        let sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, u.*, e.*,a.*,c.*,v.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url, i3.image_id AS user_image_id, i3.image_url AS user_image_url
         FROM onelove.posts p
         LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
         LEFT JOIN images i1 ON p.image_id = i1.image_id
+        LEFT JOIN videos v ON p.video_id = v.video_id
         LEFT JOIN users u ON p.user_id = u.user_id
         LEFT JOIN images i3 ON u.image_id = i3.image_id
         LEFT JOIN address a ON u.address_id = a.address_id

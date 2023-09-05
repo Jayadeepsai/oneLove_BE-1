@@ -138,7 +138,9 @@ DROP INDEX `user_id` ;
   `hoots` VARCHAR(999) NULL,
   PRIMARY KEY (`love_index_id`));
 
-
+ALTER TABLE love_index
+ADD COLUMN post_id INT(11),
+ADD FOREIGN KEY (post_id) REFERENCES posts(post_id);
 
 
   CREATE TABLE `onelove`.`tracking` (
@@ -211,6 +213,11 @@ ALTER TABLE onelove.posts
 ADD COLUMN pet_id INT,
 ADD FOREIGN KEY (pet_id) REFERENCES onelove.pet(pet_id);
 
+ALTER TABLE onelove.posts
+ADD COLUMN video_id INT,
+ADD FOREIGN KEY (video_id) REFERENCES onelove.videos(video_id);
+
+
 
 
 CREATE TABLE onelove.pet (
@@ -232,6 +239,13 @@ CREATE TABLE onelove.pet (
 
 ALTER TABLE `onelove`.`pet` 
 ADD COLUMN `spay_neuter` VARCHAR(45) NULL AFTER `user_id`;
+
+CREATE TABLE `onelove`.`videos` (
+  `video_id` INT NOT NULL AUTO_INCREMENT,
+  `video_type` VARCHAR(45) NULL,
+  `video_url` JSON NULL,
+  PRIMARY KEY (`video_id`));
+
 
 CREATE TABLE clinics (
     clinic_id INT AUTO_INCREMENT PRIMARY KEY,
