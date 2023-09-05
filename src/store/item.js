@@ -17,13 +17,13 @@ async function performTransaction(req,res){
 
         const { image_type, image_url } = req.body;
         const imageSql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
-        const imageValues = [image_type, image_url];
+        const imageValues = [image_type, JSON.stringify(image_url)];
         const [imageResult] = await db.query(imageSql,imageValues);
         const image_id = imageResult.insertId;
 
-        const { brand_name, product_title, item_description, product_details, sub_cate_id, store_id } = req.body;
-        const itemSql = `INSERT INTO onelove.items (brand_name, product_title, item_description, product_details, sub_cate_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-        const itemValues = [brand_name, product_title, item_description, product_details, sub_cate_id, store_id, image_id];
+        const { brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id } = req.body;
+        const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, image_id];
         const [itemResult] = await db.query(itemSql,itemValues);
         const item_id = itemResult.insertId;
 

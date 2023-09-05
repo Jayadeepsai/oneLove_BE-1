@@ -15,7 +15,7 @@ pets.post('/pet-post', async (req, res) => { // Add "async" keyword
 
         // Insert into images table
         const sql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
-        const imageValues = [image_type, image_url];
+        const imageValues = [image_type,JSON.stringify(image_url)];
 
         const [imageResult] = await db.query(sql, imageValues); // Use await to execute the query
 
@@ -152,7 +152,7 @@ pets.put('/pet-update-image', async (req, res) => {
             UPDATE onelove.images
             SET image_type = ?, image_url = ?
             WHERE image_id = (SELECT image_id FROM onelove.pet WHERE pet_id = ?)`;
-        const updateImageValues = [image_type, image_url, pet_id];
+        const updateImageValues = [image_type, JSON.stringify(image_url), pet_id];
 
         // Execute the update query for images table
         const [updateImageResult] = await db.query(updateImageSql, updateImageValues);

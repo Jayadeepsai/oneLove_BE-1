@@ -13,11 +13,11 @@ async function performTransaction(req, res) {
     try {
         await db.beginTransaction();
 
-        const { love_tags, share, hoots, image_urls, image_type } = req.body;
+        const { likes, comments, image_urls, image_type } = req.body;
 
         // Insert love_index data
-        const loveIndexSql = 'INSERT INTO onelove.love_index (love_tags, share, hoots) VALUES (?, ?, ?)';
-        const loveIndexValues = [love_tags, share, hoots];
+        const loveIndexSql = 'INSERT INTO onelove.love_index ( likes, comments) VALUES ( ?, ?)';
+        const loveIndexValues = [likes, comments];
         const [loveIndexResult] = await db.query(loveIndexSql, loveIndexValues);
         const love_index_id = loveIndexResult.insertId;
 

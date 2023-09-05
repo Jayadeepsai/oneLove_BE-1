@@ -186,7 +186,7 @@ async function performTransaction(req, res) {
 
        if (image_type && image_url) {
            const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
-           const imageValues = [image_type, image_url];
+           const imageValues = [image_type, JSON.stringify(image_url)];
 
         try {
             const [imageResult] = await connection.query(imageQuery, imageValues);
