@@ -80,6 +80,9 @@ ADD CONSTRAINT fk_item_id
 FOREIGN KEY (item_id) REFERENCES items(item_id)
 ON DELETE CASCADE;
 
+ALTER TABLE `onelove`.`items` 
+ADD COLUMN `quantity` JSON NULL
+
 
 CREATE TABLE quantity (
     quantity_id INT(11) AUTO_INCREMENT PRIMARY KEY,

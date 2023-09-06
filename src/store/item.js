@@ -21,29 +21,12 @@ async function performTransaction(req,res){
         const [imageResult] = await db.query(imageSql,imageValues);
         const image_id = imageResult.insertId;
 
-        const { brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id } = req.body;
-        const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, image_id];
+        const { brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, quantity } = req.body;
+        const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, image_id, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, image_id, JSON.stringify(quantity)];
         const [itemResult] = await db.query(itemSql,itemValues);
         const item_id = itemResult.insertId;
 
-        const quantityPackages = req.body.quantityPackages;
-
-        if (!Array.isArray(quantityPackages)) {
-            console.error("error in transaction")
-            return res.status(400).json({ message: 'Invalid quantityPackages data.' });
-          }
-        
-        for (const package of quantityPackages) {
-            const { quantity_type, quantity, item_count, mrp, discount } = package;
-            // Calculate total_price based on mrp and discount
-            const calculatedDiscount = (mrp * discount) / 100;
-            const total_price = mrp - calculatedDiscount;
-            const quantitySql = `INSERT INTO onelove.quantity (quantity_type, quantity, item_count, mrp, discount, total_price, item_id) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-            const quantityValues = [quantity_type, quantity, item_count, mrp, discount, total_price, item_id];
-            await db.query(quantitySql, quantityValues);
-        }
-       
         
         await db.commit();
        
@@ -73,6 +56,75 @@ items.post('/item-entry',(req,res)=>{
        });
 });
 
+async function bulkInsertItems(req, res) {
+    try {
+        await db.beginTransaction();
+
+        const { image_type, image_url } = req.body;
+        const imageSql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
+        const imageValues = [image_type, JSON.stringify(image_url)];
+        const [imageResult] = await db.query(imageSql, imageValues);
+        const image_id = imageResult.insertId;
+
+        const itemsToInsert = req.body.items; // Assuming the items are in an "items" array
+
+        const insertPromises = itemsToInsert.map(async (item) => {
+            const {
+                brand_name,
+                product_title,
+                pet_type_product,
+                item_description,
+                product_details,
+                sub_cate_id,
+                store_id,
+                quantity,
+            } = item;
+
+            const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, image_id, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const itemValues = [
+                brand_name,
+                product_title,
+                pet_type_product,
+                item_description,
+                product_details,
+                sub_cate_id,
+                store_id,
+                image_id,
+                JSON.stringify(quantity),
+            ];
+
+            const [itemResult] = await db.query(itemSql, itemValues);
+            return itemResult.insertId;
+        });
+
+        const itemIds = await Promise.all(insertPromises);
+
+        await db.commit();
+
+        console.log('Bulk transaction committed successfully.');
+
+        // Send a success response to the client with the inserted item IDs
+        res.status(200).json({ message: 'Bulk transaction committed successfully.', insertedItemIds: itemIds });
+    } catch (err) {
+        await db.rollback();
+
+        console.error('Error in bulk transaction:', err);
+
+        // Send an error response to the client
+        res.status(500).json({ message: 'Failed to perform bulk transaction.' });
+    }
+}
+
+
+items.post('/bulk-item-entry',(req,res)=>{
+    bulkInsertItems(req,res)
+    .then(() => {
+        console.log('Transaction completed successfully');
+       })
+    .catch((err) => {
+        console.error('Error in address.post API:', err);
+       });
+});
 
 
 items.get('/products',async(req,res)=>{
