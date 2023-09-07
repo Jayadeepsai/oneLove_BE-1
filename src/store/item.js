@@ -56,75 +56,6 @@ items.post('/item-entry',(req,res)=>{
        });
 });
 
-async function bulkInsertItems(req, res) {
-    try {
-        await db.beginTransaction();
-
-        const { image_type, image_url } = req.body;
-        const imageSql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
-        const imageValues = [image_type, JSON.stringify(image_url)];
-        const [imageResult] = await db.query(imageSql, imageValues);
-        const image_id = imageResult.insertId;
-
-        const itemsToInsert = req.body.items; // Assuming the items are in an "items" array
-
-        const insertPromises = itemsToInsert.map(async (item) => {
-            const {
-                brand_name,
-                product_title,
-                pet_type_product,
-                item_description,
-                product_details,
-                sub_cate_id,
-                store_id,
-                quantity,
-            } = item;
-
-            const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, image_id, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            const itemValues = [
-                brand_name,
-                product_title,
-                pet_type_product,
-                item_description,
-                product_details,
-                sub_cate_id,
-                store_id,
-                image_id,
-                JSON.stringify(quantity),
-            ];
-
-            const [itemResult] = await db.query(itemSql, itemValues);
-            return itemResult.insertId;
-        });
-
-        const itemIds = await Promise.all(insertPromises);
-
-        await db.commit();
-
-        console.log('Bulk transaction committed successfully.');
-
-        // Send a success response to the client with the inserted item IDs
-        res.status(200).json({ message: 'Bulk transaction committed successfully.', insertedItemIds: itemIds });
-    } catch (err) {
-        await db.rollback();
-
-        console.error('Error in bulk transaction:', err);
-
-        // Send an error response to the client
-        res.status(500).json({ message: 'Failed to perform bulk transaction.' });
-    }
-}
-
-
-items.post('/bulk-item-entry',(req,res)=>{
-    bulkInsertItems(req,res)
-    .then(() => {
-        console.log('Transaction completed successfully');
-       })
-    .catch((err) => {
-        console.error('Error in address.post API:', err);
-       });
-});
 
 
 items.get('/products',async(req,res)=>{
@@ -257,31 +188,96 @@ items.get('/product-store-item-id', async (req, res) => {
 });
 
 
-// items.delete('/delete-item', async (req, res) => {
-//     try {
-//         const item_id = req.query.item_id;
+items.put('/update-item', async (req, res) => {
+    try {
+        const item_id = req.query.item_id;
 
-//         const sql = `DELETE FROM onelove.items WHERE item_id = ?`;
+        await db.beginTransaction();
 
-//         const [result] = await db.query(sql, [item_id]); 
+        const { brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, quantity } = req.body;
 
-//         // Check if the post was deleted successfully
-//         if (result.affectedRows === 0) {
-//             res.status(404).json({
-//                 message: messages.INVALID_ID,
-//             });
-//         } else {
-//             res.status(200).json({
-//                 message: messages.DATA_DELETED,
-//             });
-//         }
-//     } catch (err) {
-//         console.error('Error deleting post:', err);
-//         res.status(500).json({
-//             message: messages.FAILED_TO_DELETE,
-//         });
-//     }
-// });
+        if(brand_name || product_title || pet_type_product || item_description || product_details || sub_cate_id || store_id || quantity){
+
+            let itemSql = 'UPDATE onelove.items SET';
+            const itemValues=[];
+
+            if (brand_name !== undefined) {
+                itemSql += ' brand_name=?,';
+                itemValues.push(brand_name);
+            }
+            if (product_title !== undefined) {
+                itemSql += ' product_title=?,';
+                itemValues.push(product_title);
+            }
+            if (pet_type_product !== undefined) {
+                itemSql += ' pet_type_product=?,';
+                itemValues.push(pet_type_product);
+            }
+            if (item_description !== undefined) {
+                itemSql += ' item_description=?,';
+                itemValues.push(item_description);
+            }
+            if (product_details !== undefined) {
+                itemSql += ' product_details=?,';
+                itemValues.push(product_details);
+            }
+            if (sub_cate_id !== undefined) {
+                itemSql += ' sub_cate_id=?,';
+                itemValues.push(sub_cate_id);
+            }
+            if (store_id !== undefined) {
+                itemSql += ' sub_cate_id=?,';
+                itemValues.push(sub_cate_id);
+            }
+            if (quantity !== undefined) {
+                itemSql += ' quantity=?,';
+                itemValues.push(JSON.stringify(quantity));
+            }
+            
+            itemSql = itemSql.slice(0, -1);
+            itemSql += ' WHERE item_id= ?';
+            itemValues.push(item_id);
+
+            await db.query(itemSql,itemValues);
+        }
+       
+        const { image_type, image_url } = req.body;
+
+        if(image_type || image_url){
+            let imageSql = 'UPDATE images SET';
+            const imageValues = [];
+      
+            if (image_type !== undefined) {
+                imageSql += ' image_type=?,';
+                imageValues.push(image_type);
+            }
+            if (image_url !== undefined) {
+                imageSql += ' image_url=?,';
+                imageValues.push(JSON.stringify(image_url));
+            }
+    
+            imageSql = imageSql.slice(0, -1);
+            imageSql += ' WHERE image_id=(SELECT image_id FROM items WHERE item_id=?)';
+            imageValues.push(item_id);
+    
+            await db.query(imageSql, imageValues);
+        }
+        await db.commit();
+
+        console.log('Data updated successfully.');
+
+        // Send a success response to the client
+        res.status(200).json({ message: 'Data updated successfully.' });
+    } catch (err) {
+        await db.rollback();
+
+        console.error('Error updating data:', err.message);
+
+        // Send an error response to the client
+        res.status(500).json({ message: 'Failed to update data.' });
+    }
+});
+
 
 
 items.delete('/delete-items', async (req, res) => {
@@ -351,6 +347,8 @@ items.get('/stores',async(req,res)=>{
         });
     }
 });
+
+
 
 
 module.exports = items;

@@ -64,12 +64,15 @@ pets.get('/pets', async (req, res) => { // Add "async" keyword
     }
 });
 
-pets.put('/update-pet', async (req, res) => { // Use "async" keyword
+pets.put('/update-pet', async (req, res) => { // Use "async" keyword   
     try {
         const pet_id = req.query.pet_id; // Use "req.query" instead of "req.params"
 
-        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id, user_id } = req.body;
+        const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id, user_id, spay_neuter, image_type, image_url } = req.body;
 
+        await db.beginTransaction();
+
+        if(pet_type || pet_name || pet_breed || pet_gender || pet_weight || pet_description || vaccination_id || pet_dob || image_id || user_id || spay_neuter){
         // Create the SQL query for the update operation
         let sql = 'UPDATE onelove.pet SET';
 
@@ -117,6 +120,10 @@ pets.put('/update-pet', async (req, res) => { // Use "async" keyword
             sql += ' user_id=?,';
             values.push(user_id);
         }
+        if (spay_neuter !== undefined) {
+            sql += ' spay_neuter=?,';
+            values.push(spay_neuter);
+        }
 
         // Remove the trailing comma from the SQL query
         sql = sql.slice(0, -1);
@@ -124,18 +131,36 @@ pets.put('/update-pet', async (req, res) => { // Use "async" keyword
         sql += ' WHERE pet_id=?';
         values.push(pet_id);
 
-        // Execute the update query
-        const [result] = await db.query(sql, values); // Use await to execute the query
+        await db.query(sql, values); // Use await to execute the query
+    }
+    if(image_type || image_url){
+        let imageSql = 'UPDATE images SET';
+        const imageValues = [];
+  
+        if (image_type !== undefined) {
+            imageSql += ' image_type=?,';
+            imageValues.push(image_type);
+        }
+        if (image_url !== undefined) {
+            imageSql += ' image_url=?,';
+            imageValues.push(JSON.stringify(image_url));
+        }
 
+        imageSql = imageSql.slice(0, -1);
+        imageSql += ' WHERE image_id=(SELECT image_id FROM pet WHERE pet_id=?)';
+        imageValues.push(pet_id);
+
+        await db.query(imageSql, imageValues);
+    }
+    await db.commit();
         console.log('Data updated successfully.');
-        res.status(200).json({
-            updatedData: result,
-            message: 'Data updated successfully.',
+       return res.status(200).json({
+            message: messages.DATA_UPDATED,
         });
-        console.log(result);
+        
     } catch (err) {
         console.error('Error updating data:', err.message);
-        res.status(400).json({ message: 'Failed to update data.' });
+      return  res.status(400).json({ message: 'Failed to update data.' });
     }
 });
 

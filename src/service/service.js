@@ -19,20 +19,11 @@ async function serviceQueries(req, res) { // Pass req and res as arguments
         // Start the transaction
         await db.beginTransaction();
 
-        
-        const { week_start_day, week_end_day, service_start_time, service_end_time } = req.body;
-        const timeQuery = 'INSERT INTO onelove.time (week_start_day, week_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?)';
-        const timeValues = [week_start_day, week_end_day, service_start_time, service_end_time];
-
-        const [timeResult] = await db.query(timeQuery, timeValues);
-        const time_id = timeResult.insertId;
-
        
-        const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience } = req.body;
-        const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, time_id, trainer_experience) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, time_id, trainer_experience ];
+        const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time} = req.body;
+        const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time];
 
-    
         await db.query(serviceQuery, serviceValues);
 
         // Commit the transaction if all queries are successful
@@ -51,10 +42,7 @@ async function serviceQueries(req, res) { // Pass req and res as arguments
         // Send an error response to the client
         res.status(500).json({ message: messages.POST_FAILED });
     }
-    //  finally {
-    //     // Release the connection back to the pool
-    //     connection.release();
-    // }
+
 }
 
 service.post('/service', (req, res) => {
@@ -68,59 +56,18 @@ service.post('/service', (req, res) => {
 });
 
 
-// service.get('/service-user-id', async(req,res)=>{
 
-//     const userId = req.query.user_id; 
-    
-//     if (!userId) {
-//         return res.status(400).json({
-//             message: messages.INVALID_ID,
-//         });
-//     }
-
-//     const sql = `
-//     SELECT  s.*,t.*,u.*,a.*,c.*
-//     FROM users u
-//     LEFT JOIN service s ON u.service_id = s.service_id
-//     LEFT JOIN address a ON u.address_id = a.address_id
-//     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-//     LEFT JOIN time t ON s.time_id = t.time_id
-//     WHERE u.user_id = ? AND u.user_type = 'pet_trainer'`;
-
-//     try{
-//         const [results] = await db.query(sql, [userId]);
-//         const servicesData = JSON.parse(JSON.stringify(results));
-
-//         if (servicesData.length > 0) {
-//             res.status(200).json({
-//                 servicesData,
-//                 message:messages.SUCCESS_MESSAGE,
-//             });
-//         } else {
-//             res.status(404).json({
-//                 message: messages.NO_DATA,
-//             });
-//         }
-
-//     }catch(err){
-//         console.error('Error fetching data:', err);
-//         res.status(500).json({
-//             message: messages.FAILURE_MESSAGE,
-//         });
-//     }
-// });
 
 service.get('/service', async(req,res)=>{
 
 
     const sql = `
-    SELECT  s.*,t.*,u.*,a.*,c.*, i.*
+    SELECT  s.*,u.*,a.*,c.*, i.*
     FROM users u
     LEFT JOIN service s ON u.service_id = s.service_id
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN images i ON u.image_id = i.image_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-    LEFT JOIN time t ON s.time_id = t.time_id
     WHERE u.user_type = 'pet_trainer'`;
 
     try{
@@ -170,12 +117,11 @@ service.get('/service-user-id', async (req, res) => {
     }
 
     const sql = `
-    SELECT  s.*, t.*, u.*, a.*, c.*, i.*
+    SELECT  s.*, u.*, a.*, c.*, i.*
     FROM users u
     LEFT JOIN service s ON u.service_id = s.service_id
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-    LEFT JOIN time t ON s.time_id = t.time_id
     LEFT JOIN images i ON u.image_id = i.image_id
     WHERE u.user_id = ?`;
 
@@ -219,41 +165,10 @@ service.put('/update-service', async (req, res) => {
     try {
         const service_id = req.query.service_id;
 
-        const { week_start_day, week_end_day, service_start_time, service_end_time, pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience  } = req.body;
+        const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time } = req.body;
 
-        let timeSql = 'UPDATE time SET';
-        let serviceSql = 'UPDATE service SET';
-
-        const timeValues = [];
-        const serviceValues = [];
-
-        if (week_start_day !== undefined) {
-            timeSql += ' week_start_day=?,';
-            timeValues.push(week_start_day);
-        }
-
-        if (week_end_day !== undefined) {
-            timeSql += ' week_end_day=?,';
-            timeValues.push(week_end_day);
-        }
-
-        if (service_start_time !== undefined) {
-            timeSql += ' service_start_time=?,';
-            timeValues.push(service_start_time);
-        }
-
-        if (service_end_time !== undefined) {
-            timeSql += ' service_end_time=?,';
-            timeValues.push(service_end_time);
-        }
-
-        timeSql = timeSql.slice(0, -1);
-        timeSql += ' WHERE time_id=(SELECT time_id FROM service WHERE service_id=?)';
-        timeValues.push(service_id);
-
-        await db.beginTransaction();
-
-        await db.query(timeSql, timeValues);
+        let serviceSql = 'UPDATE onelove.service SET'
+        const serviceValues = []
 
         if (pet_walking !== undefined) {
             serviceSql += ' pet_walking=?,';
@@ -299,6 +214,24 @@ service.put('/update-service', async (req, res) => {
             serviceSql += ' trainer_experience=?,';
             serviceValues.push(trainer_experience);
         }
+        if (service_start_day !== undefined) {
+            serviceSql += ' service_start_day=?,';
+            serviceValues.push(service_start_day);
+        }
+        if (service_end_day !== undefined) {
+            serviceSql += ' service_end_day=?,';
+            serviceValues.push(service_end_day);
+        }
+        if (service_start_time !== undefined) {
+            serviceSql += ' service_start_time=?,';
+            serviceValues.push(service_start_time);
+        }
+        if (service_end_time !== undefined) {
+            serviceSql += ' service_end_time=?,';
+            serviceValues.push(service_end_time);
+        }
+
+      
        
         serviceSql = serviceSql.slice(0, -1);
         serviceSql += ' WHERE service_id=?';

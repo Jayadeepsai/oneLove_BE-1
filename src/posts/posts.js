@@ -267,7 +267,7 @@ posts.put('/update-post', async (req, res) => {
         const post_id = req.query.post_id;
 
         const {
-            post_type, post_description, love_index_id, video, image_id, user_id} = req.body;
+            post_type, post_description, love_index_id, image_id, user_id} = req.body;
 
         let sql = 'UPDATE onelove.posts SET';
         const values = [];
@@ -283,10 +283,6 @@ posts.put('/update-post', async (req, res) => {
         if (love_index_id !== undefined) {
             sql += ' love_index_id=?,';
             values.push(love_index_id);
-        }
-        if (video !== undefined) {
-            sql += ' video=?,';
-            values.push(video);
         }
         if (image_id !== undefined) {
             sql += ' image_id=?,';

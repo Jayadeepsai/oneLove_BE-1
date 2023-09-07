@@ -13,14 +13,13 @@ users.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodie
 users.get('/users-id',async(req,res)=>{
     const user_id=req.query.user_id;
     const sql=`
-    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,t.*,i.*
+    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*, i.*
     FROM users u
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
     LEFT JOIN service s ON u.service_id = s.service_id
     LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
     LEFT JOIN store s1 ON u.store_id = s1.store_id
-    LEFT JOIN time t ON c1.time_id = t.time_id
     LEFT JOIN images i ON u.image_id = i.image_id
     WHERE u.user_id = ?`;
 try{
@@ -51,14 +50,13 @@ try{
 users.get('/users-pet-owners-user-id',async(req,res)=>{
     const user_id=req.query.user_id;
     const sql=`
-    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,t.*,i.*
+    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*, i.*
     FROM users u
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
     LEFT JOIN service s ON u.service_id = s.service_id
     LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
     LEFT JOIN store s1 ON u.store_id = s1.store_id
-    LEFT JOIN time t ON c1.time_id = t.time_id
     LEFT JOIN images i ON u.image_id = i.image_id
     WHERE u.user_id = ? AND u.user_type='pet_owner'`;
 try{
@@ -87,14 +85,13 @@ try{
 
 users.get('/users-pet-owners',async(req,res)=>{
     const sql=`
-    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,t.*,i.*
+    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,i.*
     FROM users u
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
     LEFT JOIN service s ON u.service_id = s.service_id
     LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
     LEFT JOIN store s1 ON u.store_id = s1.store_id
-    LEFT JOIN time t ON c1.time_id = t.time_id
     LEFT JOIN images i ON u.image_id = i.image_id
     WHERE u.user_type='pet_owner'`;
 try{
@@ -122,47 +119,6 @@ try{
 
 
 
-// users.put('/update-user',async(req,res)=>{
-// try{
-//     const user_id = req.query.user_id;
-
-//     if(!user_id){
-//      res.status(400).json({message:messages.INVALID_ID})
-//     }
-
-//     const { user_name, user_type} = req.body;
-
-//     let userSql = 'UPDATE users SET';
-
-//     const userValues =[];
-
-//     if (user_name !== undefined) {
-//         userSql += ' user_name=?,';
-//         userValues.push(user_name);
-//     }
-//     if (user_type !== undefined) {
-//         userSql += ' user_type=?,';
-//         userValues.push(user_type);
-//     }
-
-//     userSql = userSql.slice(0, -1);
-//         userSql += ' WHERE user_id=?';
-//         userValues.push(user_id);
-
-//         await db.beginTransaction();
-
-//         res.status(200).json({
-//             message: messages.DATA_UPDATED,
-//         });
-
-//     }catch(err){
-//         await db.rollback();
-//         console.error('Error updating data:', err.message);
-//         res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
-//     }
-// });
-
-
 users.put('/update-user-profile',async(req,res)=>{
   
     try{
@@ -176,8 +132,8 @@ users.put('/update-user-profile',async(req,res)=>{
         const { mobile_number, email } = req.body;
         const { user_type, user_name } = req.body;
         const { store_name, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale } = req.body;  
-        const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience } = req.body;
-        const { clinic_name, specialisation, clinic_license, experience, education } = req.body;
+        const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time} = req.body;
+        const { clinic_name, specialisation, clinic_license, experience, education , week_start_day, week_end_day, start_time, end_time} = req.body;
         const { image_type, image_url} =req.body;
 
         await db.beginTransaction();
@@ -332,7 +288,8 @@ users.put('/update-user-profile',async(req,res)=>{
         await db.query(storeSql, storeValues);
     }
 
-    if(pet_walking || pet_sitting || pet_boarding || event_training || training_workshop || adoption_drives || pet_intelligence_rank_card || pet_grooming || trainer_experience){
+    if(pet_walking || pet_sitting || pet_boarding || event_training || training_workshop || adoption_drives || pet_intelligence_rank_card || pet_grooming || trainer_experience || service_start_day || service_end_day || service_start_time || service_end_time){
+        
 
         let serviceSql = 'UPDATE service SET';
         const serviceValues = [];
@@ -373,6 +330,26 @@ users.put('/update-user-profile',async(req,res)=>{
             serviceSql += ' trainer_experience=?,';
             serviceValues.push(trainer_experience);
         }
+        if (trainer_experience !== undefined) {
+            serviceSql += ' trainer_experience=?,';
+            serviceValues.push(trainer_experience);
+        }
+        if (service_start_day !== undefined) {
+            serviceSql += ' service_start_day=?,';
+            serviceValues.push(service_start_day);
+        }
+        if (service_end_day !== undefined) {
+            serviceSql += ' service_end_day=?,';
+            serviceValues.push(service_end_day);
+        }
+        if (service_start_time !== undefined) {
+            serviceSql += ' service_start_time=?,';
+            serviceValues.push(service_start_time);
+        }
+        if (service_end_time !== undefined) {
+            serviceSql += ' service_end_time=?,';
+            serviceValues.push(service_end_time);
+        }
 
         serviceSql = serviceSql.slice(0, -1);
         serviceSql += ' WHERE service_id=(SELECT service_id FROM users WHERE user_id=?)';
@@ -381,7 +358,7 @@ users.put('/update-user-profile',async(req,res)=>{
         await db.query(serviceSql, serviceValues);
     }
 
-    if(clinic_name || specialisation || clinic_license || experience || education){
+    if(clinic_name || specialisation || clinic_license || experience || education || week_start_day || week_end_day || start_time || end_time){
 
         let clinicSql = 'UPDATE clinics SET';
         const clinicValues = [];
@@ -407,6 +384,23 @@ users.put('/update-user-profile',async(req,res)=>{
             clinicSql += ' education=?,';
             clinicValues.push(education);
         }
+        if (week_start_day !== undefined) {
+            clinicSql += ' week_start_day=?,';
+            clinicValues.push(week_start_day);
+        }
+        if (week_end_day !== undefined) {
+            clinicSql += ' week_end_day=?,';
+            clinicValues.push(week_end_day);
+        }
+        if (start_time !== undefined) {
+            clinicSql += ' start_time=?,';
+            clinicValues.push(start_time);
+        }
+        if (end_time !== undefined) {
+            clinicSql += ' end_time=?,';
+            clinicValues.push(end_time);
+        }
+ 
 
         clinicSql = clinicSql.slice(0, -1);
         clinicSql += ' WHERE clinic_id=(SELECT clinic_id FROM users WHERE user_id=?)';

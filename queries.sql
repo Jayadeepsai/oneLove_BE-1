@@ -131,8 +131,18 @@ DROP COLUMN `user_id`,
 DROP INDEX `user_id` ;
 ;
 
+ALTER TABLE `onelove`.`service` 
+DROP FOREIGN KEY `service_ibfk_1`;
+ALTER TABLE `onelove`.`service` 
+DROP COLUMN `time_id`,
+ADD COLUMN `service_start_day` VARCHAR(45) NULL AFTER `trainer_experience`,
+ADD COLUMN `service_end_day` VARCHAR(45) NULL AFTER `service_start_day`,
+DROP INDEX `time_id` ;
+;
 
-
+ALTER TABLE `onelove`.`service` 
+ADD COLUMN `servive_start_time` time NULL,
+ADD COLUMN `servive_end_time` time NULL;
 
   CREATE TABLE `onelove`.`love_index` (
   `love_index_id` INT NOT NULL AUTO_INCREMENT,
@@ -262,6 +272,7 @@ CREATE TABLE clinics (
 );
 
 
+
 ALTER TABLE `onelove`.`clinics` 
 ADD COLUMN `experience` VARCHAR(45) NULL AFTER `clinic_license`,
 ADD COLUMN `education` VARCHAR(45) NULL AFTER `experience`;
@@ -271,6 +282,15 @@ DROP FOREIGN KEY `fk_clinics_user`;
 ALTER TABLE `onelove`.`clinics` 
 DROP COLUMN `user_id`,
 DROP INDEX `fk_clinics_user` ;
+;
+
+ALTER TABLE `onelove`.`clinics` 
+DROP FOREIGN KEY `fk_clinics_time`;
+ALTER TABLE `onelove`.`clinics` 
+DROP COLUMN `time_id`,
+ADD COLUMN `week_start_day` VARCHAR(45) NULL AFTER `education`,
+ADD COLUMN `week_end_day` VARCHAR(45) NULL AFTER `week_start_day`,
+DROP INDEX `fk_clinics_time` ;
 ;
 
 CREATE TABLE onelove.users (

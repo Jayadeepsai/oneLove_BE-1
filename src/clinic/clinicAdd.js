@@ -14,16 +14,9 @@ async function clinicAddQueries(req,res){
 try{
     await db.beginTransaction();
 
-    const { week_start_day, week_end_day, service_start_time, service_end_time } = req.body;
-        const timeQuery = 'INSERT INTO onelove.time (week_start_day, week_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?)';
-        const timeValues = [week_start_day, week_end_day, service_start_time, service_end_time];
-
-        const [timeResult] = await db.query(timeQuery, timeValues);
-        const time_id = timeResult.insertId;
-
-        const {clinic_name, specialisation, clinic_license, experience, education} = req.body;
-        const clinicQuery ='INSERT INTO onelove.clinics(clinic_name, specialisation, clinic_license, experience, education, time_id) VALUES (?, ?, ?, ?, ?, ?)';
-        const clinicValues = [clinic_name, specialisation, clinic_license, experience, education, time_id]
+        const {clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time} = req.body;
+        const clinicQuery ='INSERT INTO onelove.clinics(clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const clinicValues = [clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time]
 
         await db.query(clinicQuery,clinicValues)
 
@@ -57,13 +50,13 @@ clinic.post('/clinic', (req, res) => {
 clinic.get('/clinic',async(req,res)=>{
 
     const sql = `
-    SELECT  s.*, t.*,u.*,a.*,c.*,i.*
+    SELECT  s.*,u.*,a.*,c.*,i.*
     FROM users u
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
     LEFT JOIN clinics s ON u.clinic_id = s.clinic_id
     LEFT JOIN images i ON u.image_id = i.image_id
-    LEFT JOIN time t ON s.time_id = t.time_id WHERE u.user_type = 'pet_doctor'`;
+    WHERE u.user_type = 'pet_doctor'`;
 
     try{
     const [results] = await db.query(sql);
@@ -99,12 +92,11 @@ clinic.get('/clinic-user-id', async(req,res)=>{
     }
 
     const sql = `
-    SELECT  s.*, t.*,u.*,a.*,c.*,i.*
+    SELECT  s.*,u.*,a.*,c.*,i.*
     FROM users u
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
     LEFT JOIN clinics s ON u.clinic_id = s.clinic_id
-    LEFT JOIN time t ON s.time_id = t.time_id
     LEFT JOIN images i ON u.image_id = i.image_id
     WHERE u.user_id = ? AND u.user_type = 'pet_doctor'`;
     try{
@@ -142,13 +134,11 @@ clinic.put('/update-clinic', async (req, res) => {
     }
 
     try {
-        const { clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, service_start_time, service_end_time } = req.body;
+        const { clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time } = req.body;
 
         let clinicSql = 'UPDATE onelove.clinics SET';
-        let timeSql = 'UPDATE time SET';
 
         const values = [];
-        const timeValues = [];
 
         if (clinic_name !== undefined) {
             clinicSql += ' clinic_name=?,';
@@ -172,37 +162,30 @@ clinic.put('/update-clinic', async (req, res) => {
         }
 
         if (week_start_day !== undefined) {
-            timeSql += ' week_start_day=?,';
-            timeValues.push(week_start_day);
+            clinicSql += ' week_start_day=?,';
+            values.push(week_start_day);
         }
         if (week_end_day !== undefined) {
-            timeSql += ' week_end_day=?,';
-            timeValues.push(week_end_day);
+            clinicSql += ' week_end_day=?,';
+            values.push(week_end_day);
         }
-        if (service_start_time !== undefined) {
-            timeSql += ' service_start_time=?,';
-            timeValues.push(service_start_time);
+        if (start_time !== undefined) {
+            clinicSql += ' start_time=?,';
+            values.push(start_time);
         }
-        if (service_end_time !== undefined) {
-            timeSql += ' service_end_time=?,';
-            timeValues.push(service_end_time);
+        if (end_time !== undefined) {
+            clinicSql += ' end_time=?,';
+            values.push(end_time);
         }
 
         clinicSql = clinicSql.slice(0, -1);
         clinicSql += ' WHERE clinic_id=?';
         values.push(clinic_id);
 
-        timeSql = timeSql.slice(0, -1);
-        timeSql += ' WHERE time_id=(SELECT time_id FROM clinics WHERE clinic_id=?)';
-        timeValues.push(clinic_id);
-
         await db.beginTransaction();
 
         // Update clinic data
         await db.query(clinicSql, values);
-
-        // Update time data
-        await db.query(timeSql, timeValues);
 
         await db.commit();
 

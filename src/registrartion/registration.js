@@ -221,9 +221,9 @@ async function performTransaction(req, res) {
 
             case 'pet_trainer':
                // Insert into service table for pet_doctor
-                const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience } = req.body;
-                const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-                const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience];
+               const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time} = req.body;
+               const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+               const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time];
              
                 const [serviceResult] = await connection.query(serviceQuery, serviceValues);
                 service_id = serviceResult.insertId;
@@ -243,9 +243,9 @@ async function performTransaction(req, res) {
                 break;
 
             case 'pet_doctor':
-                const { clinic_name, specialisation, clinic_license, experience, education } = req.body;
-                const clinicQuery = 'INSERT INTO onelove.clinics (clinic_name, specialisation, clinic_license, experience, education) VALUES (?, ?, ?, ?, ?)';
-                const clinicValues = [clinic_name, specialisation, clinic_license, experience, education];
+                const { clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time } = req.body;
+                const clinicQuery = 'INSERT INTO onelove.clinics (clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const clinicValues = [clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time];
     
                 const [clinicResult] = await connection.query(clinicQuery, clinicValues);
                 clinic_id = clinicResult.insertId;
@@ -412,103 +412,6 @@ registration.get('/registration-mobile-number', async(req,res)=>{
     
     });
 
-
-    
-
-registration.put('/update-reg', async (req, res) => {
-    try {
-        const reg_id = req.query.reg_id;
-
-        const { address, city, state, zip, country, landmark, address_type, mobile_number, email, user_type, user_name } = req.body;
-
-        let addressSql = 'UPDATE address SET';
-        let contact_detailsSql = 'UPDATE contact_details SET';
-        let usersSql = 'UPDATE users SET';
-
-        const addressValues = [];
-        const contactDetailsValues = [];
-        const usersValues = [];
-
-        // Update address table
-        if (address !== undefined) {
-            addressSql += ' address=?,';
-            addressValues.push(address);
-        }
-        if (city !== undefined) {
-            addressSql += ' city=?,';
-            addressValues.push(city);
-        }
-        if (state !== undefined) {
-            addressSql += ' state=?,';
-            addressValues.push(state);
-        }
-        if (zip !== undefined) {
-            addressSql += ' zip=?,';
-            addressValues.push(zip);
-        }
-        if (country !== undefined) {
-            addressSql += ' country=?,';
-            addressValues.push(country);
-        }
-        if (landmark !== undefined) {
-            addressSql += ' landmark=?,';
-            addressValues.push(landmark);
-        }
-        if (address_type !== undefined) {
-            addressSql += ' address_type=?,';
-            addressValues.push(address_type);
-        }
-
-        addressSql = addressSql.slice(0, -1);
-        addressSql += ' WHERE address_id=(SELECT address_id FROM registrations WHERE reg_id=?)';
-        addressValues.push(reg_id);
-
-        // Update contact_details table
-        if (mobile_number !== undefined) {
-            contact_detailsSql += ' mobile_number=?,';
-            contactDetailsValues.push(mobile_number);
-        }
-        if (email !== undefined) {
-            contact_detailsSql += ' email=?,';
-            contactDetailsValues.push(email);
-        }
-    
-
-        contact_detailsSql = contact_detailsSql.slice(0, -1);
-        contact_detailsSql += ' WHERE contact_id=(SELECT contact_id FROM registrations WHERE reg_id=?)';
-        contactDetailsValues.push(reg_id);
-
-        // Update users table
-        if (user_type !== undefined) {
-            usersSql += ' user_type=?,';
-            usersValues.push(user_type);
-        }
-        if (user_name !== undefined) {
-            usersSql += ' user_name=?,';
-            usersValues.push(user_name);
-        }
-
-        usersSql = usersSql.slice(0, -1);
-        usersSql += ' WHERE user_id=(SELECT user_id FROM registrations WHERE reg_id=?)';
-        usersValues.push(reg_id);
-
-        await connection.beginTransaction();
-
-        await connection.query(addressSql, addressValues);
-        await connection.query(contact_detailsSql, contactDetailsValues);
-        await connection.query(usersSql, usersValues);
-
-        await connection.commit();
-
-        res.status(200).json({
-            message: messages.DATA_UPDATED,
-        });
-    } catch (err) {
-        await connection.rollback();
-        console.error('Error updating data:', err.message);
-        res.status(400).json({ message: messages.DATA_UPDATE_FALIED }); 
-    }
-});
 
 
 registration.delete('/delete-registration-data', async (req, res) => {
