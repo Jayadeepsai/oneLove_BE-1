@@ -141,7 +141,7 @@ items.get('/products-store-id',async(req,res)=>{
             }));
 
             res.status(200).json({
-                servicesData: convertedProductsData,
+                productData: convertedProductsData,
                 message: messages.SUCCESS_MESSAGE,
             });
         } else {
