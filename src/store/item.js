@@ -128,11 +128,28 @@ items.get('/products-store-id',async(req,res)=>{
         const [results] = await db.query(sql,store_id); 
 
         const productsData = JSON.parse(JSON.stringify(results));
+        if (productsData.length > 0) {
+            // Convert numeric boolean values to actual boolean values in the response
+            const convertedProductsData = productsData.map(item => ({
+                ...item,
+                food_treats: item.food_treats === 1,
+                accessories: item.accessories === 1,
+                toys: item.toys === 1,
+                health_care: item.health_care === 1,
+                dog_service: item.dog_service === 1,
+                breader_adoption_sale: item.breader_adoption_sale === 1,
+            }));
+
+            res.status(200).json({
+                servicesData: convertedProductsData,
+                message: messages.SUCCESS_MESSAGE,
+            });
+        } else {
+            res.status(404).json({
+                message: messages.NO_DATA,
+            });
+        }
       
-        res.status(200).json({
-            productsData,
-            message: messages.SUCCESS_MESSAGE,
-        });
     }catch(err){
         console.error('Error fetching pets data:', err);
         res.status(500).json({
