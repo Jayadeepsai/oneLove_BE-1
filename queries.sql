@@ -141,8 +141,8 @@ DROP INDEX `time_id` ;
 ;
 
 ALTER TABLE `onelove`.`service` 
-ADD COLUMN `servive_start_time` time NULL,
-ADD COLUMN `servive_end_time` time NULL;
+ADD COLUMN `service_start_time` time NULL,
+ADD COLUMN `service_end_time` time NULL;
 
   CREATE TABLE `onelove`.`love_index` (
   `love_index_id` INT NOT NULL AUTO_INCREMENT,
@@ -508,6 +508,14 @@ CREATE TABLE onelove.pet_trainer (
     FOREIGN KEY (service_id) REFERENCES onelove.service(service_id)
 );
 
+
+CREATE TABLE rating_review (
+  rate_id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT,
+  ratings JSON,
+  reviews JSON,
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
 
 ALTER TABLE `onelove`.`pet_trainer`
 DROP FOREIGN KEY `pet_trainer_ibfk_1`,

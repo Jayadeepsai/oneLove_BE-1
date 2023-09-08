@@ -59,10 +59,12 @@ items.post('/item-entry',(req,res)=>{
 
 
 items.get('/products',async(req,res)=>{
-    const sql = `SELECT i.*,s.*,s1.*,i1.*
+    const sql = `SELECT i.*,s.*,s1.*,i1.*,a.*,c.*
                  FROM onelove.items i
                  LEFT JOIN sub_category s ON i.sub_cate_id = s.sub_cate_id
                  LEFT JOIN store s1 ON i.store_id = s1.store_id
+                 LEFT JOIN address a ON s1.address_id = a.address_id
+                 LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
                  LEFT JOIN images i1 ON i.image_id = i1.image_id`
     try{
         const [results] = await db.query(sql); // Use await to execute the query
@@ -83,10 +85,12 @@ items.get('/products',async(req,res)=>{
 
 items.get('/products-id',async(req,res)=>{
     const item_id = req.query.item_id
-    const sql = `SELECT i.*,s.*,s1.*,i1.*
+    const sql = `SELECT i.*,s.*,s1.*,i1.*,a.*,c.*
                  FROM onelove.items i
                  LEFT JOIN sub_category s ON i.sub_cate_id = s.sub_cate_id
                  LEFT JOIN store s1 ON i.store_id = s1.store_id
+                 LEFT JOIN address a ON s1.address_id = a.address_id
+                 LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
                  LEFT JOIN images i1 ON i.image_id = i1.image_id
                  WHERE i.item_id=?`
     try{
@@ -112,10 +116,12 @@ items.get('/products-store-id',async(req,res)=>{
 
     const store_id = req.query.store_id
 
-    const sql = `SELECT i.*,s.*,s1.*,i1.*
+    const sql = `SELECT i.*,s.*,s1.*,i1.*,a.*,c.*
                  FROM onelove.items i
                  LEFT JOIN sub_category s ON i.sub_cate_id = s.sub_cate_id
                  LEFT JOIN store s1 ON i.store_id = s1.store_id
+                 LEFT JOIN address a ON s1.address_id = a.address_id
+                 LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
                  LEFT JOIN images i1 ON i.image_id = i1.image_id
                  WHERE i.store_id=?`
     try{

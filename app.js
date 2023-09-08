@@ -20,6 +20,7 @@ const user = require('./src/registrartion/users');
 const subCate = require('./src/store/subCategory');
 const images = require('./src/imagesS3/images');
 const video = require('./src/imagesS3/video');
+const ratings = require('./src/ratings_reviews/ratings');
 
 
 app.use(fileUpload());
@@ -37,6 +38,7 @@ app.use('/onelove/users',user);
 app.use('/onelove/sub-cate',subCate);
 app.use('/onelove/image',images);
 app.use('/onelove/video',video);
+app.use('/onelove/ratings',ratings);
 
 
 module.exports = app
