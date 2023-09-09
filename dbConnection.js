@@ -1,22 +1,22 @@
     const mysql = require('mysql2');
     require('dotenv').config();
-    // const connection = mysql.createConnection({
+    const connection = mysql.createConnection({
 
-    //     host: process.env.DB_HOST,
-    //     port: process.env.DB_PORT,
-    //     user: process.env.DB_USER,
-    //     password: process.env.DB_PASSWORD,
-    //     database: process.env.DB_DATABASE
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_DATABASE
         
 
-    // })
+    })
 
-    const connection = mysql.createConnection({
-        host: 'your-aurora-endpoint',
-        user: 'aurora_db_user',
-        password: 'aurora_db_password',
-        database: 'aurora_db_name',
-      });
+    // const connection = mysql.createConnection({
+    //     host: 'your-aurora-endpoint',
+    //     user: 'aurora_db_user',
+    //     password: 'aurora_db_password',
+    //     database: 'aurora_db_name',
+    //   });
     connection.connect(function (error) {
         if (error) throw error
         else{

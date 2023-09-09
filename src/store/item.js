@@ -352,12 +352,30 @@ items.get('/stores',async(req,res)=>{
     try{
     const [results] = await db.query(sql);
         const storesData = JSON.parse(JSON.stringify(results));
-
         if (storesData.length > 0) {
+            // Convert numeric boolean values to actual boolean values in the response
+            const convertedStoresData = storesData.map(store => ({
+                ...store,
+                food_treats: store.food_treats === 1,
+                accessories: store.accessories === 1,
+                pet_boarding: store.pet_boarding === 1,
+                toys: store.toys === 1,
+                health_care: store.health_care === 1,
+                dog_service: store.dog_service === 1,
+                breader_adoption_sale: store.breader_adoption_sale === 1
+              
+            }));
+
             res.status(200).json({
-                storesData,
-                message:messages.SUCCESS_MESSAGE,
+                storesData: convertedStoresData,
+                message: messages.SUCCESS_MESSAGE,
             });
+
+        // if (storesData.length > 0) {
+        //     res.status(200).json({
+        //         storesData,
+        //         message:messages.SUCCESS_MESSAGE,
+        //     });
         } else {
             res.status(404).json({
                 message: messages.NO_DATA,

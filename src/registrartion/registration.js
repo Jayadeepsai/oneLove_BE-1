@@ -162,6 +162,17 @@ async function performTransaction(req, res) {
         // Start the transaction
         await connection.beginTransaction();
 
+        const { mobile_number } = req.body;
+
+        // Check if mobile number already exists in contact_details table
+        const checkQuery = 'SELECT contact_id FROM onelove.contact_details WHERE mobile_number = ?';
+        const [checkResult] = await connection.query(checkQuery, [mobile_number]);
+
+        if (checkResult.length > 0) {
+            // Mobile number already exists, send a response
+            return res.status(400).json({ message: 'User with this mobile number is already registered.' });
+        }
+
        // Insert into address table
        const { address, city, state, zip, country, landmark, address_type } = req.body;
        const addressQuery = 'INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type) VALUES (?, ?, ?, ?, ?, ?, ?)';
@@ -171,9 +182,9 @@ async function performTransaction(req, res) {
        const address_id = addressResult.insertId;
 
        // Insert into contact_details table
-       const { mobile_number, email } = req.body;
+      const {email} = req.body;
        const contactQuery = 'INSERT INTO onelove.contact_details (mobile_number, email) VALUES (?, ?)';
-       const contactValues = [mobile_number, email];
+       const contactValues = [mobile_number,email ];
 
        const [contactResult] = await connection.query(contactQuery, contactValues);
        const contact_id = contactResult.insertId;
