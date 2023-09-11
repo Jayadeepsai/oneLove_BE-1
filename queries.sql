@@ -368,6 +368,31 @@ CREATE TABLE onelove.orders (
     FOREIGN KEY (tracking_id) REFERENCES onelove.tracking(tracking_id)
 );
 
+ALTER TABLE `onelove`.`orders` 
+DROP FOREIGN KEY `orders_ibfk_4`,
+DROP FOREIGN KEY `orders_ibfk_3`,
+DROP FOREIGN KEY `orders_ibfk_2`,
+DROP FOREIGN KEY `fk_address_id_orders`;
+ALTER TABLE `onelove`.`orders` 
+DROP COLUMN `payment_id`,
+DROP COLUMN `address_id`,
+DROP COLUMN `tracking_id`,
+DROP COLUMN `item_id`,
+DROP COLUMN `order_status`,
+DROP COLUMN `order_quantity`,
+DROP INDEX `payment_id` ,
+DROP INDEX `fk_address_id_orders` ,
+DROP INDEX `tracking_id` ,
+DROP INDEX `item_id` ;
+;
+
+
+ALTER TABLE onelove.orders
+ADD COLUMN store_id INT,
+ADD FOREIGN KEY (store_id) REFERENCES onelove.store(store_id)
+ADD COLUMN orders JSON
+ADD COLUMN order_no VARCHAR(45);
+
 
 
 
