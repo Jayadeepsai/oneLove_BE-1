@@ -12,10 +12,11 @@
     })
 
     // const connection = mysql.createConnection({
-    //     host: 'your-aurora-endpoint',
-    //     user: 'aurora_db_user',
-    //     password: 'aurora_db_password',
-    //     database: 'aurora_db_name',
+    //     host: 'database-1-instance-1.cxb7nmtc66dn.us-east-2.rds.amazonaws.com',
+    //     user: 'admin',
+    //     password: 'onelove',
+    //     database: 'database-1',
+    //     port: 3306,
     //   });
     connection.connect(function (error) {
         if (error) throw error

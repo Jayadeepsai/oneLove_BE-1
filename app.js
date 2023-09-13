@@ -4,6 +4,7 @@ const app = express();
 require('dotenv').config();
 const connection = require('./dbConnection');
 const fileUpload = require('express-fileupload');
+const actuator = require('express-actuator');
 
 
 const vaccine = require('./src/clinic/vaccine');
@@ -21,7 +22,8 @@ const subCate = require('./src/store/subCategory');
 const images = require('./src/imagesS3/images');
 const video = require('./src/imagesS3/video');
 const ratings = require('./src/ratings_reviews/ratings');
-const orders = require('./src/orders/orders')
+const orders = require('./src/orders/orders');
+
 
 
 app.use(fileUpload());

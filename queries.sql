@@ -333,6 +333,13 @@ DROP INDEX `pet_id` ;
 ;
 
 
+ALTER TABLE `onelove`.`users` 
+DROP FOREIGN KEY `users_ibfk_5`;
+ALTER TABLE `onelove`.`users` 
+DROP COLUMN `order_id`,
+DROP INDEX `order_id` ;
+;
+
 
 
 CREATE TABLE onelove.registrations (

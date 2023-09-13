@@ -239,11 +239,11 @@ try{
     }
 
     const sql =`SELECT a.*, c.*, u.*, r.*,i.*
-    FROM onelove.registrations r
-    LEFT JOIN address a ON r.address_id = a.address_id
-    LEFT JOIN contact_details c ON r.contact_id = c.contact_id
-    LEFT JOIN users u ON r.user_id = u.user_id
-    LEFT JOIN images i ON r.image_id = i.image_id WHERE r.reg_id=?`;
+                FROM onelove.registrations r
+                LEFT JOIN address a ON r.address_id = a.address_id
+                LEFT JOIN contact_details c ON r.contact_id = c.contact_id
+                LEFT JOIN users u ON r.user_id = u.user_id
+                LEFT JOIN images i ON r.image_id = i.image_id WHERE r.reg_id=?`;
     const [data] = await connection.query(sql,[reg_id]);
 
     if (data.length === 0) {

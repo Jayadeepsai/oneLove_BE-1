@@ -220,40 +220,93 @@ pets.get('/pets-images', async (req, res) => {
 });
 
 
-pets.get('/pets-users', async (req, res) => { 
+// pets.get('/pets-users', async (req, res) => { 
    
-        const user_id = req.query.user_id; 
+//         const user_id = req.query.user_id; 
 
-        if (!user_id) {
-            return res.status(400).json({
-                message: messages.INVALID_ID,
-            });
-        }
+//         if (!user_id) {
+//             return res.status(400).json({
+//                 message: messages.INVALID_ID,
+//             });
+//         }
 
-        const sql = `SELECT p.*, v.*, i1.image_id AS pet_image_id, i1.image_url AS pet_image_url, u.* , i2.image_id AS user_image_id, i2.image_url AS user_image_url
-                 FROM onelove.pet p
-                 LEFT JOIN vaccination v ON p.vaccination_id = v.vaccination_id
-                 LEFT JOIN images i1 ON p.image_id = i1.image_id
-                 LEFT JOIN users u ON p.user_id = u.user_id
-                 LEFT JOIN images i2 ON u.image_id = i2.image_id
-                 WHERE p.user_id = ?`;
-     try {
-        const [results] = await db.query(sql, [user_id]); // Use await to execute the query
-        const pet = JSON.parse(JSON.stringify(results));
+//         const sql = `SELECT p.*, p1.*, v.*, i1.image_id AS pet_image_id, i1.image_url AS pet_image_url, u.* , i2.image_id AS user_image_id, i2.image_url AS user_image_url
+//                  FROM onelove.pet p
+//                  LEFT JOIN vaccination v ON p.vaccination_id = v.vaccination_id
+//                  LEFT JOIN images i1 ON p.image_id = i1.image_id
+//                  LEFT JOIN users u ON p.user_id = u.user_id
+//                  LEFT JOIN posts p1 ON p.user_id = p1.user_id
+//                  LEFT JOIN images i2 ON u.image_id = i2.image_id
+//                  WHERE p.user_id = ?`;
+//      try {
+//         const [results] = await db.query(sql, [user_id]); // Use await to execute the query
+//         const pet = JSON.parse(JSON.stringify(results));
 
        
+//         res.status(200).json({
+//             pet,
+//             message:messages.SUCCESS_MESSAGE,
+//         });
+//     } catch (err) {
+//         console.error('Error fetching :', err);
+//         res.status(500).json({
+//             message: messages.FAILURE_MESSAGE,
+//         });
+//     }
+// });
+
+pets.get('/pets-users', async (req, res) => { 
+    const user_id = req.query.user_id;
+
+    if (!user_id) {
+        return res.status(400).json({
+            message: messages.INVALID_ID,
+        });
+    }
+
+    const sql = `
+    SELECT
+        p.*,
+        v.*,
+        i1.image_id AS pet_image_id,
+        i1.image_url AS pet_image_url,
+        u.*,
+        i2.image_id AS user_image_id,
+        i2.image_url AS user_image_url,
+        COUNT(po.post_id) AS post_count
+    FROM
+        onelove.pet p
+    LEFT JOIN
+        vaccination v ON p.vaccination_id = v.vaccination_id
+    LEFT JOIN
+        images i1 ON p.image_id = i1.image_id
+    LEFT JOIN
+        users u ON p.user_id = u.user_id
+    LEFT JOIN
+        images i2 ON u.image_id = i2.image_id
+    LEFT JOIN
+        posts po ON p.pet_id = po.pet_id
+    WHERE
+        p.user_id = ?
+    GROUP BY
+        p.pet_id
+`;
+    
+    try {
+        const [results] = await db.query(sql, [user_id]);
+        const pet = JSON.parse(JSON.stringify(results));
+
         res.status(200).json({
             pet,
-            message:messages.SUCCESS_MESSAGE,
+            message: messages.SUCCESS_MESSAGE,
         });
     } catch (err) {
-        console.error('Error fetching :', err);
+        console.error('Error fetching:', err);
         res.status(500).json({
             message: messages.FAILURE_MESSAGE,
         });
     }
 });
-
 
 
 
