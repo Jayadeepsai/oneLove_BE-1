@@ -10,12 +10,11 @@
         
 
     })
-
     // const connection = mysql.createConnection({
-    //     host: 'database-1-instance-1.cxb7nmtc66dn.us-east-2.rds.amazonaws.com',
-    //     user: 'admin',
-    //     password: 'onelove',
-    //     database: 'database-1',
+    //     host: 'Database-2.cluster-cxb7nmtc66dn.us-east-2.rds.amazonaws.com',
+    //     user: 'onelove',
+    //     password: 'oneLoveAws',
+    //     database: 'onelove',
     //     port: 3306,
     //   });
     connection.connect(function (error) {

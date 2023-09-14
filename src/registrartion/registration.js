@@ -8,25 +8,6 @@ require('dotenv').config();
 registration.use(express.json()); // To parse JSON bodies
 registration.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ID,
-    secretAccessKey: process.env.SECRET_KEY,
-});
-
-
-async function uploadImageToS3(imageData, filename) {
-    const params = {
-      Bucket: 'onelovemysql',
-      Key: filename,
-      Body: imageData,
-      ACL: "public-read"
-    };
-  
-    const uploadResult = await s3.upload(params).promise();
-    return uploadResult.Location; // S3 object URL
-  }
-
 
 
 async function performTransaction(req, res) {

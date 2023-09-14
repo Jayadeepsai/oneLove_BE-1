@@ -76,7 +76,7 @@ posts.post('/post-feed',(req,res)=>{
 
 posts.get('/posts', async (req,res)=>{
 
-    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, i1.image_type AS post_image_type, u.*, e.*, v.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url
+    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, i1.image_type AS post_image_type, u.*, e.*, v.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url, i3.image_id AS user_image_id, i3.image_url AS user_image_url
     FROM onelove.posts p
     LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
     LEFT JOIN images i1 ON p.image_id = i1.image_id
@@ -84,6 +84,7 @@ posts.get('/posts', async (req,res)=>{
     LEFT JOIN videos v ON p.video_id = v.video_id
     LEFT JOIN pet e ON p.pet_id = e.pet_id
     LEFT JOIN images i2 ON e.image_id = i2.image_id
+    LEFT JOIN images i3 ON u.image_id = i3.image_id
     WHERE i1.image_type = 'post_image'
     ORDER BY p.post_id DESC`;
     
