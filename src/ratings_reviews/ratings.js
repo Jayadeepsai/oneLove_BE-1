@@ -11,9 +11,9 @@ ratings.use(express.urlencoded({ extended: true })); // To parse URL-encoded bod
 
 ratings.post('/rating-review',async(req,res)=>{
     try{
-        const {user_id, ratings, reviews } = req.body;
-        const sql = 'INSERT INTO onelove.rating_review(user_id, ratings, reviews) VALUES(?, ?, ?)';
-        const values = [user_id, JSON.stringify(ratings), JSON.stringify(reviews)]
+        const {user_id, ratings_reviews } = req.body;
+        const sql = 'INSERT INTO onelove.rating_review(user_id, ratings_reviews) VALUES(?, ?)';
+        const values = [user_id, JSON.stringify(ratings_reviews)]
 
         const [result] = await db.query(sql,values);
         res.status(200).json({
