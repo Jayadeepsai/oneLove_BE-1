@@ -116,14 +116,15 @@ service.get('/service-user-id', async (req, res) => {
         });
     }
 
-    const sql = `
-    SELECT  s.*, u.*, a.*, c.*, i.*
-    FROM users u
-    LEFT JOIN service s ON u.service_id = s.service_id
+    const sql =`
+    SELECT r.*, u.*, a.*, c.*, s.*, i.image_id AS user_image_id, i.image_url AS user_image_url
+    FROM onelove.rating_review r
+    LEFT JOIN users u ON r.user_id = u.user_id
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
     LEFT JOIN images i ON u.image_id = i.image_id
-    WHERE u.user_id = ?`;
+    LEFT JOIN service s ON u.service_id = s.service_id
+    WHERE r.user_id = ?`;
 
     try {
         const [results] = await db.query(sql, [userId]);
