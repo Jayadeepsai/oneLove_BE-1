@@ -544,8 +544,7 @@ CREATE TABLE onelove.pet_trainer (
 CREATE TABLE rating_review (
   rate_id INT PRIMARY KEY AUTO_INCREMENT,
   user_id INT,
-  ratings JSON,
-  reviews JSON,
+  ratings_reviews JSON,
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
