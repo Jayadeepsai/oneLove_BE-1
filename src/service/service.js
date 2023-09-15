@@ -117,10 +117,9 @@ service.get('/service-user-id', async (req, res) => {
     }
 
     const sql = `
-    SELECT  s.*, u.*, a.*, c.*, i.*,r.*
+    SELECT  s.*, u.*, a.*, c.*, i.*
     FROM users u
     LEFT JOIN service s ON u.service_id = s.service_id
-    LEFT JOIN rating_review r ON 
     LEFT JOIN address a ON u.address_id = a.address_id
     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
     LEFT JOIN images i ON u.image_id = i.image_id
@@ -160,6 +159,7 @@ service.get('/service-user-id', async (req, res) => {
         });
     }
 });
+
 
 
 service.put('/update-service', async (req, res) => {
