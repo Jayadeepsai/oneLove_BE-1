@@ -252,7 +252,7 @@ registration.get('/registration-mobile-number', async(req,res)=>{
             return res.status(400).json({ message: messages.NO_DATA });
         }
     
-        const sql =`SELECT a.*, c.*, u.*, r.*, i.*
+        const sql =`SELECT a.*, c.*, u.*, r.*, i.image_id AS user_image_id, i.image_url AS user_image_url
         FROM onelove.registrations r
         LEFT JOIN address a ON r.address_id = a.address_id
         LEFT JOIN contact_details c ON r.contact_id = c.contact_id

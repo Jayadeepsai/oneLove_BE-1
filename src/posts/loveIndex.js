@@ -109,46 +109,65 @@ loveIndx.post('/unlike-post', async (req, res) => {
 });
 
 
-loveIndx.post('/comment-post', async (req, res) => {
-    const { user_id, user_name, comment } = req.body;
+
+loveIndx.post('/comment', async (req, res) => {
     const { love_index_id } = req.query;
+    const { comments } = req.body;
 
     try {
         // Fetch the existing comments data from the database for the specified love_index_id
         const existingCommentsSql = 'SELECT comments FROM onelove.love_index WHERE love_index_id = ?';
         const [existingCommentsResult] = await db.query(existingCommentsSql, [love_index_id]);
 
-        if (existingCommentsResult.length === 0) {
-            return res.status(404).json({ message: 'Love index not found.' });
-        }
+        let updatedComments = [];
 
-        let existingComments = [];
+        if (existingCommentsResult.length > 0) {
+            // If a row exists, fetch the existing JSON array
+            const existingComments = existingCommentsResult[0].comments;
 
-        if (existingCommentsResult[0].comments !== null) {
-            if (Array.isArray(existingCommentsResult[0].comments)) {
-                existingComments = existingCommentsResult[0].comments;
+            if (existingComments === null) {
+                // If it's null, initialize the updatedComments array with the new data
+                updatedComments = comments;
+            } else if (Array.isArray(existingComments)) {
+                // If it's an array, concatenate the new data
+                updatedComments = existingComments.concat(comments);
             } else {
-                // If the comments data is not an array, log an error or handle it accordingly
-                console.error('Invalid comments data:', existingCommentsResult[0].comments);
-                return res.status(500).json({ message: 'Failed to add comment to the post.' });
+                try {
+                    // If it's not an array, parse it and then concatenate
+                    const parsedComments = JSON.parse(existingComments);
+                    updatedComments = parsedComments.concat(comments);
+                } catch (parseError) {
+                    // Handle JSON parsing error here
+                    console.error('Error parsing existingComments:', parseError);
+                    res.status(400).json({
+                        message: 'Error parsing existingComments',
+                    });
+                    return;
+                }
             }
+
+            // Update the JSON data in the database
+            const updateQuery = 'UPDATE onelove.love_index SET comments = ? WHERE love_index_id = ?';
+            const updateValues = [JSON.stringify(updatedComments), love_index_id];
+            await db.query(updateQuery, updateValues);
+        } else {
+            // If no row exists, insert a new row with the new data
+            const insertQuery = 'INSERT INTO onelove.love_index (comments) VALUES (?)';
+            const insertValues = [JSON.stringify(comments)];
+            await db.query(insertQuery, insertValues);
         }
 
-        // Add the new comment to the existing comments array
-        existingComments.push({ user_id, user_name, comment });
-
-        // Update the comments data in the database
-        const updateCommentsSql = 'UPDATE onelove.love_index SET comments = ? WHERE love_index_id = ?';
-        const updateCommentsValues = [JSON.stringify(existingComments), love_index_id];
-        await db.query(updateCommentsSql, updateCommentsValues);
-
-        // Send a success response
-        res.status(200).json({ message: 'Comment added successfully.' });
+        res.status(200).json({
+            message: "Data posted or updated"
+        });
     } catch (err) {
-        console.error('Error while adding comment to post:', err);
-        res.status(500).json({ message: 'Failed to add comment to the post.' });
+        console.error('Error posting/updating data:', err.message);
+        res.status(400).json({
+            message: err
+        });
     }
 });
+
 
 
 loveIndx.delete('/delete-comment', async (req, res) => {

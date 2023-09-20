@@ -49,7 +49,7 @@ async function isOrderNoUnique(order_no) {
     const [result] = await db.query(sql, [order_no]);
     return result[0].count === 0;
 }
-
+ 
 
 
 orders.get('/all-orders',async(req,res)=>{

@@ -548,6 +548,17 @@ CREATE TABLE rating_review (
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
+CREATE TABLE messages (
+  message_id INT AUTO_INCREMENT PRIMARY KEY,
+  sender_id INT NOT NULL,
+  receiver_id INT NOT NULL,
+  message VARCHAR(10000),
+  time DATETIME,
+  FOREIGN KEY (sender_id) REFERENCES users(user_id),
+  FOREIGN KEY (receiver_id) REFERENCES users(user_id)
+);
+
+
 ALTER TABLE `onelove`.`pet_trainer`
 DROP FOREIGN KEY `pet_trainer_ibfk_1`,
 DROP FOREIGN KEY `pet_trainer_ibfk_2`,
