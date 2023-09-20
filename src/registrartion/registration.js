@@ -252,12 +252,14 @@ registration.get('/registration-mobile-number', async(req,res)=>{
             return res.status(400).json({ message: messages.NO_DATA });
         }
     
-        const sql =`SELECT a.*, c.*, u.*, r.*, i.image_id AS user_image_id, i.image_url AS user_image_url
-        FROM onelove.registrations r
-        LEFT JOIN address a ON r.address_id = a.address_id
-        LEFT JOIN contact_details c ON r.contact_id = c.contact_id
-        LEFT JOIN users u ON r.user_id = u.user_id
-        LEFT JOIN images i ON r.image_id = i.image_id WHERE c.mobile_number=?`;
+        const sql =`SELECT a.*, c.*, u.*, i.*,s.*,s1.*,c1.*
+        FROM onelove.users u
+        LEFT JOIN address a ON u.address_id = a.address_id
+        LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+        LEFT JOIN store s ON u.store_id = s.store_id
+        LEFT JOIN service s1 ON u.service_id = s1.service_id
+        LEFT JOIN clinics c1 ON u.clinic_id = c1.clinic_id
+        LEFT JOIN images i ON u.image_id = i.image_id WHERE c.mobile_number=?`;
         const [data] = await connection.query(sql,[mobile_number]);
     
         if (data.length === 0) {
