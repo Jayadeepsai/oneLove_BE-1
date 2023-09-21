@@ -10,30 +10,20 @@
         
 
     })
-    // const connection = mysql.createConnection({
-    //     host: 'Database-2.cluster-cxb7nmtc66dn.us-east-2.rds.amazonaws.com',
-    //     user: 'onelove',
-    //     password: 'oneLoveAws',
-    //     database: 'onelove',
-    //     port: 3306,
-    //   });
+
+
+    
     connection.connect(function (error) {
         if (error) throw error
         else{
             console.log('connected to mysql database')
-        //  var sql = `ALTER TABLE store
-        //  ADD COLUMN address_id int(11),
-        //  ADD COLUMN contact_id int(11),
-        //  ADD CONSTRAINT fk_store_address
-        //  FOREIGN KEY (address_id) REFERENCES address(address_id),
-        //  ADD CONSTRAINT fk_store_contact
-        //  FOREIGN KEY (contact_id) REFERENCES contact_details(contact_id);`
+        //  var sql = `show tables;`
         
         
 
         // connection.query(sql, (err, result) => {
         //     if (err) throw err;
-        //     console.log("Qurey Executed")
+        //     console.log("Qurey Executed",result)
         //  })
         }
     })

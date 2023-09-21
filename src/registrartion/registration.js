@@ -260,12 +260,12 @@ registration.get('/registration-mobile-number', async(req,res)=>{
         const [data] = await connection.query(sql,[mobile_number]);
     
         if (data.length === 0) {
-            return res.status(404).json({ message: messages.SUCCESS_MESSAGE });
+            return res.status(404).json({ message: messages.NO_DATA });
         }
     
         res.status(200).json({
             registrationData: data,
-            message: "Registration Data"
+            message: messages.SUCCESS_MESSAGE
         });
     
     }catch(error){
