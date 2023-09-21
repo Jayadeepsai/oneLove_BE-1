@@ -123,7 +123,8 @@ items.get('/products-store-id',async(req,res)=>{
                  LEFT JOIN address a ON s1.address_id = a.address_id
                  LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
                  LEFT JOIN images i1 ON i.image_id = i1.image_id
-                 WHERE i.store_id=?`
+                 WHERE i.store_id=?
+                 ORDER BY i.item_id DESC`
     try{
         const [results] = await db.query(sql,store_id); 
 

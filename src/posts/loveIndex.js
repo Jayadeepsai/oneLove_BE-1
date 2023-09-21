@@ -21,16 +21,9 @@ loveIndx.post('/like-post', async (req, res) => {
             return res.status(404).json({ message: 'Love index not found.' });
         }
 
-        let existingLikes = [];
+        // Extract the likes data from the query result or initialize it as an empty array if it's null
+        const existingLikes = existingLikesResult[0].likes || [];
 
-        if (Array.isArray(existingLikesResult[0].likes)) {
-            existingLikes = existingLikesResult[0].likes;
-        } else {
-            // If the likes data is not an array, log an error or handle it accordingly
-            console.error('Invalid likes data:', existingLikesResult[0].likes);
-            return res.status(500).json({ message: 'Failed to like the post.' });
-        }
-           
         // Check if the user has already liked the post
         const userLiked = existingLikes.some(like => like.user_id === user_id);
 
@@ -56,6 +49,7 @@ loveIndx.post('/like-post', async (req, res) => {
         res.status(500).json({ message: 'Failed to like the post.' });
     }
 });
+
 
 
 
