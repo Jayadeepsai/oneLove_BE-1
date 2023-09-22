@@ -13,17 +13,17 @@ async function performTransaction(req, res) {
     try {
         await db.beginTransaction();
 
-        const { likes, comments, image_urls, image_type } = req.body;
+        const { likes, comments, image_url, image_type } = req.body;
 
         // Insert love_index data
         const loveIndexSql = 'INSERT INTO onelove.love_index ( likes, comments) VALUES ( ?, ?)';
-        const loveIndexValues = [likes, comments];
+        const loveIndexValues = [JSON.stringify(likes), JSON.stringify(comments)];
         const [loveIndexResult] = await db.query(loveIndexSql, loveIndexValues);
         const love_index_id = loveIndexResult.insertId;
 
         // Insert images data
         const imageInsertSql = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
-        const imageValues = [image_type, JSON.stringify(image_urls)];
+        const imageValues = [image_type, JSON.stringify(image_url)];
             const [imageResult] = await db.query(imageInsertSql, imageValues);
             const image_id = imageResult.insertId;
             console.log(image_id)
@@ -76,19 +76,30 @@ posts.post('/post-feed',(req,res)=>{
 
 posts.get('/posts', async (req,res)=>{
 
-    const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, i1.image_type AS post_image_type, u.*, e.*, v.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url, i3.image_id AS user_image_id, i3.image_url AS user_image_url
-    FROM onelove.posts p
-    LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
-    LEFT JOIN images i1 ON p.image_id = i1.image_id
-    LEFT JOIN users u ON p.user_id = u.user_id
-    LEFT JOIN videos v ON p.video_id = v.video_id
-    LEFT JOIN pet e ON p.pet_id = e.pet_id
-    LEFT JOIN images i2 ON e.image_id = i2.image_id
-    LEFT JOIN images i3 ON u.image_id = i3.image_id
-    WHERE i1.image_type = 'post_image'
-    ORDER BY p.post_id DESC`;
+    // const sql = `SELECT p.*, l.*, i1.image_id AS post_image_id, i1.image_url AS post_image_url, i1.image_type AS post_image_type, u.*, e.*, v.*, i2.image_id AS pet_image_id, i2.image_url AS pet_image_url, i3.image_id AS user_image_id, i3.image_url AS user_image_url
+    // FROM onelove.posts p
+    // LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
+    // LEFT JOIN images i1 ON p.image_id = i1.image_id
+    // LEFT JOIN users u ON p.user_id = u.user_id
+    // LEFT JOIN videos v ON p.video_id = v.video_id
+    // LEFT JOIN pet e ON p.pet_id = e.pet_id
+    // LEFT JOIN images i2 ON e.image_id = i2.image_id
+    // LEFT JOIN images i3 ON u.image_id = i3.image_id
+    // ORDER BY p.post_id DESC`;
     
-    
+    const sql = `SELECT p.*, u.*, p1.pet_id AS pet_id,
+     p1.pet_name AS pet_name, p1.image_id AS pet_image_id,
+     i2.image_url AS pet_image_url, i1.image_id AS post_image_id,
+     i3.image_id AS user_image_id, i3.image_url AS user_image_url,
+     i1.image_url AS post_image_url,l.*
+     FROM onelove.posts p
+     LEFT JOIN users u ON p.user_id = u.user_id
+     LEFT JOIN pet p1 ON p.pet_id = p1.pet_id
+     LEFT JOIN images i1 ON p.image_id = i1.image_id
+     LEFT JOIN images i2 ON p1.image_id = i2.image_id
+     LEFT JOIN images i3 ON u.image_id = i3.image_id
+     LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
+     ORDER BY p.post_id DESC`
 
     try{
          const [results]= await db.query(sql);
@@ -105,6 +116,8 @@ posts.get('/posts', async (req,res)=>{
         });
     }
 });
+
+
 
 
 posts.get('/posts-id', async (req, res) => {
