@@ -8,8 +8,8 @@ const bodyParser = require('body-parser');
 
 // AWS configuration (same as in your image upload route)
 AWS.config.update({
-  accessKeyId: process.env.AWS_ID,
-  secretAccessKey: process.env.SECRET_KEY,
+  accessKeyId: 'AKIAVMRPENK3CKWKGCGU',
+    secretAccessKey: '56yngO3FifhJEQAdkBvXoAD4K9ME4mxx26Q5Rimn',
   // region: 'us-east-1' // Update with your region
 });
 
