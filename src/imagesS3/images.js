@@ -11,10 +11,10 @@ const AWS = require('aws-sdk');
 
 
 AWS.config.update({
-    accessKeyId: 'AKIAVMRPENK3CKWKGCGU',
-    secretAccessKey: '56yngO3FifhJEQAdkBvXoAD4K9ME4mxx26Q5Rimn',
-    // region: 'us-east-1' // Update with your region
-  });
+  accessKeyId: process.env.AWS_ID,
+  secretAccessKey: process.env.SECRET_KEY,
+  // region: 'us-east-1' // Update with your region
+});
   
   // Create an S3 instance
   const s3 = new AWS.S3();
