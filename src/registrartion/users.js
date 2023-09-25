@@ -128,7 +128,7 @@ users.put('/update-user-profile',async(req,res)=>{
          res.status(400).json({message:messages.INVALID_ID})
         }
 
-        const { address, city, state, zip, country, landmark, address_type} = req.body;
+        const { address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords} = req.body;
         const { mobile_number, email } = req.body;
         const { user_type, user_name } = req.body;
         const { store_name, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale } = req.body;  
@@ -160,7 +160,7 @@ users.put('/update-user-profile',async(req,res)=>{
 
         }
 
-        if(address || city || state || zip || country || landmark || address_type){
+        if(address || city || state || zip || country || landmark || address_type || lat_cords || lan_cords){
 
         let addressSql = 'UPDATE address SET';
         const addressValues = [];
@@ -193,6 +193,14 @@ users.put('/update-user-profile',async(req,res)=>{
         if (address_type !== undefined) {
             addressSql += ' address_type=?,';
             addressValues.push(address_type);
+        }
+        if (lat_cords !== undefined) {
+            addressSql += ' lat_cords=?,';
+            addressValues.push(lat_cords);
+        }
+        if (lan_cords !== undefined) {
+            addressSql += ' lan_cords=?,';
+            addressValues.push(lan_cords);
         }
 
         addressSql = addressSql.slice(0, -1);
@@ -289,6 +297,18 @@ users.put('/update-user-profile',async(req,res)=>{
     }
 
     if(pet_walking || pet_sitting || pet_boarding || event_training || training_workshop || adoption_drives || pet_intelligence_rank_card || pet_grooming || trainer_experience || service_start_day || service_end_day || service_start_time || service_end_time){
+
+        function formatTimeTo12Hour(time24) {
+            const [hours, minutes] = time24.split(':');
+            const parsedHours = parseInt(hours, 10);
+            const amPm = parsedHours >= 12 ? 'PM' : 'AM';
+            const formattedHours = (parsedHours % 12 || 12).toString(); // Convert to 12-hour format
+            return `${formattedHours}:${minutes} ${amPm}`;
+          }
+          
+          // Format start_time and end_time
+          const formattedStartTime = formatTimeTo12Hour(service_start_time);
+          const formattedEndTime = formatTimeTo12Hour(service_end_time);
         
 
         let serviceSql = 'UPDATE service SET';
@@ -342,13 +362,13 @@ users.put('/update-user-profile',async(req,res)=>{
             serviceSql += ' service_end_day=?,';
             serviceValues.push(service_end_day);
         }
-        if (service_start_time !== undefined) {
+        if (formattedStartTime !== undefined) {
             serviceSql += ' service_start_time=?,';
-            serviceValues.push(service_start_time);
+            serviceValues.push(formattedStartTime);
         }
-        if (service_end_time !== undefined) {
+        if (formattedEndTime !== undefined) {
             serviceSql += ' service_end_time=?,';
-            serviceValues.push(service_end_time);
+            serviceValues.push(formattedEndTime);
         }
 
         serviceSql = serviceSql.slice(0, -1);
@@ -359,6 +379,18 @@ users.put('/update-user-profile',async(req,res)=>{
     }
 
     if(clinic_name || specialisation || clinic_license || experience || education || week_start_day || week_end_day || start_time || end_time){
+
+        function formatTimeTo12Hour(time24) {
+            const [hours, minutes] = time24.split(':');
+            const parsedHours = parseInt(hours, 10);
+            const amPm = parsedHours >= 12 ? 'PM' : 'AM';
+            const formattedHours = (parsedHours % 12 || 12).toString(); // Convert to 12-hour format
+            return `${formattedHours}:${minutes} ${amPm}`;
+          }
+          
+          // Format start_time and end_time
+          const formattedStartTime = formatTimeTo12Hour(start_time);
+          const formattedEndTime = formatTimeTo12Hour(end_time);
 
         let clinicSql = 'UPDATE clinics SET';
         const clinicValues = [];
@@ -392,13 +424,13 @@ users.put('/update-user-profile',async(req,res)=>{
             clinicSql += ' week_end_day=?,';
             clinicValues.push(week_end_day);
         }
-        if (start_time !== undefined) {
+        if (formattedStartTime !== undefined) {
             clinicSql += ' start_time=?,';
-            clinicValues.push(start_time);
+            clinicValues.push(formattedStartTime);
         }
-        if (end_time !== undefined) {
+        if (formattedEndTime !== undefined) {
             clinicSql += ' end_time=?,';
-            clinicValues.push(end_time);
+            clinicValues.push(formattedEndTime);
         }
  
 

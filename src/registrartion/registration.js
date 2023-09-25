@@ -27,9 +27,9 @@ async function performTransaction(req, res) {
         }
 
        // Insert into address table
-       const { address, city, state, zip, country, landmark, address_type } = req.body;
-       const addressQuery = 'INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type) VALUES (?, ?, ?, ?, ?, ?, ?)';
-       const addressValues = [address, city, state, zip, country, landmark, address_type];
+       const { address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords } = req.body;
+       const addressQuery = 'INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+       const addressValues = [address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords];
 
        const [addressResult] = await connection.query(addressQuery, addressValues);
        const address_id = addressResult.insertId;
@@ -157,8 +157,6 @@ async function performTransaction(req, res) {
 
         // Commit the transaction if all queries are successful
         await connection.commit();
-
-        console.log('Transaction committed successfully.');
 
         // Send a success response to the client
        return res.status(200).json({ message: 'Transaction committed successfully.' });

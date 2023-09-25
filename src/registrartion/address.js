@@ -10,10 +10,10 @@ address.use(express.urlencoded({ extended: true })); // To parse URL-encoded bod
 
 
 address.post('/address', async (req, res) => {
-    const { address, city, state, zip, country, landmark, address_type } = req.body;
+    const { address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords } = req.body;
 
-    const sql = `INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    const values = [address, city, state, zip, country, landmark, address_type];
+    const sql = `INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const values = [address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords];
 
     try {
         // Execute the insert query
@@ -85,7 +85,7 @@ address.get('/address-id', async (req, res) => {
 address.put('/update-address', async (req, res) => {
     const address_id = req.query.address_id;
 
-    const { address, city, state, zip, country, landmark, address_type } = req.body;
+    const { address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords } = req.body;
 
     // Create the SQL query for the update operation
     let sql = 'UPDATE onelove.address SET';
@@ -122,7 +122,14 @@ address.put('/update-address', async (req, res) => {
         sql += ' address_type=?,';
         values.push(address_type);
     }
-
+    if (lat_cords !== undefined) {
+        sql += ' lat_cords=?,';
+        values.push(lat_cords);
+    }
+    if (lan_cords !== undefined) {
+        sql += ' lan_cords=?,';
+        values.push(lan_cords);
+    }
     // Remove the trailing comma from the SQL query
     sql = sql.slice(0, -1);
 
