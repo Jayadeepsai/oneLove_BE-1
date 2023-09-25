@@ -298,19 +298,8 @@ users.put('/update-user-profile',async(req,res)=>{
 
     if(pet_walking || pet_sitting || pet_boarding || event_training || training_workshop || adoption_drives || pet_intelligence_rank_card || pet_grooming || trainer_experience || service_start_day || service_end_day || service_start_time || service_end_time){
 
-        function formatTimeTo12Hour(time24) {
-            const [hours, minutes] = time24.split(':');
-            const parsedHours = parseInt(hours, 10);
-            const amPm = parsedHours >= 12 ? 'PM' : 'AM';
-            const formattedHours = (parsedHours % 12 || 12).toString(); // Convert to 12-hour format
-            return `${formattedHours}:${minutes} ${amPm}`;
-          }
-          
-          // Format start_time and end_time
-          const formattedStartTime = formatTimeTo12Hour(service_start_time);
-          const formattedEndTime = formatTimeTo12Hour(service_end_time);
-        
-
+      
+    
         let serviceSql = 'UPDATE service SET';
         const serviceValues = [];
 
@@ -362,13 +351,13 @@ users.put('/update-user-profile',async(req,res)=>{
             serviceSql += ' service_end_day=?,';
             serviceValues.push(service_end_day);
         }
-        if (formattedStartTime !== undefined) {
+        if (service_start_time !== undefined) {
             serviceSql += ' service_start_time=?,';
-            serviceValues.push(formattedStartTime);
+            serviceValues.push(service_start_time);
         }
-        if (formattedEndTime !== undefined) {
+        if (service_end_time !== undefined) {
             serviceSql += ' service_end_time=?,';
-            serviceValues.push(formattedEndTime);
+            serviceValues.push(service_end_time);
         }
 
         serviceSql = serviceSql.slice(0, -1);
@@ -380,17 +369,6 @@ users.put('/update-user-profile',async(req,res)=>{
 
     if(clinic_name || specialisation || clinic_license || experience || education || week_start_day || week_end_day || start_time || end_time){
 
-        function formatTimeTo12Hour(time24) {
-            const [hours, minutes] = time24.split(':');
-            const parsedHours = parseInt(hours, 10);
-            const amPm = parsedHours >= 12 ? 'PM' : 'AM';
-            const formattedHours = (parsedHours % 12 || 12).toString(); // Convert to 12-hour format
-            return `${formattedHours}:${minutes} ${amPm}`;
-          }
-          
-          // Format start_time and end_time
-          const formattedStartTime = formatTimeTo12Hour(start_time);
-          const formattedEndTime = formatTimeTo12Hour(end_time);
 
         let clinicSql = 'UPDATE clinics SET';
         const clinicValues = [];
@@ -424,13 +402,13 @@ users.put('/update-user-profile',async(req,res)=>{
             clinicSql += ' week_end_day=?,';
             clinicValues.push(week_end_day);
         }
-        if (formattedStartTime !== undefined) {
+        if (start_time !== undefined) {
             clinicSql += ' start_time=?,';
-            clinicValues.push(formattedStartTime);
+            clinicValues.push(start_time);
         }
-        if (formattedEndTime !== undefined) {
+        if (end_time !== undefined) {
             clinicSql += ' end_time=?,';
-            clinicValues.push(formattedEndTime);
+            clinicValues.push(end_time);
         }
  
 
