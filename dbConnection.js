@@ -10,16 +10,6 @@
     })
 
 
-   
-    // const connection = mysql.createConnection({
-
-    //     host: 'localhost',
-    //     port: '3306',
-    //     user: 'userrone',
-    //     password: 'mysql@onelove',
-    //     database: 'onelove'
-    // })
-
     connection.connect(function (error) {
         if (error) throw error
         else{
