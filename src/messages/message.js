@@ -75,6 +75,26 @@ message.get('/messages', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
+
+  
+
+  message.delete('/delete_old_conversations', async (req, res) => {
+    try {
+      // Calculate the timestamp representing 24 hours ago
+      const currentTime = new Date();
+      const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); // 24 hours in milliseconds
+  
+      const sql = 'DELETE FROM messages WHERE time < ?';
+  
+      // Delete conversations older than 24 hours
+      await db.query(sql, [twentyFourHoursAgo]);
+  
+      res.status(200).json({ message: 'Old conversations deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting old conversations:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
   
 
 
