@@ -339,58 +339,118 @@ items.delete('/delete-items', async (req, res) => {
 
 
 
-items.get('/stores',async(req,res)=>{
+// items.get('/stores',async(req,res)=>{
 
-    const sql = `
-    SELECT  s.*,u.*,a.*,c.*,i.*
-    FROM users u
-    LEFT JOIN address a ON u.address_id = a.address_id
-    LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-    LEFT JOIN store s ON u.store_id = s.store_id
-    LEFT JOIN images i ON u.image_id = i.image_id
-     WHERE u.user_type = 'pet_store'`;
+//     const sql = `
+//     SELECT  s.*,u.*,a.*,c.*,i.*
+//     FROM users u
+//     LEFT JOIN address a ON u.address_id = a.address_id
+//     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+//     LEFT JOIN store s ON u.store_id = s.store_id
+//     LEFT JOIN images i ON u.image_id = i.image_id
+//      WHERE u.user_type = 'pet_store'`;
 
-    try{
-    const [results] = await db.query(sql);
-        const storesData = JSON.parse(JSON.stringify(results));
-        if (storesData.length > 0) {
-            // Convert numeric boolean values to actual boolean values in the response
-            const convertedStoresData = storesData.map(store => ({
-                ...store,
-                food_treats: store.food_treats === 1,
-                accessories: store.accessories === 1,
-                pet_boarding: store.pet_boarding === 1,
-                toys: store.toys === 1,
-                health_care: store.health_care === 1,
-                dog_service: store.dog_service === 1,
-                breader_adoption_sale: store.breader_adoption_sale === 1
+//     try{
+//     const [results] = await db.query(sql);
+//         const storesData = JSON.parse(JSON.stringify(results));
+//         if (storesData.length > 0) {
+//             // Convert numeric boolean values to actual boolean values in the response
+//             const convertedStoresData = storesData.map(store => ({
+//                 ...store,
+//                 food_treats: store.food_treats === 1,
+//                 accessories: store.accessories === 1,
+//                 pet_boarding: store.pet_boarding === 1,
+//                 toys: store.toys === 1,
+//                 health_care: store.health_care === 1,
+//                 dog_service: store.dog_service === 1,
+//                 breader_adoption_sale: store.breader_adoption_sale === 1
               
-            }));
+//             }));
 
-            res.status(200).json({
-                storesData: convertedStoresData,
-                message: messages.SUCCESS_MESSAGE,
-            });
+//             res.status(200).json({
+//                 storesData: convertedStoresData,
+//                 message: messages.SUCCESS_MESSAGE,
+//             });
 
-        // if (storesData.length > 0) {
-        //     res.status(200).json({
-        //         storesData,
-        //         message:messages.SUCCESS_MESSAGE,
-        //     });
-        } else {
-            res.status(404).json({
-                message: messages.NO_DATA,
-            });
-        }
-    }catch(err){
-        console.error('Error fetching data:', err);
-        res.status(500).json({
-            message: messages.FAILURE_MESSAGE,
+//         // if (storesData.length > 0) {
+//         //     res.status(200).json({
+//         //         storesData,
+//         //         message:messages.SUCCESS_MESSAGE,
+//         //     });
+//         } else {
+//             res.status(404).json({
+//                 message: messages.NO_DATA,
+//             });
+//         }
+//     }catch(err){
+//         console.error('Error fetching data:', err);
+//         res.status(500).json({
+//             message: messages.FAILURE_MESSAGE,
+//         });
+//     }
+// });
+
+
+items.get('/stores', async (req, res) => {
+    const sql = `
+      SELECT
+        s.*,
+        u.*,
+        a.*,
+        c.*,
+        i.*,
+        COUNT(i2.item_id) AS item_count
+      FROM
+        users u
+      LEFT JOIN
+        address a ON u.address_id = a.address_id
+      LEFT JOIN
+        contact_details c ON u.contact_id = c.contact_id
+      LEFT JOIN
+        store s ON u.store_id = s.store_id
+      LEFT JOIN
+        images i ON u.image_id = i.image_id
+      LEFT JOIN
+        items i2 ON u.store_id = i2.store_id
+      WHERE
+        u.user_type = 'pet_store'
+      GROUP BY
+        u.store_id`;
+  
+    try {
+      const [results] = await db.query(sql);
+      const storesData = JSON.parse(JSON.stringify(results));
+      
+      if (storesData.length > 0) {
+        // Convert numeric boolean values to actual boolean values in the response
+        const convertedStoresData = storesData.map(store => ({
+          ...store,
+          food_treats: store.food_treats === 1,
+          accessories: store.accessories === 1,
+          pet_boarding: store.pet_boarding === 1,
+          toys: store.toys === 1,
+          health_care: store.health_care === 1,
+          dog_service: store.dog_service === 1,
+          breader_adoption_sale: store.breader_adoption_sale === 1,
+          item_count: store.item_count // Add item_count to the response
+        }));
+  
+        res.status(200).json({
+          storesData: convertedStoresData,
+          message: messages.SUCCESS_MESSAGE,
         });
+      } else {
+        res.status(404).json({
+          message: messages.NO_DATA,
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({
+        message: messages.FAILURE_MESSAGE,
+      });
     }
-});
-
-
-
+  });
+  
 
 module.exports = items;
