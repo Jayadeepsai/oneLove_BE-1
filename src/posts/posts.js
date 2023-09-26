@@ -226,13 +226,17 @@ posts.get('/posts-pet-user', async (req, res) => {
             values.push(pet_id);
         }
 
-        let sql = `SELECT p.*, u.*, p1.pet_id AS pet_id,
+        let sql = `SELECT p.*, u.*, p1.pet_id AS pet_id,a.*,
         p1.pet_name AS pet_name, p1.image_id AS pet_image_id,
+        p1.pet_gender AS pet_gender, p1.pet_type AS pet_type,
+        p1.pet_breed AS pet_breed, p1.pet_dob AS pet_dob,
+        p1.spay_neuter AS spay_neuter,
         i2.image_url AS pet_image_url, i1.image_id AS post_image_id,
         i3.image_id AS user_image_id, i3.image_url AS user_image_url,
         i1.image_url AS post_image_url,l.*
         FROM onelove.posts p
         LEFT JOIN users u ON p.user_id = u.user_id
+        LEFT JOIN address a ON u.address_id = a.address_id
         LEFT JOIN pet p1 ON p.pet_id = p1.pet_id
         LEFT JOIN images i1 ON p.image_id = i1.image_id
         LEFT JOIN images i2 ON p1.image_id = i2.image_id
