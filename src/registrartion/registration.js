@@ -250,7 +250,7 @@ registration.get('/registration-mobile-number', async(req,res)=>{
             return res.status(400).json({ message: messages.NO_DATA });
         }
     
-        const sql =`SELECT a.*, c.*, u.*, i.*, s.store_name AS store_name, c1.clinic_name AS clinic_name
+        const sql =`SELECT a.*, c.*, u.*, i.*, s.*, c1.clinic_name AS clinic_name
         FROM onelove.users u
         LEFT JOIN address a ON u.address_id = a.address_id
         LEFT JOIN contact_details c ON u.contact_id = c.contact_id
