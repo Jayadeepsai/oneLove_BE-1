@@ -2,7 +2,8 @@ const express = require('express');
 const message = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('./constants');
-const db = require('../../dbConnection')
+const db = require('../../dbConnection');
+const cron = require('node-cron');
 
 message.use(express.json()); // To parse JSON bodies
 message.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -76,9 +77,27 @@ message.get('/messages', async (req, res) => {
     }
   });
 
-  
 
-  message.delete('/delete_old_conversations', async (req, res) => {
+
+  // message.delete('/delete_old_conversations', async (req, res) => {
+  //   try {
+  //     // Calculate the timestamp representing 24 hours ago
+  //     const currentTime = new Date();
+  //     const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); // 24 hours in milliseconds
+  
+  //     const sql = 'DELETE FROM messages WHERE time < ?';
+  
+  //     // Delete conversations older than 24 hours
+  //     await db.query(sql, [twentyFourHoursAgo]);
+  
+  //     res.status(200).json({ message: 'Old conversations deleted successfully' });
+  //   } catch (error) {
+  //     console.error('Error deleting old conversations:', error);
+  //     res.status(500).json({ error: 'Internal Server Error' });
+  //   }
+  // });
+  
+  const deleteOldConversations = async () => {
     try {
       // Calculate the timestamp representing 24 hours ago
       const currentTime = new Date();
@@ -87,15 +106,18 @@ message.get('/messages', async (req, res) => {
       const sql = 'DELETE FROM messages WHERE time < ?';
   
       // Delete conversations older than 24 hours
-      await db.query(sql, [twentyFourHoursAgo]);
-  
-      res.status(200).json({ message: 'Old conversations deleted successfully' });
+     const [sqlResult] = await db.query(sql, [twentyFourHoursAgo]);
+
+     if(sqlResult.affectedRows > 0){
+       console.log('Old conversations deleted');
+     }
+      
     } catch (error) {
       console.error('Error deleting old conversations:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
     }
-  });
+  };
   
-
+  // Schedule the deletion job to run every hour
+  cron.schedule('*/10 * * * *', deleteOldConversations); // This schedules the job to run at the beginning of every hour
 
 module.exports = message;
