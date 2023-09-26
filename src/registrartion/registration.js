@@ -242,38 +242,47 @@ try{
 });
 
 
-registration.get('/registration-mobile-number', async(req,res)=>{
-
+registration.get('/registration-mobile-number', async (req, res) => {
     const mobile_number = req.query.mobile_number;
-    try{
-        if (!mobile_number) {
-            return res.status(400).json({ message: messages.NO_DATA });
-        }
-    
-        const sql =`SELECT a.*, c.*, u.*, i.*, s.*, c1.clinic_name AS clinic_name
-        FROM onelove.users u
-        LEFT JOIN address a ON u.address_id = a.address_id
-        LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-        LEFT JOIN store s ON u.store_id = s.store_id
-        LEFT JOIN clinics c1 ON u.clinic_id = c1.clinic_id
-        LEFT JOIN images i ON u.image_id = i.image_id WHERE c.mobile_number=?`;
-        const [data] = await connection.query(sql,[mobile_number]);
-    
-        if (data.length === 0) {
-            return res.status(404).json({ message: messages.NO_DATA });
-        }
-    
-        res.status(200).json({
-            registrationData: data,
-            message: messages.SUCCESS_MESSAGE
-        });
-    
-    }catch(error){
-        console.log("Error", error);
-        res.status(500).json({ message:messages.FAILURE_MESSAGE});
+    try {
+      if (!mobile_number) {
+        return res.status(400).json({ message: messages.NO_DATA });
+      }
+  
+      const sql = `SELECT a.*, c.*, u.*, i.*, s.*, c1.clinic_name AS clinic_name
+          FROM onelove.users u
+          LEFT JOIN address a ON u.address_id = a.address_id
+          LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+          LEFT JOIN store s ON u.store_id = s.store_id
+          LEFT JOIN clinics c1 ON u.clinic_id = c1.clinic_id
+          LEFT JOIN images i ON u.image_id = i.image_id WHERE c.mobile_number=?`;
+      const [data] = await connection.query(sql, [mobile_number]);
+  
+      if (data.length === 0) {
+        return res.status(404).json({ message: messages.NO_DATA });
+      }
+  
+      // Modify boolean values from 1 and 0 to true and false
+      const modifiedData = data.map((row) => ({
+        ...row,
+        food_treats: row.food_treats === 1,
+        accessories: row.accessories === 1,
+        toys: row.toys === 1,
+        health_care: row.health_care === 1,
+        dog_service: row.dog_service === 1,
+        breader_adoption_sale: row.breader_adoption_sale === 1,
+      }));
+  
+      res.status(200).json({
+        registrationData: modifiedData,
+        message: messages.SUCCESS_MESSAGE,
+      });
+    } catch (error) {
+      console.log("Error", error);
+      res.status(500).json({ message: messages.FAILURE_MESSAGE });
     }
-    
-    });
+  });
+  
 
 
 
