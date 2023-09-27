@@ -16,7 +16,7 @@ try{
 
         const {clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time} = req.body;
         const clinicQuery ='INSERT INTO onelove.clinics(clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        const clinicValues = [clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time]
+        const clinicValues = [clinic_name, JSON.stringify(specialisation), clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time]
 
         await db.query(clinicQuery,clinicValues)
 
@@ -146,7 +146,7 @@ clinic.put('/update-clinic', async (req, res) => {
         }
         if (specialisation !== undefined) {
             clinicSql += ' specialisation=?,';
-            values.push(specialisation);
+            values.push(JSON.stringify(specialisation));
         }
         if (clinic_license !== undefined) {
             clinicSql += ' clinic_license=?,';

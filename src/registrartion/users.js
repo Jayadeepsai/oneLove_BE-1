@@ -380,7 +380,7 @@ users.put('/update-user-profile',async(req,res)=>{
         }
         if (specialisation !== undefined) {
             clinicSql += ' specialisation=?,';
-            clinicValues.push(specialisation);
+            clinicValues.push(JSON.stringify(specialisation));
         }
         if (clinic_license !== undefined) {
             clinicSql += ' clinic_license=?,';
