@@ -220,10 +220,10 @@ items.put('/update-item', async (req, res) => {
 
         const { brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, quantity } = req.body;
 
-        if(brand_name || product_title || pet_type_product || item_description || product_details || sub_cate_id || store_id || quantity){
+        if (brand_name || product_title || pet_type_product || item_description || product_details || sub_cate_id || store_id || quantity) {
 
             let itemSql = 'UPDATE onelove.items SET';
-            const itemValues=[];
+            const itemValues = [];
 
             if (brand_name !== undefined) {
                 itemSql += ' brand_name=?,';
@@ -253,24 +253,37 @@ items.put('/update-item', async (req, res) => {
                 itemSql += ' sub_cate_id=?,';
                 itemValues.push(sub_cate_id);
             }
-            if (quantity !== undefined) {
+
+            if (quantity !== undefined){
+                // Retrieve the current quantity from the database
+                const [currentQuantityRow] = await db.query('SELECT quantity FROM onelove.items WHERE item_id = ?', [item_id]);
+                const currentQuantity = currentQuantityRow[0].quantity;
+
+                if (!Array.isArray(currentQuantity)) {
+                    throw new Error('Invalid quantity data in the database.');
+                }
+
+                // Merge the current quantity with the new quantity data
+                const mergedQuantity = [...currentQuantity, ...quantity];
+
+                // Update the item record with the merged quantity
                 itemSql += ' quantity=?,';
-                itemValues.push(JSON.stringify(quantity));
+                itemValues.push(JSON.stringify(mergedQuantity));
             }
-            
+
             itemSql = itemSql.slice(0, -1);
             itemSql += ' WHERE item_id= ?';
             itemValues.push(item_id);
 
-            await db.query(itemSql,itemValues);
+            await db.query(itemSql, itemValues);
         }
-       
+
         const { image_type, image_url } = req.body;
 
-        if(image_type || image_url){
+        if (image_type || image_url) {
             let imageSql = 'UPDATE images SET';
             const imageValues = [];
-      
+
             if (image_type !== undefined) {
                 imageSql += ' image_type=?,';
                 imageValues.push(image_type);
@@ -279,11 +292,11 @@ items.put('/update-item', async (req, res) => {
                 imageSql += ' image_url=?,';
                 imageValues.push(JSON.stringify(image_url));
             }
-    
+
             imageSql = imageSql.slice(0, -1);
             imageSql += ' WHERE image_id=(SELECT image_id FROM items WHERE item_id=?)';
             imageValues.push(item_id);
-    
+
             await db.query(imageSql, imageValues);
         }
         await db.commit();
@@ -301,7 +314,6 @@ items.put('/update-item', async (req, res) => {
         res.status(500).json({ message: 'Failed to update data.' });
     }
 });
-
 
 
 items.delete('/delete-items', async (req, res) => {
