@@ -93,6 +93,7 @@ orders.get('/orders', async (req, res) => {
             LEFT JOIN store s ON o.store_id = s.store_id
             LEFT JOIN address sa ON s.address_id = sa.address_id
             LEFT JOIN contact_details sc ON s.contact_id = sc.contact_id
+            ORDER BY o.order_id DESC
             WHERE o.user_id = ?`;
             values = [user_id];
         } else if (order_id) {
@@ -104,6 +105,7 @@ orders.get('/orders', async (req, res) => {
             LEFT JOIN store s ON o.store_id = s.store_id
             LEFT JOIN address sa ON s.address_id = sa.address_id
             LEFT JOIN contact_details sc ON s.contact_id = sc.contact_id
+            ORDER BY o.order_id DESC
             WHERE o.order_id = ?`;
             values = [order_id];
         } else if (store_id) {
@@ -115,6 +117,7 @@ orders.get('/orders', async (req, res) => {
             LEFT JOIN store s ON o.store_id = s.store_id
             LEFT JOIN address sa ON s.address_id = sa.address_id
             LEFT JOIN contact_details sc ON s.contact_id = sc.contact_id
+            ORDER BY o.order_id DESC
             WHERE o.store_id = ?`;
             values = [store_id];
         }
