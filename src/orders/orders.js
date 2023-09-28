@@ -54,7 +54,7 @@ async function isOrderNoUnique(order_no) {
 
 orders.get('/all-orders',async(req,res)=>{
     try{
-        const sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as stote_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
+        const sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
         FROM onelove.orders o
         LEFT JOIN users u ON o.user_id = u.user_id
         LEFT JOIN address a ON u.address_id = a.address_id
@@ -85,7 +85,7 @@ orders.get('/orders', async (req, res) => {
         let values;
 
         if (user_id) {
-            sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as stote_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
+            sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
             FROM onelove.orders o
             LEFT JOIN users u ON o.user_id = u.user_id
             LEFT JOIN address a ON u.address_id = a.address_id
@@ -93,11 +93,11 @@ orders.get('/orders', async (req, res) => {
             LEFT JOIN store s ON o.store_id = s.store_id
             LEFT JOIN address sa ON s.address_id = sa.address_id
             LEFT JOIN contact_details sc ON s.contact_id = sc.contact_id
-            ORDER BY o.order_id DESC
-            WHERE o.user_id = ?`;
+            WHERE o.user_id = ?
+            ORDER BY o.order_id DESC`;
             values = [user_id];
         } else if (order_id) {
-            sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as stote_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
+            sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
             FROM onelove.orders o
             LEFT JOIN users u ON o.user_id = u.user_id
             LEFT JOIN address a ON u.address_id = a.address_id
@@ -105,11 +105,11 @@ orders.get('/orders', async (req, res) => {
             LEFT JOIN store s ON o.store_id = s.store_id
             LEFT JOIN address sa ON s.address_id = sa.address_id
             LEFT JOIN contact_details sc ON s.contact_id = sc.contact_id
-            ORDER BY o.order_id DESC
-            WHERE o.order_id = ?`;
+            WHERE o.order_id = ?
+            ORDER BY o.order_id DESC`;
             values = [order_id];
         } else if (store_id) {
-            sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as stote_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
+            sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
             FROM onelove.orders o
             LEFT JOIN users u ON o.user_id = u.user_id
             LEFT JOIN address a ON u.address_id = a.address_id
@@ -117,8 +117,8 @@ orders.get('/orders', async (req, res) => {
             LEFT JOIN store s ON o.store_id = s.store_id
             LEFT JOIN address sa ON s.address_id = sa.address_id
             LEFT JOIN contact_details sc ON s.contact_id = sc.contact_id
-            ORDER BY o.order_id DESC
-            WHERE o.store_id = ?`;
+            WHERE o.store_id = ?
+            ORDER BY o.order_id DESC`;
             values = [store_id];
         }
 
