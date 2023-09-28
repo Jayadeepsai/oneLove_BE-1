@@ -117,7 +117,7 @@ message.get('/messages', async (req, res) => {
     }
   };
   
-  // Schedule the deletion job to run every hour
-  cron.schedule('*/10 * * * *', deleteOldConversations); // This schedules the job to run at the beginning of every hour
+  // Schedule the deletion job to run every 10 mins
+  cron.schedule('*/10 * * * *', deleteOldConversations); // This schedules the job to run at the beginning of every 10 mins
 
 module.exports = message;

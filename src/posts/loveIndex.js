@@ -213,37 +213,74 @@ loveIndx.delete('/delete-comment', async (req, res) => {
 
 
 
-loveIndx.get('/love_index_data',async(req,res)=>{
-    const post_id = req.query.post_id;
-try{
-    const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = (SELECT love_index_id FROM onelove.posts WHERE post_id = ?)`
-    const [results] = await db.query(sql, [post_id]);
-    const postData = JSON.parse(JSON.stringify(results));
-    const likesCount = postData[0].likes.length;
-    const commentsCount = postData[0].comments.length;
+    // loveIndx.get('/love_index_data',async(req,res)=>{
+    //     const post_id = req.query.post_id;
+    // try{
+    //     const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = (SELECT love_index_id FROM onelove.posts WHERE post_id = ?)`
+    //     const [results] = await db.query(sql, [post_id]);
+    //     const postData = JSON.parse(JSON.stringify(results));
+    //     const likesCount = postData[0].likes.length;
+    //     const commentsCount = postData[0].comments.length;
 
-    if (postData) {
-        res.status(200).json({
-            postData,
-            likesCount,
-            commentsCount,
-            message: messages.SUCCESS_MESSAGE,
-        });
-    } else {
-        res.status(404).json({
-            message: messages.FAILED,
-        });
-    }
+    //     if (postData) {
+    //         res.status(200).json({
+    //             postData,
+    //             likesCount,
+    //             commentsCount,
+    //             message: messages.SUCCESS_MESSAGE,
+    //         });
+    //     } else {
+    //         res.status(404).json({
+    //             message: messages.FAILED,
+    //         });
+    //     }
 
-} catch (err) {
-    console.error('Error fetching data:', err);
-    res.status(500).json({
-        message: messages.FAILURE_MESSAGE,
+    // } catch (err) {
+    //     console.error('Error fetching data:', err);
+    //     res.status(500).json({
+    //         message: messages.FAILURE_MESSAGE,
+    //     });
+    // }
+    // });
+
+    loveIndx.get('/love_index_data', async (req, res) => {
+        const post_id = req.query.post_id;
+        try {
+            const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = (SELECT love_index_id FROM onelove.posts WHERE post_id = ?)`;
+            const [results] = await db.query(sql, [post_id]);
+            const postData = JSON.parse(JSON.stringify(results));
+    
+            if (!postData) {
+                return res.status(404).json({
+                    message: messages.FAILED,
+                });
+            }
+    
+            let likesCount = 0;
+            let commentsCount = 0;
+    
+            if (postData[0].likes) {
+                likesCount = postData[0].likes.length;
+            }
+    
+            if (postData[0].comments) {
+                commentsCount = postData[0].comments.length;
+            }
+    
+            res.status(200).json({
+                postData,
+                likesCount,
+                commentsCount,
+                message: messages.SUCCESS_MESSAGE,
+            });
+        } catch (err) {
+            console.error('Error fetching data:', err);
+            res.status(500).json({
+                message: messages.FAILURE_MESSAGE,
+            });
+        }
     });
-}
-});
-
-
+    
 
 loveIndx.get('/loveIndexDataByCondition/:love_index_id', (req, res) => {                //Fetching data based on id
     const love_index_id = req.params.love_index_id;

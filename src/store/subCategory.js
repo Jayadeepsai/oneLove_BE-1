@@ -46,7 +46,7 @@ subCate.get('/sub-category',async(req,res)=>{
        });
        
     }catch(err){
-        console.error('Error fetching vaccination data:', err.message);
+        console.error('Error fetching :', err.message);
        return res.status(400).json({
             message: messages.FAILURE_MESSAGE
         });

@@ -128,7 +128,7 @@ users.put('/update-user-profile',async(req,res)=>{
          res.status(400).json({message:messages.INVALID_ID})
         }
 
-        const { address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords} = req.body;
+        const {address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords} = req.body;
         const { mobile_number, email } = req.body;
         const { user_type, user_name } = req.body;
         const { store_name, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale } = req.body;  
