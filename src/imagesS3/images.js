@@ -60,6 +60,7 @@ AWS.config.update({
         Bucket: 'onelovemysql',
         Key: file.name,
         Body: file.data,
+        ACL: 'public-read'
       };
   
       return s3.upload(params).promise();

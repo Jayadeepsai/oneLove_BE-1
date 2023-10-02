@@ -32,6 +32,7 @@ videos.post('/upload-video', (req, res) => {
       Bucket: 'onelovemysql', // Update with your S3 bucket name
       Key: videoFile.name,
       Body: videoFile.data,
+      ACL: 'public-read'
     };
 
     s3.upload(params, (err, data) => {
