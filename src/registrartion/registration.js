@@ -7,6 +7,7 @@ require('dotenv').config();
 
 registration.use(express.json()); // To parse JSON bodies
 registration.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+const jwtMiddleware = require('../../jwtMiddleware');
 
 
 
@@ -272,9 +273,14 @@ registration.get('/registration-mobile-number', async (req, res) => {
         dog_service: row.dog_service === 1,
         breader_adoption_sale: row.breader_adoption_sale === 1,
       }));
+
+          // After verifying the mobile number and logging in the user, generate a JWT token
+    const userId = data[0].user_id;
+    const token = jwtMiddleware.generateToken(userId);
   
       res.status(200).json({
         registrationData: modifiedData,
+        token,
         message: messages.SUCCESS_MESSAGE,
       });
     } catch (error) {
@@ -283,6 +289,9 @@ registration.get('/registration-mobile-number', async (req, res) => {
     }
   });
   
+
+
+
 
 
 

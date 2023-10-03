@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 
 const db = require('../../dbConnection')
+const jwtMiddleware = require('../../jwtMiddleware');
 
 posts.use(express.json()); // To parse JSON bodies
 posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -61,7 +62,7 @@ async function performTransaction(req, res) {
 }
 
 
-posts.post('/post-feed',(req,res)=>{
+posts.post('/post-feed',jwtMiddleware.verifyToken,(req,res)=>{
     performTransaction(req, res)
     .then(() => {
         console.log('Transaction completed successfully');
@@ -74,7 +75,7 @@ posts.post('/post-feed',(req,res)=>{
 
 
 
-posts.get('/posts', async (req,res)=>{
+posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
 
     
     const sql = `SELECT p.*, u.*, p1.pet_id AS pet_id,
