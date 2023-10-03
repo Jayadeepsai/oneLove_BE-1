@@ -21,9 +21,10 @@ orders.post('/order', async (req, res) => {
             order_no = generateRandomNumber(10000, 99999); // Generate a random number between 10000 and 99999
             isUnique = await isOrderNoUnique(order_no);
         }
+        const current_time =new Date();
 
-        const sql = `INSERT INTO onelove.orders(store_id, user_id, orders, order_no, status) VALUES(?, ?, ?, ?, ?)`;
-        const values = [store_id, user_id, JSON.stringify(orders), order_no, status];
+        const sql = `INSERT INTO onelove.orders(store_id, user_id, orders, order_no, status, ordered_time) VALUES(?, ?, ?, ?, ?, ?)`;
+        const values = [store_id, user_id, JSON.stringify(orders), order_no, status, current_time];
         const [result] = await db.query(sql, values);
 
         res.status(200).json({
