@@ -291,10 +291,6 @@ registration.get('/registration-mobile-number', async (req, res) => {
   
 
 
-
-
-
-
 registration.delete('/delete-registration-data', async (req, res) => {
     const reg_id = req.query.reg_id;
     const sql = 'DELETE FROM `registrations` WHERE `reg_id`=?';
