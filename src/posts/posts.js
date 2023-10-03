@@ -75,7 +75,7 @@ posts.post('/post-feed',jwtMiddleware.verifyToken,(req,res)=>{
 
 
 
-posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
+posts.get('/posts',async (req,res)=>{
 
     
     const sql = `SELECT p.*, u.*, p1.pet_id AS pet_id,
@@ -159,7 +159,7 @@ posts.get('/posts-id', async (req, res) => {
 });
 
 
-posts.get('/user-posts', async (req, res) => {
+posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
     const userId = req.query.user_id; 
     
   
