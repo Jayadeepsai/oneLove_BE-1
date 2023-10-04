@@ -242,6 +242,8 @@ try{
 
 });
 
+
+
 registration.get('/registration-mobile-number', async (req, res) => {
     const mobile_number = req.query.mobile_number;
     try {
