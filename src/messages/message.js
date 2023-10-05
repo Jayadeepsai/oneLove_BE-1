@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const messages = require('./constants');
 const db = require('../../dbConnection');
 const cron = require('node-cron');
+const moment = require('moment');
 
 message.use(express.json()); // To parse JSON bodies
 message.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -14,7 +15,7 @@ message.post('/messages', async (req, res) => {
       // Get data from the request body
       const { sender_id, receiver_id, message } = req.body;
       // Get the current date and time
-      const currentTime = new Date();
+      const currentTime = moment().format('YYYY-MM-DD HH:mm:ss'); 
 
       const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time) VALUES (?, ?, ?, ?)';
      
@@ -34,13 +35,19 @@ message.get('/messages', async (req, res) => {
     try {
       // Get sender_id and receiver_id from the URL parameters
       const { sender_id, receiver_id } = req.query;
-      const sql ='SELECT * FROM messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY time DESC';
+      const sql ='SELECT * FROM messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY time ASC';
   
       // Retrieve messages ordered by time (most recent first)
       const [messages] = await db.query(sql,[sender_id, receiver_id, receiver_id, sender_id]);
-      const chat = JSON.parse(JSON.stringify(messages));
+      
+   // Format the timestamps in the response
+   const convo = messages.map((message) => ({
+    ...message,
+    time: moment(message.time).format('YYYY-MM-DD HH:mm:ss'), // Format it as per your database format
+  }));
 
-  
+  const chat =JSON.parse(JSON.stringify(convo));
+
       res.status(200).json({
         chat,
         message:"chat"

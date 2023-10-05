@@ -38,4 +38,31 @@ function verifyToken(req, res, next) {
   });
 }
 
-module.exports = { generateToken, verifyToken };
+function generateRefreshToken(userId) {
+    return jwt.sign({ userId }, secretKey, { expiresIn: '7d' }); // Use the same secret key
+  }
+
+// Handle token refresh
+function refreshToken(req, res) {
+    const refreshToken = req.body.refreshToken;
+    
+  
+    // Verify the refresh token
+    jwt.verify(refreshToken, secretKey, (err, decoded) => {
+        console.log("Refresh token:",refreshToken);
+        console.log("Secret key:",secretKey);
+        console.log("Decoded:",decoded);
+      if (err) {
+        console.error('Refresh token verification error:', err);
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+  
+      // Generate a new access token
+      const newAccessToken = generateToken(decoded.userId);
+  
+      // Send the new access token to the client
+      res.json({ accessToken: newAccessToken });
+    });
+  }
+  
+  module.exports = { generateToken, verifyToken, refreshToken, generateRefreshToken };

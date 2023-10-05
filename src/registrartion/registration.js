@@ -278,10 +278,12 @@ registration.get('/registration-mobile-number', async (req, res) => {
           // After verifying the mobile number and logging in the user, generate a JWT token
     const userId = data[0].user_id;
     const token = jwtMiddleware.generateToken(userId);
+    const refreshToken = jwtMiddleware.generateRefreshToken(userId);
   
       res.status(200).json({
         registrationData: modifiedData,
         token,
+        refreshToken,
         message: messages.SUCCESS_MESSAGE,
       });
     } catch (error) {
@@ -289,7 +291,16 @@ registration.get('/registration-mobile-number', async (req, res) => {
       res.status(500).json({ message: messages.FAILURE_MESSAGE });
     }
   });
+
+
   
+  registration.post('/refresh-token', (req, res) => {
+    const refreshTokenValue = req.body.refreshToken;
+  
+    // Verify the refresh token
+    jwtMiddleware.refreshToken(req, res);
+  });
+
 
 
 registration.delete('/delete-registration-data', async (req, res) => {
