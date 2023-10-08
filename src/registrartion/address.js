@@ -2,14 +2,15 @@ const express = require('express');
 const address = express.Router();
 const bodyParser = require('body-parser');
 
-const connection = require('../../dbConnection')
+const connection = require('../../dbConnection');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 address.use(express.json()); // To parse JSON bodies
 address.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
 
-address.post('/address', async (req, res) => {
+address.post('/address',jwtMiddleware.verifyToken, async (req, res) => {
     const { address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords } = req.body;
 
     const sql = `INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
@@ -34,7 +35,7 @@ address.post('/address', async (req, res) => {
 
 
 
-address.get('/address', async (req, res) => {
+address.get('/address',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const sql = `SELECT * FROM onelove.address;`;
         const [data] = await connection.query(sql); // Use await with promise-based query
@@ -54,7 +55,7 @@ address.get('/address', async (req, res) => {
 
 
 
-address.get('/address-id', async (req, res) => {
+address.get('/address-id',jwtMiddleware.verifyToken, async (req, res) => {
     const address_id = req.query.address_id;
 
     try {
@@ -82,7 +83,7 @@ address.get('/address-id', async (req, res) => {
 
 
 
-address.put('/update-address', async (req, res) => {
+address.put('/update-address',jwtMiddleware.verifyToken, async (req, res) => {
     const address_id = req.query.address_id;
 
     const { address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords } = req.body;
@@ -153,7 +154,7 @@ address.put('/update-address', async (req, res) => {
 
 
 
-address.delete('/delete-address', async (req, res) => {
+address.delete('/delete-address',jwtMiddleware.verifyToken, async (req, res) => {
     const address_id = req.query.address_id;
     const sql = 'DELETE FROM `address` WHERE `address_id`=?';
 

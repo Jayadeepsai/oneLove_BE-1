@@ -75,7 +75,7 @@ posts.post('/post-feed',jwtMiddleware.verifyToken,(req,res)=>{
 
 
 
-posts.get('/posts',async (req,res)=>{
+posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
 
     
     const sql = `SELECT p.*, u.*, p1.pet_id AS pet_id,
@@ -112,7 +112,7 @@ posts.get('/posts',async (req,res)=>{
 
 
 
-posts.get('/posts-id', async (req, res) => {
+posts.get('/posts-id',jwtMiddleware.verifyToken, async (req, res) => {
     const postId = req.query.post_id; 
     
     if (!postId) {
@@ -208,7 +208,7 @@ posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 
-posts.get('/posts-pet-user', async (req, res) => {
+posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const { user_id, pet_id } = req.query;
 
@@ -275,7 +275,7 @@ posts.get('/posts-pet-user', async (req, res) => {
 
 
 
-posts.put('/update-post', async (req, res) => {
+posts.put('/update-post',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const post_id = req.query.post_id;
 
@@ -324,7 +324,7 @@ posts.put('/update-post', async (req, res) => {
 
 
 
-posts.delete('/delete-post', async (req, res) => {
+posts.delete('/delete-post',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const post_id = req.query.post_id;
 

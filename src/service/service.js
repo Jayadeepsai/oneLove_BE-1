@@ -5,6 +5,7 @@ const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
 const dbConnection = require('../../dbConnection');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 service.use(express.json()); // To parse JSON bodies
 service.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -45,7 +46,7 @@ async function serviceQueries(req, res) { // Pass req and res as arguments
 
 }
 
-service.post('/service', (req, res) => {
+service.post('/service',jwtMiddleware.verifyToken, (req, res) => {
     serviceQueries(req, res)
         .then(() => {
             console.log('Transaction completed successfully');
@@ -58,7 +59,7 @@ service.post('/service', (req, res) => {
 
 
 
-service.get('/service', async(req,res)=>{
+service.get('/service',jwtMiddleware.verifyToken, async(req,res)=>{
 
 
     const sql = `
@@ -107,7 +108,7 @@ service.get('/service', async(req,res)=>{
 });
 
 
-service.get('/service-user-id', async (req, res) => {
+service.get('/service-user-id',jwtMiddleware.verifyToken, async (req, res) => {
     const userId = req.query.user_id;
 
     if (!userId) {
@@ -162,7 +163,7 @@ service.get('/service-user-id', async (req, res) => {
 
 
 
-service.put('/update-service', async (req, res) => {
+service.put('/update-service', jwtMiddleware.verifyToken,async (req, res) => {
     try {
         const service_id = req.query.service_id;
 

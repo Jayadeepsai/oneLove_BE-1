@@ -2,13 +2,14 @@ const express = require('express');
 const loveIndx = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
-const db = require('../../dbConnection')
+const db = require('../../dbConnection');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 loveIndx.use(express.json()); // To parse JSON bodies
 loveIndx.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-loveIndx.post('/like-post', async (req, res) => {
+loveIndx.post('/like-post',jwtMiddleware.verifyToken, async (req, res) => {
     const { user_id, user_name } = req.body;
     const { love_index_id } = req.query;
 
@@ -53,7 +54,7 @@ loveIndx.post('/like-post', async (req, res) => {
 
 
 
-loveIndx.post('/unlike-post', async (req, res) => {
+loveIndx.post('/unlike-post',jwtMiddleware.verifyToken, async (req, res) => {
     const { user_id } = req.body;
     const { love_index_id } = req.query;
 
@@ -104,7 +105,7 @@ loveIndx.post('/unlike-post', async (req, res) => {
 
 
 
-loveIndx.post('/comment', async (req, res) => {
+loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
     const { love_index_id } = req.query;
     const { comments } = req.body;
 
@@ -164,7 +165,7 @@ loveIndx.post('/comment', async (req, res) => {
 
 
 
-loveIndx.delete('/delete-comment', async (req, res) => {
+loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) => {
     const { love_index_id, user_id } = req.query;
 
     try {
@@ -213,37 +214,7 @@ loveIndx.delete('/delete-comment', async (req, res) => {
 
 
 
-    // loveIndx.get('/love_index_data',async(req,res)=>{
-    //     const post_id = req.query.post_id;
-    // try{
-    //     const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = (SELECT love_index_id FROM onelove.posts WHERE post_id = ?)`
-    //     const [results] = await db.query(sql, [post_id]);
-    //     const postData = JSON.parse(JSON.stringify(results));
-    //     const likesCount = postData[0].likes.length;
-    //     const commentsCount = postData[0].comments.length;
-
-    //     if (postData) {
-    //         res.status(200).json({
-    //             postData,
-    //             likesCount,
-    //             commentsCount,
-    //             message: messages.SUCCESS_MESSAGE,
-    //         });
-    //     } else {
-    //         res.status(404).json({
-    //             message: messages.FAILED,
-    //         });
-    //     }
-
-    // } catch (err) {
-    //     console.error('Error fetching data:', err);
-    //     res.status(500).json({
-    //         message: messages.FAILURE_MESSAGE,
-    //     });
-    // }
-    // });
-
-    loveIndx.get('/love_index_data', async (req, res) => {
+    loveIndx.get('/love_index_data',jwtMiddleware.verifyToken, async (req, res) => {
         const post_id = req.query.post_id;
         try {
             const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = (SELECT love_index_id FROM onelove.posts WHERE post_id = ?)`;
@@ -282,7 +253,7 @@ loveIndx.delete('/delete-comment', async (req, res) => {
     });
     
 
-loveIndx.get('/loveIndexDataByCondition/:love_index_id', (req, res) => {                //Fetching data based on id
+loveIndx.get('/loveIndexDataByCondition/:love_index_id',jwtMiddleware.verifyToken, (req, res) => {                //Fetching data based on id
     const love_index_id = req.params.love_index_id;
     const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = ?`;
 
@@ -304,52 +275,7 @@ loveIndx.get('/loveIndexDataByCondition/:love_index_id', (req, res) => {        
 
 
 
-loveIndx.put('/updateloveIndexData/:love_index_id', (req, res) => {           //Updating data in vaccination table based on vaccination_id
-    const love_index_id = req.params.love_index_id;
 
-    const {love_tags, share, hoots} = req.body;
-
-    // Create the SQL query for the update operation
-    let sql = 'UPDATE onelove.love_index SET';
-
-    // Initialize an array to store the values for the query
-    const values = [];
-
-    // Append the fields to the query only if they are provided in the request body
-    if (love_tags !== undefined) {
-        sql += ' love_tags=?,';
-        values.push(love_tags);
-    }
-    if (share !== undefined) {
-        sql += ' share=?,';
-        values.push(share);
-    }
-    if (hoots !== undefined) {
-        sql += ' hoots=?,';
-        values.push(hoots);
-    }
-   
-    // Remove the trailing comma from the SQL query
-    sql = sql.slice(0, -1);
-
-    sql += ' WHERE love_index_id=?';
-    values.push(love_index_id);
-
-    // Execute the update query
-    db.query(sql, values, (err, result) => {
-        if (err) {
-            console.error('Error updating data:', err.message);
-            res.status(400).json({ message: 'Failed to update data.' });
-        } else {
-            console.log('Data updated successfully.');
-            res.status(200).json({
-                updatedData: result,
-                message: 'Data updated successfully.',
-            });
-            console.log(result)
-        }
-    });
-});
 
 
 

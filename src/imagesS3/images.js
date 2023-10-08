@@ -8,6 +8,7 @@ images.use(express.json()); // To parse JSON bodies
 images.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 const AWS = require('aws-sdk');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 
 AWS.config.update({
@@ -19,7 +20,7 @@ AWS.config.update({
   // Create an S3 instance
   const s3 = new AWS.S3();
 
-  images.post('/upload', async (req, res) => {
+  images.post('/upload',jwtMiddleware.verifyToken, async (req, res) => {
     try {
       if (!req.files || !req.files.image) {
         return res.status(400).json({ message: 'No image file uploaded.' });
@@ -47,7 +48,7 @@ AWS.config.update({
   });
 
 
-  images.post('/multi-upload', (req, res) => {
+  images.post('/multi-upload',jwtMiddleware.verifyToken, (req, res) => {
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).json({ message: 'No files were uploaded.' });
     }

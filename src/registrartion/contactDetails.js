@@ -2,13 +2,14 @@ const express = require('express');
 const contact = express.Router();
 const bodyParser = require('body-parser');
 
-const db = require('../../dbConnection')
+const db = require('../../dbConnection');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 contact.use(express.json()); // To parse JSON bodies
 contact.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-contact.post('/contact', async (req, res) => {
+contact.post('/contact',jwtMiddleware.verifyToken, async (req, res) => {
     const { mobile_number, email } = req.body;
     const sql = `INSERT INTO onelove.contact_details (mobile_number, email) VALUES (?, ?)`;
     const values = [mobile_number, email];
@@ -31,7 +32,7 @@ contact.post('/contact', async (req, res) => {
 
 
 
-contact.get('/contact', async (req, res) => {
+contact.get('/contact',jwtMiddleware.verifyToken, async (req, res) => {
     const sql = `SELECT * FROM onelove.contact_details;`;
 
     try {
@@ -55,7 +56,7 @@ contact.get('/contact', async (req, res) => {
 
 
 
-contact.get('/contact-id', async (req, res) => {
+contact.get('/contact-id',jwtMiddleware.verifyToken, async (req, res) => {
     const contact_id = req.query.contact_id;
 
     if (!contact_id) {
@@ -84,7 +85,7 @@ contact.get('/contact-id', async (req, res) => {
 
 
 
-contact.put('/update-contact', async (req, res) => {
+contact.put('/update-contact',jwtMiddleware.verifyToken, async (req, res) => {
     const contact_id = req.query.contact_id;
 
     const { mobile_number, email } = req.body;
@@ -127,7 +128,7 @@ contact.put('/update-contact', async (req, res) => {
 });
 
 
-contact.delete('/delete-contact', async (req, res) => {
+contact.delete('/delete-contact',jwtMiddleware.verifyToken, async (req, res) => {
     const contact_id = req.query.contact_id;
     const sql = 'DELETE FROM `contact_details` WHERE `contact_id`=?';
 

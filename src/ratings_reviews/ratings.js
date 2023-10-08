@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 
 ratings.use(express.json()); // To parse JSON bodies
@@ -30,7 +31,7 @@ ratings.use(express.urlencoded({ extended: true })); // To parse URL-encoded bod
 // });
 
 
-ratings.post('/rating-review', async (req, res) => {
+ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const { user_id, ratings_reviews } = req.body;
 
@@ -88,7 +89,7 @@ ratings.post('/rating-review', async (req, res) => {
 
 
 
-ratings.get('/rating-review',async(req,res)=>{
+ratings.get('/rating-review',jwtMiddleware.verifyToken,async(req,res)=>{
    try{
     const sql = `SELECT r.*,u.*,a.*,c.*,s.*,i.image_id AS user_image_id,i.image_url as user_image_url
     FROM onelove.rating_review r
@@ -114,7 +115,7 @@ ratings.get('/rating-review',async(req,res)=>{
 });
 
 
-ratings.get('/rating-review-user',async(req,res)=>{
+ratings.get('/rating-review-user',jwtMiddleware.verifyToken,async(req,res)=>{
        const user_id = req.query.user_id
 
     try{

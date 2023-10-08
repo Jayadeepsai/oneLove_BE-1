@@ -4,6 +4,7 @@ const AWS = require('aws-sdk');
 // const fileUpload = require('express-fileupload');
 require('dotenv').config();
 const bodyParser = require('body-parser');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 
 // AWS configuration (same as in your image upload route)
@@ -20,7 +21,7 @@ videos.use(express.json());
 videos.use(express.urlencoded({ extended: true }));
 
 // Handle video uploads
-videos.post('/upload-video', (req, res) => {
+videos.post('/upload-video',jwtMiddleware.verifyToken, (req, res) => {
   try {
     if (!req.files || !req.files.video) {
       return res.status(400).json({ message: 'No video file uploaded.' });

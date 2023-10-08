@@ -6,28 +6,50 @@ const db = require('../../dbConnection');
 const cron = require('node-cron');
 const moment = require('moment');
 
+// Include Socket.io and create a socket server instance
+const httpServer = require('http').createServer();
+const io = require('socket.io')(httpServer);
+
 message.use(express.json()); // To parse JSON bodies
 message.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-message.post('/messages', async (req, res) => {
+// Initialize the socket server
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  // Handle new messages here
+  socket.on('newMessage', async (data) => {
     try {
       // Get data from the request body
-      const { sender_id, receiver_id, message } = req.body;
+      const { sender_id, receiver_id, message } = data;
       // Get the current date and time
-      const currentTime = moment().format('YYYY-MM-DD HH:mm:ss'); 
+      const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
 
       const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time) VALUES (?, ?, ?, ?)';
-     
+
       // Insert the message into the database
       await db.query(sql, [sender_id, receiver_id, message, currentTime]);
 
-      res.status(201).json({ message: 'Message sent successfully' });
+      // Emit the new message to all connected clients
+      io.emit('message', {
+        sender_id,
+        receiver_id,
+        message,
+        time: currentTime,
+      });
+
+      console.log('Message saved and sent:', data);
+
     } catch (error) {
       console.error('Error posting message:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
     }
   });
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
 
 
   // Route to get messages between sender_id and receiver_id
@@ -141,3 +163,5 @@ message.get('/messages', async (req, res) => {
   cron.schedule('*/10 * * * *', deleteOldConversations); // This schedules the job to run at the beginning of every 10 mins
 
 module.exports = message;
+// Export the httpServer for Socket.io
+module.exports.io = io;

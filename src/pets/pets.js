@@ -3,13 +3,14 @@ const pets = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 
-const db = require('../../dbConnection')
+const db = require('../../dbConnection');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 pets.use(express.json()); // To parse JSON bodies
 pets.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-pets.post('/pet-post', async (req, res) => { // Add "async" keyword
+pets.post('/pet-post',jwtMiddleware.verifyToken, async (req, res) => { // Add "async" keyword
     try {
         const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, spay_neuter, image_type, image_url, user_id } = req.body;
 
@@ -38,7 +39,7 @@ pets.post('/pet-post', async (req, res) => { // Add "async" keyword
     }
 });
 
-pets.get('/pets', async (req, res) => { // Add "async" keyword
+pets.get('/pets',jwtMiddleware.verifyToken, async (req, res) => { // Add "async" keyword
     try {
         const sql = `SELECT p.*, v.*, i1.image_id AS pet_image_id, i1.image_url AS pet_image_url, u.* , i2.image_id AS user_image_id, i2.image_url AS user_image_url,c.*
         FROM onelove.pet p
@@ -64,7 +65,7 @@ pets.get('/pets', async (req, res) => { // Add "async" keyword
     }
 });
 
-pets.put('/update-pet', async (req, res) => { // Use "async" keyword   
+pets.put('/update-pet',jwtMiddleware.verifyToken, async (req, res) => { // Use "async" keyword   
     try {
         const pet_id = req.query.pet_id; // Use "req.query" instead of "req.params"
 
@@ -166,7 +167,7 @@ pets.put('/update-pet', async (req, res) => { // Use "async" keyword
 
 
 
-pets.put('/pet-update-image', async (req, res) => {
+pets.put('/pet-update-image',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const pet_id = req.query.pet_id; // Get the pet ID from the query parameter
 
@@ -197,7 +198,7 @@ pets.put('/pet-update-image', async (req, res) => {
 
 
 
-pets.get('/pets-images', async (req, res) => { 
+pets.get('/pets-images',jwtMiddleware.verifyToken, async (req, res) => { 
     try {
         const pet_id = req.query.pet_id; 
 
@@ -255,7 +256,7 @@ pets.get('/pets-images', async (req, res) => {
 //     }
 // });
 
-pets.get('/pets-users', async (req, res) => { 
+pets.get('/pets-users',jwtMiddleware.verifyToken, async (req, res) => { 
     const user_id = req.query.user_id;
 
     if (!user_id) {
@@ -310,7 +311,7 @@ pets.get('/pets-users', async (req, res) => {
 
 
 
-pets.delete('/delete-pet', async (req, res) => { 
+pets.delete('/delete-pet',jwtMiddleware.verifyToken, async (req, res) => { 
     try {
         const pet_id = req.query.pet_id; 
 

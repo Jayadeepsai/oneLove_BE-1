@@ -3,7 +3,8 @@ const clinic = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 
-const db = require('../../dbConnection')
+const db = require('../../dbConnection');
+const jwtMiddleware = require('../../jwtMiddleware');;
 
 clinic.use(express.json()); // To parse JSON bodies
 clinic.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -35,7 +36,7 @@ try{
 }
 };
 
-clinic.post('/clinic', (req, res) => {
+clinic.post('/clinic',jwtMiddleware.verifyToken, (req, res) => {
     clinicAddQueries(req, res)
         .then(() => {
             console.log('Transaction completed successfully');
@@ -47,7 +48,7 @@ clinic.post('/clinic', (req, res) => {
 
 
 
-clinic.get('/clinic',async(req,res)=>{
+clinic.get('/clinic',jwtMiddleware.verifyToken,async(req,res)=>{
 
     const sql = `
     SELECT  s.*,u.*,a.*,c.*,i.*
@@ -81,7 +82,7 @@ clinic.get('/clinic',async(req,res)=>{
 });
 
 
-clinic.get('/clinic-user-id', async(req,res)=>{
+clinic.get('/clinic-user-id',jwtMiddleware.verifyToken, async(req,res)=>{
 
     const userId = req.query.user_id; 
     
@@ -124,7 +125,7 @@ clinic.get('/clinic-user-id', async(req,res)=>{
 
 
 
-clinic.put('/update-clinic', async (req, res) => {
+clinic.put('/update-clinic', jwtMiddleware.verifyToken, async (req, res) => {
     const clinic_id = req.query.clinic_id;
 
     if (!clinic_id) {

@@ -3,14 +3,15 @@ const users = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 
-const db = require('../../dbConnection')
+const db = require('../../dbConnection');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 users.use(express.json()); // To parse JSON bodies
 users.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
 
-users.get('/users-id',async(req,res)=>{
+users.get('/users-id',jwtMiddleware.verifyToken,async(req,res)=>{
     const user_id=req.query.user_id;
     const sql=`
     SELECT u.*, a.*, c.*,s.*,c1.*,s1.*, i.*
@@ -47,7 +48,7 @@ try{
 
 
 
-users.get('/users-pet-owners-user-id',async(req,res)=>{
+users.get('/users-pet-owners-user-id',jwtMiddleware.verifyToken,async(req,res)=>{
     const user_id=req.query.user_id;
     const sql=`
     SELECT u.*, a.*, c.*,s.*,c1.*,s1.*, i.*
@@ -83,7 +84,7 @@ try{
 });
 
 
-users.get('/users-pet-owners',async(req,res)=>{
+users.get('/users-pet-owners',jwtMiddleware.verifyToken,async(req,res)=>{
     const sql=`
     SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,i.*
     FROM users u
@@ -119,7 +120,7 @@ try{
 
 
 
-users.put('/update-user-profile',async(req,res)=>{
+users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
   
     try{
         const user_id = req.query.user_id;

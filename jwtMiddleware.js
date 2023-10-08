@@ -7,10 +7,20 @@ console.log(secret_Key);
 
 const secretKey = secret_Key;
 
-// Generate a JWT token
-function generateToken(userId) {
-  return jwt.sign({ userId }, secretKey, { expiresIn: '24h' }); // You can adjust the expiration time
-}
+
+
+// Generate a JWT token with expiration time
+// function generateToken(userId) {
+//     const expiresIn = 24 * 60 * 60; // 24 hours in seconds
+//     const expirationTime = Math.floor(Date.now() / 1000) + expiresIn; // Current time + 24 hours
+  
+//     return jwt.sign({ userId, exp: expirationTime }, secretKey);
+//   }
+
+  function generateToken(userId) {
+    return jwt.sign({ userId }, secretKey, { expiresIn: '24h' }); // You can adjust the expiration time
+  }
+
 
 // Verify a JWT token
 function verifyToken(req, res, next) {
@@ -24,9 +34,9 @@ function verifyToken(req, res, next) {
   const token = tokenHeader.split(' ')[1];
 
   jwt.verify(token, secretKey, (err, decoded) => {
-    console.log('Token:', token);
-    console.log('Secret Key:', secretKey);
-    console.log('Decoded token:', decoded);
+    console.log("Token:",token);
+    console.log("Secret key:",secretKey);
+    console.log("Decoded:",decoded);
 
     if (err) {
       console.error('JWT verification error:', err);
@@ -41,6 +51,14 @@ function verifyToken(req, res, next) {
 function generateRefreshToken(userId) {
     return jwt.sign({ userId }, secretKey, { expiresIn: '7d' }); // Use the same secret key
   }
+
+// Generate a refresh token with an expiration time
+// function generateRefreshToken(userId) {
+//     const expiresIn = 7 * 24 * 60 * 60; // 7 days in seconds
+//     const expirationTime = Math.floor(Date.now() / 1000) + expiresIn; // Current time + 7 days
+  
+//     return jwt.sign({ userId, exp: expirationTime }, secretKey);
+//   }
 
 // Handle token refresh
 function refreshToken(req, res) {
@@ -66,3 +84,5 @@ function refreshToken(req, res) {
   }
   
   module.exports = { generateToken, verifyToken, refreshToken, generateRefreshToken };
+
+

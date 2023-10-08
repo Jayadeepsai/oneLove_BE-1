@@ -4,12 +4,13 @@ const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 orders.use(express.json()); // To parse JSON bodies
 orders.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-orders.post('/order', async (req, res) => {
+orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
     const { store_id, user_id, orders, status } = req.body;
 
     try {
@@ -53,7 +54,7 @@ async function isOrderNoUnique(order_no) {
  
 
 
-orders.get('/all-orders',async(req,res)=>{
+orders.get('/all-orders',jwtMiddleware.verifyToken,async(req,res)=>{
     try{
         const sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
         FROM onelove.orders o
@@ -78,7 +79,7 @@ orders.get('/all-orders',async(req,res)=>{
     }
 });
 
-orders.get('/orders', async (req, res) => {
+orders.get('/orders',jwtMiddleware.verifyToken, async (req, res) => {
     const { user_id, order_id, store_id } = req.query;
     
     try {
@@ -140,7 +141,7 @@ orders.get('/orders', async (req, res) => {
 
 
 
-orders.put('/update-status',async(req,res)=>{
+orders.put('/update-status',jwtMiddleware.verifyToken,async(req,res)=>{
     const order_id = req.query.order_id;
     const status = req.body.status;
  try{

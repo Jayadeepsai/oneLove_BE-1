@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 
 items.use(express.json()); // To parse JSON bodies
@@ -21,9 +22,9 @@ async function performTransaction(req,res){
         const [imageResult] = await db.query(imageSql,imageValues);
         const image_id = imageResult.insertId;
 
-        const { brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, quantity } = req.body;
-        const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, image_id, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, image_id, JSON.stringify(quantity)];
+        const { brand_name, product_title, pet_type_product, item_description, product_details, store_id, quantity, sub_category_name, collection } = req.body;
+        const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, quantity, sub_category_name, collection) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, JSON.stringify(quantity), sub_category_name, collection];
         const [itemResult] = await db.query(itemSql,itemValues);
         const item_id = itemResult.insertId;
 
@@ -46,7 +47,7 @@ async function performTransaction(req,res){
 }
 
 
-items.post('/item-entry',(req,res)=>{
+items.post('/item-entry',jwtMiddleware.verifyToken,(req,res)=>{
     performTransaction(req,res)
     .then(() => {
         console.log('Transaction completed successfully');
@@ -58,10 +59,9 @@ items.post('/item-entry',(req,res)=>{
 
 
 
-items.get('/products',async(req,res)=>{
-    const sql = `SELECT i.*,s.*,s1.*,i1.*,a.*,c.*
+items.get('/products',jwtMiddleware.verifyToken,async(req,res)=>{
+    const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
                  FROM onelove.items i
-                 LEFT JOIN sub_category s ON i.sub_cate_id = s.sub_cate_id
                  LEFT JOIN store s1 ON i.store_id = s1.store_id
                  LEFT JOIN address a ON s1.address_id = a.address_id
                  LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
@@ -83,11 +83,10 @@ items.get('/products',async(req,res)=>{
 });
 
 
-items.get('/products-id',async(req,res)=>{
+items.get('/products-id',jwtMiddleware.verifyToken,async(req,res)=>{
     const item_id = req.query.item_id
-    const sql = `SELECT i.*,s.*,s1.*,i1.*,a.*,c.*
+    const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
                  FROM onelove.items i
-                 LEFT JOIN sub_category s ON i.sub_cate_id = s.sub_cate_id
                  LEFT JOIN store s1 ON i.store_id = s1.store_id
                  LEFT JOIN address a ON s1.address_id = a.address_id
                  LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
@@ -112,13 +111,12 @@ items.get('/products-id',async(req,res)=>{
 
 
 
-items.get('/products-store-id',async(req,res)=>{
+items.get('/products-store-id',jwtMiddleware.verifyToken,async(req,res)=>{
 
     const store_id = req.query.store_id
 
-    const sql = `SELECT i.*,s.*,s1.*,i1.*,a.*,c.*
+    const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
                  FROM onelove.items i
-                 LEFT JOIN sub_category s ON i.sub_cate_id = s.sub_cate_id
                  LEFT JOIN store s1 ON i.store_id = s1.store_id
                  LEFT JOIN address a ON s1.address_id = a.address_id
                  LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
@@ -160,7 +158,7 @@ items.get('/products-store-id',async(req,res)=>{
 });
 
 
-items.get('/product-store-item-id', async (req, res) => {
+items.get('/product-store-item-id',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const { store_id, item_id } = req.query;
 
@@ -180,9 +178,8 @@ items.get('/product-store-item-id', async (req, res) => {
             values.push(item_id);
         }
 
-        let sql = `SELECT i.*,s.*,s1.*,i1.*
+        let sql = `SELECT i.*,s1.*,i1.*
         FROM onelove.items i
-        LEFT JOIN sub_category s ON i.sub_cate_id = s.sub_cate_id
         LEFT JOIN store s1 ON i.store_id = s1.store_id
         LEFT JOIN images i1 ON i.image_id = i1.image_id`;
         
@@ -212,15 +209,15 @@ items.get('/product-store-item-id', async (req, res) => {
 });
 
 
-items.put('/update-item', async (req, res) => {
+items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const item_id = req.query.item_id;
 
         await db.beginTransaction();
 
-        const { brand_name, product_title, pet_type_product, item_description, product_details, sub_cate_id, store_id, quantity } = req.body;
+        const { brand_name, product_title, pet_type_product, item_description, product_details, store_id, quantity, sub_category_name, collection } = req.body;
 
-        if (brand_name || product_title || pet_type_product || item_description || product_details || sub_cate_id || store_id || quantity) {
+        if (brand_name || product_title || pet_type_product || item_description || product_details || store_id || quantity || sub_category_name || collection) {
 
             let itemSql = 'UPDATE onelove.items SET';
             const itemValues = [];
@@ -245,13 +242,17 @@ items.put('/update-item', async (req, res) => {
                 itemSql += ' product_details=?,';
                 itemValues.push(product_details);
             }
-            if (sub_cate_id !== undefined) {
-                itemSql += ' sub_cate_id=?,';
-                itemValues.push(sub_cate_id);
-            }
             if (store_id !== undefined) {
                 itemSql += ' sub_cate_id=?,';
                 itemValues.push(sub_cate_id);
+            }
+            if (sub_category_name !== undefined) {
+                itemSql += ' sub_category_name=?,';
+                itemValues.push(sub_category_name);
+            }
+            if (collection !== undefined) {
+                itemSql += ' collection=?,';
+                itemValues.push(collection);
             }
 
             if (quantity !== undefined){
@@ -316,7 +317,7 @@ items.put('/update-item', async (req, res) => {
 });
 
 
-items.delete('/delete-items', async (req, res) => {
+items.delete('/delete-items',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const itemIds = req.query.item_id; // Accept item_ids as an array of IDs
         
@@ -403,7 +404,7 @@ items.delete('/delete-items', async (req, res) => {
 // });
 
 
-items.get('/stores', async (req, res) => {
+items.get('/stores',jwtMiddleware.verifyToken, async (req, res) => {
     const sql = `
       SELECT
         s.*,

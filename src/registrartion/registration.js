@@ -185,7 +185,7 @@ registration.post('/registration', (req, res) => {
 });
 
 
-registration.get('/registration', async (req, res) => {
+registration.get('/registration',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const sql = `SELECT a.*, c.*, u.*, r.*,i.*
                      FROM onelove.registrations r
@@ -210,7 +210,7 @@ registration.get('/registration', async (req, res) => {
 });
 
 
-registration.get('/registration-id', async(req,res)=>{
+registration.get('/registration-id',jwtMiddleware.verifyToken, async(req,res)=>{
 
 const reg_id = req.query.reg_id;
 try{
@@ -243,6 +243,14 @@ try{
 });
 
 
+  
+  registration.post('/refresh-token', (req, res) => {
+    const refreshTokenValue = req.body.refreshToken;
+  
+    // Verify the refresh token
+    jwtMiddleware.refreshToken(req, res);
+  });
+
 
 registration.get('/registration-mobile-number', async (req, res) => {
     const mobile_number = req.query.mobile_number;
@@ -274,11 +282,11 @@ registration.get('/registration-mobile-number', async (req, res) => {
         dog_service: row.dog_service === 1,
         breader_adoption_sale: row.breader_adoption_sale === 1,
       }));
-
-          // After verifying the mobile number and logging in the user, generate a JWT token
-    const userId = data[0].user_id;
-    const token = jwtMiddleware.generateToken(userId);
-    const refreshToken = jwtMiddleware.generateRefreshToken(userId);
+  
+      // After verifying the mobile number and logging in the user, generate a JWT token
+      const userId = data[0].user_id;
+      const token = jwtMiddleware.generateToken(userId);
+      const refreshToken = jwtMiddleware.generateRefreshToken(userId);
   
       res.status(200).json({
         registrationData: modifiedData,
@@ -291,19 +299,22 @@ registration.get('/registration-mobile-number', async (req, res) => {
       res.status(500).json({ message: messages.FAILURE_MESSAGE });
     }
   });
-
-
   
-  registration.post('/refresh-token', (req, res) => {
-    const refreshTokenValue = req.body.refreshToken;
+//   registration.post('/refresh-token', (req, res) => {
+//     const refreshTokenValue = req.body.refreshToken;
   
-    // Verify the refresh token
-    jwtMiddleware.refreshToken(req, res);
-  });
+//     // Verify the refresh token
+//     const isValidRefreshToken = jwtMiddleware.verifyRefreshToken(refreshTokenValue);
+    
+//     if (!isValidRefreshToken) {
+//       return res.status(403).json({ message: 'Forbidden' });
+//     }
+  
+//     // jwtMiddleware.refreshToken(req, res);
+//   });
 
 
-
-registration.delete('/delete-registration-data', async (req, res) => {
+registration.delete('/delete-registration-data',jwtMiddleware.verifyToken, async (req, res) => {
     const reg_id = req.query.reg_id;
     const sql = 'DELETE FROM `registrations` WHERE `reg_id`=?';
 
