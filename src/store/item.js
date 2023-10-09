@@ -22,9 +22,9 @@ async function performTransaction(req,res){
         const [imageResult] = await db.query(imageSql,imageValues);
         const image_id = imageResult.insertId;
 
-        const { brand_name, product_title, pet_type_product, item_description, product_details, store_id, quantity, sub_category_name, collection } = req.body;
-        const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, quantity, sub_category_name, collection) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, JSON.stringify(quantity), sub_category_name, collection];
+        const { brand_name, product_title, pet_type_product, item_description, product_details, store_id, quantity, sub_category_name, collection_name } = req.body;
+        const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, quantity, sub_category_name, collection_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, JSON.stringify(quantity), sub_category_name, collection_name];
         const [itemResult] = await db.query(itemSql,itemValues);
         const item_id = itemResult.insertId;
 
@@ -215,9 +215,9 @@ items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
 
         await db.beginTransaction();
 
-        const { brand_name, product_title, pet_type_product, item_description, product_details, store_id, quantity, sub_category_name, collection } = req.body;
+        const { brand_name, product_title, pet_type_product, item_description, product_details, store_id, quantity, sub_category_name, collection_name } = req.body;
 
-        if (brand_name || product_title || pet_type_product || item_description || product_details || store_id || quantity || sub_category_name || collection) {
+        if (brand_name || product_title || pet_type_product || item_description || product_details || store_id || quantity || sub_category_name || collection_name) {
 
             let itemSql = 'UPDATE onelove.items SET';
             const itemValues = [];
@@ -250,9 +250,9 @@ items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
                 itemSql += ' sub_category_name=?,';
                 itemValues.push(sub_category_name);
             }
-            if (collection !== undefined) {
-                itemSql += ' collection=?,';
-                itemValues.push(collection);
+            if (collection_name !== undefined) {
+                itemSql += ' collection_name=?,';
+                itemValues.push(collection_name);
             }
 
             if (quantity !== undefined){
