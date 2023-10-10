@@ -28,6 +28,8 @@ io.on('connection', (socket) => {
 
       const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time) VALUES (?, ?, ?, ?)';
 
+
+      
       // Insert the message into the database
       await db.query(sql, [sender_id, receiver_id, message, currentTime]);
 
