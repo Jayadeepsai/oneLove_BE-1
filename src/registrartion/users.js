@@ -131,7 +131,7 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
 
         const {address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords} = req.body;
         const { mobile_number, email } = req.body;
-        const { user_type, user_name } = req.body;
+        const { user_type, user_name, external_id } = req.body;
         const { store_name, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale } = req.body;  
         const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time} = req.body;
         const { clinic_name, specialisation, clinic_license, experience, education , week_start_day, week_end_day, start_time, end_time} = req.body;
@@ -234,7 +234,7 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         await db.query(contact_detailsSql, contactDetailsValues);
     }
 
-    if(user_type || user_name){
+    if(user_type || user_name || external_id){
 
         let usersSql = 'UPDATE users SET';
         const usersValues = [];
@@ -247,6 +247,10 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         if (user_name !== undefined) {
             usersSql += ' user_name=?,';
             usersValues.push(user_name);
+        }
+        if (external_id !== undefined) {
+            usersSql += ' external_id=?,';
+            usersValues.push(external_id);
         }
 
         usersSql = usersSql.slice(0, -1);

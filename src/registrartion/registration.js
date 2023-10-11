@@ -62,7 +62,7 @@ async function performTransaction(req, res) {
         }
       }      
 
-        const { user_type, user_name } = req.body;
+        const { user_type, user_name, external_id } = req.body;
         
         // Initialize clinic_id, service_id, and store_id as null
         let clinic_id = null;
@@ -71,8 +71,8 @@ async function performTransaction(req, res) {
 
         switch (user_type) {
             case 'pet_owner':
-                const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-                const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id];
+                const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id];
     
                 const [userResult] = await connection.query(userQuery, userValues);
                 const user_id = userResult.insertId;
@@ -94,8 +94,8 @@ async function performTransaction(req, res) {
                 service_id = serviceResult.insertId;
 
             // Insert into users and registrations tables for pet_doctor
-                const userQuery1 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-                const userValues1 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id];
+                const userQuery1 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const userValues1 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id];
 
                 const [userResult1] = await connection.query(userQuery1, userValues1);
                 const user_id1 = userResult1.insertId;
@@ -116,8 +116,8 @@ async function performTransaction(req, res) {
                 clinic_id = clinicResult.insertId;
     
                 // Insert into users and registrations tables for pet_trainer
-                const userQuery2 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-                const userValues2 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id];
+                const userQuery2 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const userValues2 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id];
     
                 const [userResult2] = await connection.query(userQuery2, userValues2);
                 const user_id2 = userResult2.insertId;
@@ -138,8 +138,8 @@ async function performTransaction(req, res) {
                 store_id = storeResult.insertId;
 
              // Insert into users and registrations tables for pet_trainer
-                const userQuery3 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-                const userValues3 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id];
+                const userQuery3 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const userValues3 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id];
  
                 const [userResult3] = await connection.query(userQuery3, userValues3);
                 const user_id3 = userResult3.insertId;
