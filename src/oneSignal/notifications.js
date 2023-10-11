@@ -139,14 +139,22 @@ const OneSignal = require('@onesignal/node-onesignal')
 
 async function sendnotification( Name,mess,uniqId) {
     try {
-        const ONESIGNAL_APP_ID = 'e3a97e96-a59f-4b4e-a6fa-022eefa51a4a';
+        const ONESIGNAL_APP_ID = 'ce444827-9c43-4f13-9cc9-60e01404effd';
  
         const app_key_provider = {
             getToken() {
             //  return 'MjY5ZDJjZWUtZDUyNi00YjZmLWJmZjQtNGM2ZmYzM2FmZTM2'
-            return 'Mzg3MDU0ZjEtZjBjNy00MjAyLTg4NjgtZDk4YWJkYzdiZGQ3';
+            return 'YTYwMTQyZmUtNTk1My00OTEyLTgxYzEtMTUzYTQ4OGUyM2Iw';
             }
         };
+    //     const ONESIGNAL_APP_ID = '8fda6cf4-bdbe-4f2e-a709-24f8990ad307';
+
+    // const app_key_provider = {
+    //     getToken() {
+    //         //return 'ZjA4ZTMyOGEtOTEzMy00MzQyLTg2MmItYWM3YTExMTM2YzI2';
+    //         return 'OWE5OTk1MTctMjM1NC00ZTZiLWFhNTgtMmY2MTlkNTY0NWZm'
+    //     }
+    // };
       
         const configuration = OneSignal.createConfiguration({
             authMethods: {
