@@ -5,12 +5,13 @@ const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
+const notification= require('../oneSignal/notifications')
 
 orders.use(express.json()); // To parse JSON bodies
 orders.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
+orders.post('/order', async (req, res) => {
     const { store_id, user_id, orders, status } = req.body;
 
     try {
@@ -28,12 +29,25 @@ orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
         const values = [store_id, user_id, JSON.stringify(orders), order_no, status, current_time];
         const [result] = await db.query(sql, values);
 
+        const sql1 = `SELECT external_id FROM onelove.users WHERE store_id = ${store_id}`
+        const [sql1Result] = await db.query(sql1)
+        const external_id=sql1Result[0].external_id;
+        console.log('external id',external_id)
+
+
+        const Name = "New order";
+        const mess = "Your have an order";
+        const uniqId = external_id; 
+
+        // Call the sendnotification function
+        await notification.sendnotification(Name, mess, uniqId);
+
         res.status(200).json({
             data: result,
             message: messages.POST_SUCCESS
         });
     } catch (err) {
-        console.error('Error posting data:', err.message);
+        console.error('Error posting data:');
         res.status(400).json({
             message: messages.POST_FAILED
         });

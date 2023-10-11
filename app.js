@@ -24,7 +24,7 @@ const video = require('./src/imagesS3/video');
 const ratings = require('./src/ratings_reviews/ratings');
 const orders = require('./src/orders/orders');
 const message = require('./src/messages/message');
-const notification = require('./src/oneSignal/notifications');
+// const notification = require('./src/oneSignal/notifications');
 
 
 
@@ -46,7 +46,7 @@ app.use('/onelove/video',video);
 app.use('/onelove/ratings',ratings);
 app.use('/onelove/order',orders);
 app.use('/onelove/message',message);
-app.use('/onelove/notification',notification);
+// app.use('/onelove/notification',notification);
 
 
 module.exports = app
