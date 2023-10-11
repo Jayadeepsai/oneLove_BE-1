@@ -1,6 +1,6 @@
 const express = require("express");
 //define the router
-const router = express.Router();
+const notification = express.Router();
 require('dotenv').config();
 
 const OneSignal = require('@onesignal/node-onesignal')
@@ -67,7 +67,7 @@ const OneSignal = require('@onesignal/node-onesignal')
 
 // })
 
-router.post('/sendMessages', async (req, res, next) => {
+notification.post('/sendMessages', async (req, res, next) => {
     try {
         const externalIds = req.body.externalIds; // Assuming externalIds is an array of external IDs
 
@@ -139,4 +139,4 @@ router.post('/sendMessages', async (req, res, next) => {
 
 
 
-module.exports = router;
+module.exports = notification;
