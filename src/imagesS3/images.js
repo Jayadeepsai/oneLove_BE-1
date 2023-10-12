@@ -36,7 +36,9 @@ AWS.config.update({
       };
   
       const uploadResult = await s3.upload(params).promise();
-  
+
+      console.log(imageFile);
+
       res.status(200).json({
         message: 'Image uploaded successfully',
         imageUrl: uploadResult.Location
