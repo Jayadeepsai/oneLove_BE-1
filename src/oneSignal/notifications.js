@@ -71,12 +71,12 @@ const OneSignal = require('@onesignal/node-onesignal')
 
 async function sendnotification( Name,mess,uniqId) {
     try {
-        const ONESIGNAL_APP_ID = 'ce444827-9c43-4f13-9cc9-60e01404effd';
+        const ONESIGNAL_APP_ID = '3fd29a95-0021-4625-83ef-3998793e9c27';
  
         const app_key_provider = {
             getToken() {
             //  return 'MjY5ZDJjZWUtZDUyNi00YjZmLWJmZjQtNGM2ZmYzM2FmZTM2'
-            return 'YTYwMTQyZmUtNTk1My00OTEyLTgxYzEtMTUzYTQ4OGUyM2Iw';
+            return 'MDllM2QyN2MtYzJjNC00ZmE5LThkNDUtZjgyY2JkYTNlYjA5';
             }
         };
       
