@@ -5,6 +5,7 @@ const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
+const notification= require('../oneSignal/notifications');
 
 
 items.use(express.json()); // To parse JSON bodies
@@ -30,6 +31,22 @@ async function performTransaction(req,res){
 
         
         await db.commit();
+
+       // Send notifications to pet owners
+       const notifSql = `SELECT external_id FROM onelove.users WHERE user_type = 'pet_owner'`;
+       const [notifSqlResult] = await db.query(notifSql);
+
+       if (notifSqlResult && notifSqlResult.length > 0) {
+           const uniqId = notifSqlResult
+               .filter(item => item.external_id !== null && item.external_id !== 'null')
+               .map(item => item.external_id);
+
+           if (uniqId.length > 0) {
+               const Name = "New stock!";
+               const mess = "Check out the latest products for your pet in the store!";
+               await notification.sendnotification(Name, mess, uniqId);
+           }
+       }
        
         console.log('Transaction committed successfully.');
 
@@ -49,6 +66,7 @@ async function performTransaction(req,res){
 
 items.post('/item-entry',jwtMiddleware.verifyToken,(req,res)=>{
     performTransaction(req,res)
+   
     .then(() => {
         console.log('Transaction completed successfully');
        })

@@ -11,7 +11,7 @@ orders.use(express.json()); // To parse JSON bodies
 orders.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-orders.post('/order', async (req, res) => {
+orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
     const { store_id, user_id, orders, status } = req.body;
 
     try {
@@ -34,10 +34,9 @@ orders.post('/order', async (req, res) => {
         const external_id=sql1Result[0].external_id;
         console.log('external id',external_id)
 
-
-        const Name = "New order";
-        const mess = "Your have an order";
-        const uniqId = external_id; 
+        const Name = "New Product orders";
+        const mess = "New order for pet products! Process it now";
+        const uniqId = [external_id]; 
 
         // Call the sendnotification function
         await notification.sendnotification(Name, mess, uniqId);

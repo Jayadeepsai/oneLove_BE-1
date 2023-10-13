@@ -8,6 +8,7 @@ require('dotenv').config();
 registration.use(express.json()); // To parse JSON bodies
 registration.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 const jwtMiddleware = require('../../jwtMiddleware');
+const notification= require('../oneSignal/notifications');
 
 
 
@@ -155,6 +156,19 @@ async function performTransaction(req, res) {
               return res.status(400).json({message:"user_type you have choosen is invalid"});
                 break;
         }
+
+             // Send notifications to pet owners
+             const sql1 = `SELECT external_id FROM onelove.users WHERE contact_id =${contact_id}`
+             const [sql1Result] = await connection.query(sql1)
+             const external_idd=sql1Result[0].external_id;
+             console.log('external id',external_idd)
+     
+             const Name = "";
+             const mess = "Welcome to One Love app! Your profile is ready. Start exploring!";
+             const uniqId = [external_idd]; 
+
+             // Call the sendnotification function
+        await notification.sendnotification(Name, mess, uniqId);
 
         // Commit the transaction if all queries are successful
         await connection.commit();

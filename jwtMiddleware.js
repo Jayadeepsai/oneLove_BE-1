@@ -9,12 +9,9 @@ require('dotenv').config();
 
 const secretKey = process.env.SECRET_KEY_JWT;
 
-
   function generateToken(userId) {
     return jwt.sign({ userId }, secretKey, { expiresIn: '24h' }); // You can adjust the expiration time
   }
-
-
 
 // Verify a JWT token
 function verifyToken(req, res, next) {
@@ -27,8 +24,6 @@ function verifyToken(req, res, next) {
   const token = tokenHeader.split(' ')[1];
 
   jwt.verify(token, secretKey, (err, decoded) => {
-    console.log("Token:",token);
-    console.log("Secret key:",secretKey);
     console.log("Decoded:",decoded);
 
     if (err) {
@@ -53,8 +48,6 @@ function refreshToken(req, res) {
   
     // Verify the refresh token
     jwt.verify(refreshToken, secretKey, (err, decoded) => {
-        console.log("Refresh token:",refreshToken);
-        console.log("Secret key:",secretKey);
         console.log("Decoded:",decoded);
       if (err) {
         console.error('Refresh token verification error:', err);

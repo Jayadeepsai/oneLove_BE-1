@@ -6,7 +6,7 @@ require('dotenv').config();
 const OneSignal = require('@onesignal/node-onesignal')
 
 
-async function sendnotification( Name,mess,uniqId) {
+async function sendnotification(Name,mess,uniqId) {
     try {
         const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
  
@@ -27,10 +27,12 @@ async function sendnotification( Name,mess,uniqId) {
       
         const notification = new OneSignal.Notification();
         notification.app_id = ONESIGNAL_APP_ID;
-        notification.include_external_user_ids = [uniqId];
+        notification.include_external_user_ids = uniqId;
         notification.contents = { 
-            en: Name +" "+mess
+            en: Name +
+            "  " +mess
         };
+        
         const {id} = await client.createNotification(notification);
       
         const response = await client.getNotification(ONESIGNAL_APP_ID, id);
