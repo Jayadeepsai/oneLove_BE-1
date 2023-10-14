@@ -160,12 +160,13 @@ async function performTransaction(req, res) {
              // Send notifications to pet owners
              const sql1 = `SELECT external_id FROM onelove.users WHERE contact_id =${contact_id}`
              const [sql1Result] = await connection.query(sql1)
-             const external_idd=sql1Result[0].external_id;
-             console.log('external id',external_idd)
+             console.log("sqlResul",sql1Result)
+             const uuId=sql1Result[0].external_id;
+             console.log('external id',uuId)
      
-             const Name = "";
+             const Name = "Profile creation success";
              const mess = "Welcome to One Love app! Your profile is ready. Start exploring!";
-             const uniqId = [external_idd]; 
+             const uniqId = [uuId]; 
 
              // Call the sendnotification function
         await notification.sendnotification(Name, mess, uniqId);
