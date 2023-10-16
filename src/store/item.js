@@ -261,8 +261,8 @@ items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
                 itemValues.push(product_details);
             }
             if (store_id !== undefined) {
-                itemSql += ' sub_cate_id=?,';
-                itemValues.push(sub_cate_id);
+                itemSql += ' store_id=?,';
+                itemValues.push(store_id);
             }
             if (sub_category_name !== undefined) {
                 itemSql += ' sub_category_name=?,';
