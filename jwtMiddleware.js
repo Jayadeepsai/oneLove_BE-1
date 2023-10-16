@@ -10,7 +10,7 @@ require('dotenv').config();
 const secretKey = process.env.SECRET_KEY_JWT;
 
   function generateToken(userId) {
-    return jwt.sign({ userId }, secretKey, { expiresIn: '5m' }); // You can adjust the expiration time
+    return jwt.sign({ userId }, secretKey, { expiresIn: '24h' }); // You can adjust the expiration time
   }
 
 // Verify a JWT token

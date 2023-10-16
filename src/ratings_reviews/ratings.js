@@ -5,35 +5,18 @@ const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
+const notification= require('../oneSignal/notifications')
 
 
 ratings.use(express.json()); // To parse JSON bodies
 ratings.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
-// ratings.post('/rating-review',async(req,res)=>{
-//     try{
-//         const {user_id, ratings_reviews } = req.body;
-//         const sql = 'INSERT INTO onelove.rating_review(user_id, ratings_reviews) VALUES(?, ?)';
-//         const values = [user_id, JSON.stringify(ratings_reviews)]
-
-//         const [result] = await db.query(sql,values);
-//         res.status(200).json({
-//             data: result,
-//             message: "Data posted"
-//         });
-
-//     }catch(err){
-//         console.error('Error posting data:', err.message);
-//         res.status(400).json({
-//             message: err
-//         });
-//     }
-// });
 
 
 ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
     try {
-        const { user_id, ratings_reviews } = req.body;
+        const { user_id, ratings_reviews } = req.body;          //here the user_id is the pet_trainer user_id
+                                                                //ratings_reviews is an json array which contains the user_id of the pet_owner who is giving the feedback
 
         // Check if a row with the specified user_id exists
         const checkIfExistsQuery = 'SELECT ratings_reviews FROM onelove.rating_review WHERE user_id = ?';
@@ -73,6 +56,18 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
             const insertValues = [user_id, JSON.stringify(ratings_reviews)];
             await db.query(insertQuery, insertValues);
         }
+
+        const sql1 = `SELECT external_id FROM onelove.users WHERE user_id = ${user_id}`
+        const [sql1Result] = await db.query(sql1)
+        const external_id=sql1Result[0].external_id;
+        console.log('external id',external_id)
+
+        const Name = "Feedback!";
+        const mess = "Recieved a feedback for your service, Please visit and check";
+        const uniqId = [external_id]; 
+
+        // Call the sendnotification function
+        await notification.sendnotification(Name, mess, uniqId);
 
         res.status(200).json({
             message: "Data posted or updated"
