@@ -62,17 +62,11 @@ clinic.get('/clinic',jwtMiddleware.verifyToken,async(req,res)=>{
     try{
     const [results] = await db.query(sql);
         const clinicsData = JSON.parse(JSON.stringify(results));
-
-        if (clinicsData.length > 0) {
-            res.status(200).json({
-                clinicsData,
-                message:messages.SUCCESS_MESSAGE,
-            });
-        } else {
-            res.status(404).json({
-                message: messages.NO_DATA,
-            });
-        }
+        res.status(200).json({
+            data: clinicsData,
+            message: messages.SUCCESS_MESSAGE
+        });
+        
     }catch(err){
         console.error('Error fetching data:', err);
         res.status(500).json({

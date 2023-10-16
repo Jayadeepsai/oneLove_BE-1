@@ -10,7 +10,7 @@ require('dotenv').config();
 const secretKey = process.env.SECRET_KEY_JWT;
 
   function generateToken(userId) {
-    return jwt.sign({ userId }, secretKey, { expiresIn: '24h' }); // You can adjust the expiration time
+    return jwt.sign({ userId }, secretKey, { expiresIn: '5m' }); // You can adjust the expiration time
   }
 
 // Verify a JWT token
@@ -56,7 +56,7 @@ function refreshToken(req, res) {
   
       // Generate a new access token
       const newAccessToken = generateToken(decoded.userId);
-  
+  console.log(newAccessToken)
       // Send the new access token to the client
       res.json({ accessToken: newAccessToken });
     });
