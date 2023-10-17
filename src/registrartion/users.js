@@ -5,6 +5,7 @@ const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
+const logger = require('../../logger');
 
 users.use(express.json()); // To parse JSON bodies
 users.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -28,19 +29,19 @@ try{
     const userData = JSON.parse(JSON.stringify(results));
 
     if (userData.length > 0) {
-        res.status(200).json({
+        return res.status(200).json({
             userData,
             message:messages.SUCCESS_MESSAGE,
         });
     } else {
-        res.status(404).json({
+        return res.status(404).json({
             message: messages.NO_DATA,
         });
     }
 
 }catch(err){
-    console.error('Error fetching data:', err);
-    res.status(500).json({
+    logger.error('Error fetching data:', err);
+    return res.status(500).json({
         message: messages.FAILURE_MESSAGE,
     });
 }
@@ -65,19 +66,19 @@ try{
     const userData = JSON.parse(JSON.stringify(results));
 
     if (userData.length > 0) {
-        res.status(200).json({
+        return res.status(200).json({
             userData,
             message:messages.SUCCESS_MESSAGE,
         });
     } else {
-        res.status(404).json({
+        return res.status(404).json({
             message: messages.NO_DATA,
         });
     }
 
 }catch(err){
-    console.error('Error fetching data:', err);
-    res.status(500).json({
+    logger.error('Error fetching data:', err);
+    return res.status(500).json({
         message: messages.FAILURE_MESSAGE,
     });
 }
@@ -100,19 +101,19 @@ try{
     const userData = JSON.parse(JSON.stringify(results));
 
     if (userData.length > 0) {
-        res.status(200).json({
+        return res.status(200).json({
             userData,
             message:messages.SUCCESS_MESSAGE,
         });
     } else {
-        res.status(404).json({
+        return res.status(202).json({
             message: messages.NO_DATA,
         });
     }
 
 }catch(err){
-    console.error('Error fetching data:', err);
-    res.status(500).json({
+    logger.error('Error fetching data:', err);
+    return res.status(500).json({
         message: messages.FAILURE_MESSAGE,
     });
 }
@@ -426,14 +427,14 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
 
         await db.commit();
 
-        res.status(200).json({
+        return res.status(200).json({
             message: messages.DATA_UPDATED,
         });
 
     }catch(err){
         await db.rollback();
-        console.error('Error updating data:', err);
-        res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
+        logger.error('Error updating data:', err);
+        return res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
     }
 });
 

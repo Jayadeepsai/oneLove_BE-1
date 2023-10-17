@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
+const logger = require('../../logger');
 
 loveIndx.use(express.json()); // To parse JSON bodies
 loveIndx.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -12,42 +13,35 @@ loveIndx.use(express.urlencoded({ extended: true })); // To parse URL-encoded bo
 loveIndx.post('/like-post',jwtMiddleware.verifyToken, async (req, res) => {
     const { user_id, user_name } = req.body;
     const { love_index_id } = req.query;
-
     try {
         // Fetch the existing likes data from the database for the specified love_index_id
         const existingLikesSql = 'SELECT likes FROM onelove.love_index WHERE love_index_id = ?';
         const [existingLikesResult] = await db.query(existingLikesSql, [love_index_id]);
-
         if (existingLikesResult.length === 0) {
-            return res.status(404).json({ message: 'Love index not found.' });
+            return res.status(404).json({ message:messages.NO_DATA });
         }
-
         // Extract the likes data from the query result or initialize it as an empty array if it's null
         const existingLikes = existingLikesResult[0].likes || [];
-
         // Check if the user has already liked the post
         const userLiked = existingLikes.some(like => like.user_id === user_id);
 
         if (userLiked) {
-            return res.status(400).json({ message: 'User has already liked the post.' });
+            return res.status(400).json({ message: messages.ALREADY_LIKED });
         }
 
         // Add the new like to the existing likes array
         existingLikes.push({ user_id, user_name });
-
         // Update the likes data in the database
         const updateLikesSql = 'UPDATE onelove.love_index SET likes = ? WHERE love_index_id = ?';
         const updateLikesValues = [JSON.stringify(existingLikes), love_index_id];
         await db.query(updateLikesSql, updateLikesValues);
-
         // Get the like count for the post
         const likeCount = existingLikes.length;
-
         // Send the like count as a response
-        res.status(200).json({ message: 'Post liked successfully.', like_count: likeCount });
+        res.status(200).json({ message: messages.LIKE_SUCCESSFUL, like_count: likeCount });
     } catch (err) {
-        console.error('Error while liking post:', err);
-        res.status(500).json({ message: 'Failed to like the post.' });
+        logger.error('Error while liking post:', err);
+        res.status(500).json({ message: messages.LIKE_FAILED });
     }
 });
 
@@ -57,49 +51,41 @@ loveIndx.post('/like-post',jwtMiddleware.verifyToken, async (req, res) => {
 loveIndx.post('/unlike-post',jwtMiddleware.verifyToken, async (req, res) => {
     const { user_id } = req.body;
     const { love_index_id } = req.query;
-
     try {
         // Fetch the existing likes data from the database for the specified love_index_id
         const existingLikesSql = 'SELECT likes FROM onelove.love_index WHERE love_index_id = ?';
         const [existingLikesResult] = await db.query(existingLikesSql, [love_index_id]);
 
         if (existingLikesResult.length === 0) {
-            return res.status(404).json({ message: 'Love index not found.' });
+            return res.status(404).json({ message:messages.NO_DATA });
         }
 
         let existingLikes = [];
-
         if (Array.isArray(existingLikesResult[0].likes)) {
             existingLikes = existingLikesResult[0].likes;
         } else {
             // If the likes data is not an array, log an error or handle it accordingly
-            console.error('Invalid likes data:', existingLikesResult[0].likes);
-            return res.status(500).json({ message: 'Failed to unlike the post.' });
+            logger.error('Invalid likes data:', existingLikesResult[0].likes);
+            return res.status(500).json({ message:messages.UNLIKE_FAILED });
         }
-
         // Check if the user has liked the post
         const userLikedIndex = existingLikes.findIndex(like => like.user_id === user_id);
-
         if (userLikedIndex === -1) {
-            return res.status(400).json({ message: 'User has not liked the post.' });
+            return res.status(400).json({ message: messages.NOT_LIKED_YET });
         }
-
         // Remove the user's like from the existing likes array
         existingLikes.splice(userLikedIndex, 1);
-
         // Update the likes data in the database
         const updateLikesSql = 'UPDATE onelove.love_index SET likes = ? WHERE love_index_id = ?';
         const updateLikesValues = [JSON.stringify(existingLikes), love_index_id];
         await db.query(updateLikesSql, updateLikesValues);
-
         // Get the updated like count for the post
         const likeCount = existingLikes.length;
-
         // Send the updated like count as a response
-        res.status(200).json({ message: 'Post unliked successfully.', like_count: likeCount });
+        res.status(200).json({ message: messages.UNLIKE_SUCCESSFUL, like_count: likeCount });
     } catch (err) {
-        console.error('Error while unliking post:', err);
-        res.status(500).json({ message: 'Failed to unlike the post.' });
+        logger.error('Error while unliking post:', err);
+        res.status(500).json({ message: messages.UNLIKE_FAILED });
     }
 });
 
@@ -133,7 +119,7 @@ loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
                     updatedComments = parsedComments.concat(comments);
                 } catch (parseError) {
                     // Handle JSON parsing error here
-                    console.error('Error parsing existingComments:', parseError);
+                    logger.error('Error parsing existingComments:', parseError);
                     res.status(400).json({
                         message: 'Error parsing existingComments',
                     });
@@ -153,12 +139,12 @@ loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
         }
 
         res.status(200).json({
-            message: "Data posted or updated"
+            message: messages.POST_SUCCESS
         });
     } catch (err) {
-        console.error('Error posting/updating data:', err.message);
+        logger.error('Error posting/updating data:', err.message);
         res.status(400).json({
-            message: err
+            message: messages.POST_FAILED
         });
     }
 });
@@ -174,7 +160,7 @@ loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) =>
         const [existingCommentsResult] = await db.query(existingCommentsSql, [love_index_id]);
 
         if (existingCommentsResult.length === 0) {
-            return res.status(404).json({ message: 'Love index not found.' });
+            return res.status(404).json({ message: messages.NO_DATA });
         }
 
         let existingComments = [];
@@ -184,8 +170,8 @@ loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) =>
                 existingComments = existingCommentsResult[0].comments;
             } else {
                 // If the comments data is not an array, log an error or handle it accordingly
-                console.error('Invalid comments data:', existingCommentsResult[0].comments);
-                return res.status(500).json({ message: 'Failed to delete comment.' });
+                logger.error('Invalid comments data:', existingCommentsResult[0].comments);
+                return res.status(500).json({ message: messages.FAILED_TO_DELETE });
             }
         }
 
@@ -193,7 +179,7 @@ loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) =>
         const commentIndex = existingComments.findIndex(comment => comment.user_id === user_id);
 
         if (commentIndex === -1) {
-            return res.status(404).json({ message: 'Comment not found.' });
+            return res.status(404).json({ message:messages.NO_DATA});
         }
 
         // Remove the comment from the existing comments array
@@ -205,10 +191,10 @@ loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) =>
         await db.query(updateCommentsSql, updateCommentsValues);
 
         // Send a success response
-        res.status(200).json({ message: 'Comment deleted successfully.' });
+        res.status(200).json({ message:messages.DATA_DELETED });
     } catch (err) {
-        console.error('Error while deleting comment:', err);
-        res.status(500).json({ message: 'Failed to delete comment.' });
+        logger.error('Error while deleting comment:', err);
+        res.status(500).json({ message: messages.FAILED_TO_DELETE });
     }
 });
 
@@ -245,7 +231,7 @@ loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) =>
                 message: messages.SUCCESS_MESSAGE,
             });
         } catch (err) {
-            console.error('Error fetching data:', err);
+            logger.error('Error fetching data:', err);
             res.status(500).json({
                 message: messages.FAILURE_MESSAGE,
             });
@@ -260,7 +246,6 @@ loveIndx.get('/loveIndexDataByCondition/:love_index_id',jwtMiddleware.verifyToke
     db.query(sql, love_index_id, function (err, result, fields) {
         if (!err) {
             var data = JSON.parse(JSON.stringify(result));
-            console.log(data);
             res.status(200).json({
                 loveIndexData: data,
                 message: "loveIndex Data"
@@ -272,11 +257,6 @@ loveIndx.get('/loveIndexDataByCondition/:love_index_id',jwtMiddleware.verifyToke
         }
     });
 });
-
-
-
-
-
 
 
 module.exports=loveIndx;

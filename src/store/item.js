@@ -2,6 +2,7 @@ const express = require('express');
 const items = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
+const logger = require('../../logger');
 
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
@@ -48,30 +49,25 @@ async function performTransaction(req,res){
            }
        }
        
-        console.log('Transaction committed successfully.');
-
         // Send a success response to the client
-        res.status(200).json({ message: 'Transaction committed successfully.' });
+        res.status(200).json({ message: messages.POST_SUCCESS });
 
     }catch(err){
         await db.rollback();
-
-        console.error('Error in transaction:', err);
-
+        logger.error('Error in transaction:', err);
         // Send an error response to the client
-        res.status(500).json({ message: 'Failed to perform transaction.' });
+        res.status(500).json({ message: messages.POST_FAILED });
     }
 }
 
 
 items.post('/item-entry',jwtMiddleware.verifyToken,(req,res)=>{
     performTransaction(req,res)
-   
     .then(() => {
-        console.log('Transaction completed successfully');
+        logger.info('Transaction completed successfully');
        })
     .catch((err) => {
-        console.error('Error in address.post API:', err);
+        logger.error('Error in address.post API:', err);
        });
 });
 
@@ -93,7 +89,7 @@ items.get('/products',jwtMiddleware.verifyToken,async(req,res)=>{
             message: messages.SUCCESS_MESSAGE,
         });
     }catch(err){
-        console.error('Error fetching pets data:', err);
+        logger.error('Error fetching pets data:', err);
         res.status(500).json({
             message:messages.FAILURE_MESSAGE,
         });
@@ -120,7 +116,7 @@ items.get('/products-id',jwtMiddleware.verifyToken,async(req,res)=>{
             message: messages.SUCCESS_MESSAGE,
         });
     }catch(err){
-        console.error('Error fetching pets data:', err);
+        logger.error('Error fetching pets data:', err);
         res.status(500).json({
             message:messages.FAILURE_MESSAGE,
         });
@@ -168,7 +164,7 @@ items.get('/products-store-id',jwtMiddleware.verifyToken,async(req,res)=>{
         }
       
     }catch(err){
-        console.error('Error fetching pets data:', err);
+        logger.error('Error fetching pets data:', err);
         res.status(500).json({
             message:messages.FAILURE_MESSAGE,
         });
@@ -219,7 +215,7 @@ items.get('/product-store-item-id',jwtMiddleware.verifyToken, async (req, res) =
             });
         }
     } catch (err) {
-        console.error('Error fetching data:', err);
+        logger.error('Error fetching data:', err);
         res.status(500).json({
             message: messages.FAILURE_MESSAGE,
         });
@@ -272,23 +268,27 @@ items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
                 itemSql += ' collection_name=?,';
                 itemValues.push(collection_name);
             }
-
-            if (quantity !== undefined){
-                // Retrieve the current quantity from the database
-                const [currentQuantityRow] = await db.query('SELECT quantity FROM onelove.items WHERE item_id = ?', [item_id]);
-                const currentQuantity = currentQuantityRow[0].quantity;
-
-                if (!Array.isArray(currentQuantity)) {
-                    throw new Error('Invalid quantity data in the database.');
-                }
-
-                // Merge the current quantity with the new quantity data
-                const mergedQuantity = [...currentQuantity, ...quantity];
-
-                // Update the item record with the merged quantity
+            if (quantity !== undefined) {
                 itemSql += ' quantity=?,';
-                itemValues.push(JSON.stringify(mergedQuantity));
+                itemValues.push(JSON.stringify(quantity));
             }
+
+            // if (quantity !== undefined){
+            //     // Retrieve the current quantity from the database
+            //     const [currentQuantityRow] = await db.query('SELECT quantity FROM onelove.items WHERE item_id = ?', [item_id]);
+            //     const currentQuantity = currentQuantityRow[0].quantity;
+
+            //     if (!Array.isArray(currentQuantity)) {
+            //         throw new Error('Invalid quantity data in the database.');
+            //     }
+
+            //     // Merge the current quantity with the new quantity data
+            //     const mergedQuantity = [...currentQuantity, ...quantity];
+
+            //     // Update the item record with the merged quantity
+            //     itemSql += ' quantity=?,';
+            //     itemValues.push(JSON.stringify(mergedQuantity));
+            // }
 
             itemSql = itemSql.slice(0, -1);
             itemSql += ' WHERE item_id= ?';
@@ -319,18 +319,13 @@ items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
             await db.query(imageSql, imageValues);
         }
         await db.commit();
-
-        console.log('Data updated successfully.');
-
         // Send a success response to the client
-        res.status(200).json({ message: 'Data updated successfully.' });
+        res.status(200).json({ message: messages.DATA_UPDATED});
     } catch (err) {
         await db.rollback();
-
-        console.error('Error updating data:', err.message);
-
+        logger.error('Error updating data:', err.message);
         // Send an error response to the client
-        res.status(500).json({ message: 'Failed to update data.' });
+        res.status(500).json({ message: messages.DATA_UPDATE_FALIED });
     }
 });
 
@@ -341,29 +336,28 @@ items.delete('/delete-items',jwtMiddleware.verifyToken, async (req, res) => {
         
         if (!Array.isArray(itemIds)) {
             res.status(400).json({
-                message: 'Invalid item_ids data.',
+                message: messages.INVALID_ID,
             });
             return;
         }
-
         const sql = `DELETE FROM onelove.items WHERE item_id IN (?)`; // Use IN clause for multiple IDs
 
         const [result] = await db.query(sql, [itemIds]); 
 
         // Check if any items were deleted
         if (result.affectedRows === 0) {
-            res.status(404).json({
-                message: 'No items found to delete.',
+            res.status(202).json({
+                message: messages.NO_DATA,
             });
         } else {
             res.status(200).json({
-                message: 'Items deleted successfully.',
+                message: messages.DATA_DELETED,
             });
         }
     } catch (err) {
-        console.error('Error deleting items:', err);
+        logger.error('Error deleting items:', err);
         res.status(500).json({
-            message: 'Failed to delete items.',
+            message: messages.FAILED_TO_DELETE,
         });
     }
 });
@@ -476,7 +470,7 @@ items.get('/stores',jwtMiddleware.verifyToken, async (req, res) => {
         });
       }
     } catch (err) {
-      console.error('Error fetching data:', err);
+      logger.error('Error fetching data:', err);
       res.status(500).json({
         message: messages.FAILURE_MESSAGE,
       });

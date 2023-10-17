@@ -5,7 +5,8 @@ const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
-const notification= require('../oneSignal/notifications')
+const notification= require('../oneSignal/notifications');
+const logger = require('../../logger');
 
 orders.use(express.json()); // To parse JSON bodies
 orders.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -46,7 +47,7 @@ orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
             message: messages.POST_SUCCESS
         });
     } catch (err) {
-        console.error('Error posting data:');
+        logger.error('Error posting data:',err.message);
         res.status(400).json({
             message: messages.POST_FAILED
         });
@@ -85,7 +86,7 @@ orders.get('/all-orders',jwtMiddleware.verifyToken,async(req,res)=>{
         });
 
     }catch(err){
-        console.error('Error posting data:', err.message);
+        logger.error('Error posting data:', err.message);
         res.status(400).json({
             message: messages.FAILURE_MESSAGE
         });
@@ -144,14 +145,12 @@ orders.get('/orders',jwtMiddleware.verifyToken, async (req, res) => {
             message: messages.SUCCESS_MESSAGE
         });
     } catch (err) {
-        console.error('Error getting data:', err.message);
+        logger.error('Error getting data:', err.message);
         res.status(400).json({
             message: messages.FAILURE_MESSAGE
         });
     }
 });
-
-
 
 
 orders.put('/update-status',jwtMiddleware.verifyToken,async(req,res)=>{
@@ -167,12 +166,10 @@ orders.put('/update-status',jwtMiddleware.verifyToken,async(req,res)=>{
     result
     });
  }catch(err){
-      console.error('Error updating data:', err.message);
-      return  res.status(400).json({ message: 'Failed to update data.' });
+      logger.error('Error updating data:', err.message);
+      return res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
  }
 });
-
-
 
 
 module.exports = orders;

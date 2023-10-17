@@ -5,7 +5,8 @@ const AWS = require('aws-sdk');
 require('dotenv').config();
 const bodyParser = require('body-parser');
 const jwtMiddleware = require('../../jwtMiddleware');
-
+const messages = require('../messages/constants');
+const logger = require('../../logger');
 
 // AWS configuration (same as in your image upload route)
 AWS.config.update({
@@ -24,7 +25,7 @@ videos.use(express.urlencoded({ extended: true }));
 videos.post('/upload-video',jwtMiddleware.verifyToken, (req, res) => {
   try {
     if (!req.files || !req.files.video) {
-      return res.status(400).json({ message: 'No video file uploaded.' });
+      return res.status(400).json({ message: messages.NO_FILE_UPLOADED });
     }
 
     const videoFile = req.files.video;
@@ -38,18 +39,18 @@ videos.post('/upload-video',jwtMiddleware.verifyToken, (req, res) => {
 
     s3.upload(params, (err, data) => {
       if (err) {
-        console.error('Error uploading video:', err);
-        return res.status(500).json({ message: 'Failed to upload video.' });
+        logger.error('Error uploading video:', err);
+        return res.status(500).json({ message: messages.FAILED_UPLOADING });
       }
 
       res.status(200).json({
-        message: 'Video uploaded successfully',
+        message: messages.FILE_UPLOADED,
         videoUrl: data.Location
       });
     });
   } catch (error) {
-    console.error('Error handling video upload:', error);
-    res.status(500).json({ message: 'Failed to handle video upload.' });
+    logger.error('Error handling video upload:', error);
+    res.status(500).json({ message: messages.FAILED_UPLOADING });
   }
 });
 

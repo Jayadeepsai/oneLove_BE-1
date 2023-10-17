@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 
 const connection = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
+const logger = require('../../logger');
+const messages = require('../messages/constants');
 
 address.use(express.json()); // To parse JSON bodies
 address.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -21,12 +23,12 @@ address.post('/address',jwtMiddleware.verifyToken, async (req, res) => {
         const [result] = await db.query(sql, values);
 
         var data = JSON.parse(JSON.stringify(result));
-        res.status(200).json({
+        return res.status(200).json({
             data: data,
-            message: "Address posted"
+            message: messages.POST_SUCCESS
         });
     } catch (err) {
-        res.status(400).json({
+        return res.status(400).json({
             message: err
         });
     }
@@ -40,14 +42,14 @@ address.get('/address',jwtMiddleware.verifyToken, async (req, res) => {
         const sql = `SELECT * FROM onelove.address;`;
         const [data] = await connection.query(sql); // Use await with promise-based query
 
-        res.status(200).json({
+       return res.status(200).json({
             addressData: data, 
-            message: "All address Data"
+            message: messages.SUCCESS_MESSAGE
         });
     } catch (error) {
-        console.error('Error fetching address data:', error.message);
-        res.status(500).json({
-            message: 'Failed to fetch address data.'
+        logger.error('Error fetching address data:', error.message);
+       return res.status(500).json({
+            message: messages.FAILURE_MESSAGE
         });
     }
 });
@@ -60,23 +62,23 @@ address.get('/address-id',jwtMiddleware.verifyToken, async (req, res) => {
 
     try {
         if (!address_id) {
-            return res.status(400).json({ message: "address_id is required as a query parameter" });
+            return res.status(400).json({ message: messages.NO_DATA });
         }
 
         const sql = `SELECT * FROM onelove.address WHERE address_id = ?`;
         const [data] = await connection.query(sql, [address_id]);
 
         if (data.length === 0) {
-            return res.status(404).json({ message: "Address not found" });
+            return res.status(202).json({ message: messages.FAILURE_MESSAGE });
         }
 
-        res.status(200).json({
+       return res.status(200).json({
             addressData: data,
-            message: "Address Data"
+            message: messages.SUCCESS_MESSAGE
         });
     } catch (err) {
-        console.log("Error", err);
-        res.status(500).json({ message: "Failed to fetch address data." });
+        logger.log("Error", err);
+        return res.status(500).json({ message: messages.FAILURE_MESSAGE });
     }
 });
 
@@ -141,14 +143,13 @@ address.put('/update-address',jwtMiddleware.verifyToken, async (req, res) => {
         // Execute the update query
         const [result] = await connection.query(sql, values);
 
-        console.log('Data updated successfully.');
-        res.status(200).json({
+       return res.status(200).json({
             updatedData: result,
-            message: 'Data updated successfully.',
+            message: messages.DATA_UPDATED,
         });
     } catch (err) {
-        console.error('Error updating data:', err.message);
-        res.status(400).json({ message: 'Failed to update data.' });
+        logger.error('Error updating data:', err.message);
+        return res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
     }
 });
 
@@ -162,13 +163,13 @@ address.delete('/delete-address',jwtMiddleware.verifyToken, async (req, res) => 
         // Execute the delete query
         const [result] = await connection.query(sql, address_id);
 
-        res.status(200).json({
+        return res.status(200).json({
             deletedData: result,
-            message: "Data deleted successfully"
+            message:messages.DATA_DELETED
         });
     } catch (err) {
-        console.error("Error deleting data", err.message);
-        res.status(400).json({ message: 'Failed to delete data' });
+        logger.error("Error deleting data", err.message);
+        return res.status(400).json({ message:messages.FAILED_TO_DELETE});
     }
 });
 

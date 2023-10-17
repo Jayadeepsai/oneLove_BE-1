@@ -1,10 +1,11 @@
 const express = require('express');
 const message = express.Router();
 const bodyParser = require('body-parser');
-const messages = require('./constants');
+const constant = require('../messages/constants');
 const db = require('../../dbConnection');
 const cron = require('node-cron');
 const moment = require('moment');
+const logger = require('../../logger');
 
 // Include Socket.io and create a socket server instance
 const httpServer = require('http').createServer();
@@ -16,7 +17,7 @@ message.use(express.urlencoded({ extended: true })); // To parse URL-encoded bod
 
 // Initialize the socket server
 io.on('connection', (socket) => {
-  console.log('A user connected');
+  logger.info('A user connected');
 
   // Handle new messages here
   socket.on('newMessage', async (data) => {
@@ -28,8 +29,6 @@ io.on('connection', (socket) => {
 
       const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time) VALUES (?, ?, ?, ?)';
 
-
-      
       // Insert the message into the database
       await db.query(sql, [sender_id, receiver_id, message, currentTime]);
 
@@ -41,15 +40,15 @@ io.on('connection', (socket) => {
         time: currentTime,
       });
 
-      console.log('Message saved and sent:', data);
+      logger.info('Message saved and sent:', data);
 
     } catch (error) {
-      console.error('Error posting message:', error);
+      logger.error('Error posting message:', error);
     }
   });
 
   socket.on('disconnect', () => {
-    console.log('A user disconnected');
+    logger.warn('A user disconnected');
   });
 });
 
@@ -74,11 +73,11 @@ message.get('/messages', async (req, res) => {
 
       res.status(200).json({
         chat,
-        message:"chat"
+        message: constant.SUCCESS_MESSAGE
       });
     } catch (error) {
-      console.error('Error getting messages:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      logger.error('Error getting messages:', error);
+      res.status(500).json({ error: constant.FAILURE_MESSAGE });
     }
   });
 
@@ -113,11 +112,11 @@ message.get('/messages', async (req, res) => {
   
       res.status(200).json({
         Data,
-        message: 'All chat inbox',
+        message: constant.SUCCESS_MESSAGE,
     });
     } catch (error) {
-      console.error('Error getting chat history:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      logger.error('Error getting chat history:', error);
+      res.status(500).json({ error: constant.FAILURE_MESSAGE });
     }
   });
 
@@ -153,11 +152,11 @@ message.get('/messages', async (req, res) => {
      const [sqlResult] = await db.query(sql, [twentyFourHoursAgo]);
 
      if(sqlResult.affectedRows > 0){
-       console.log('Old conversations deleted');
+       logger.info('Old conversations deleted');
      }
       
     } catch (error) {
-      console.error('Error deleting old conversations:', error);
+      logger.error('Error deleting old conversations:', error);
     }
   };
   

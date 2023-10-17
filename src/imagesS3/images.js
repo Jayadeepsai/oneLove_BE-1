@@ -9,6 +9,7 @@ images.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodi
 
 const AWS = require('aws-sdk');
 const jwtMiddleware = require('../../jwtMiddleware');
+const logger = require('../../logger');
 
 
 AWS.config.update({
@@ -23,7 +24,7 @@ AWS.config.update({
   images.post('/upload',jwtMiddleware.verifyToken, async (req, res) => {
     try {
       if (!req.files || !req.files.image) {
-        return res.status(400).json({ message: 'No image file uploaded.' });
+        return res.status(400).json({ message: messages.NO_FILE_UPLOADED });
       }
   
       const imageFile = req.files.image;
@@ -37,22 +38,21 @@ AWS.config.update({
   
       const uploadResult = await s3.upload(params).promise();
 
-      console.log(imageFile);
 
       res.status(200).json({
-        message: 'Image uploaded successfully',
+        message: messages.FILE_UPLOADED,
         imageUrl: uploadResult.Location
       });
     } catch (error) {
-      console.error('Error uploading image:', error);
-      res.status(500).json({ message: 'Failed to upload image.' });
+      logger.error('Error uploading image:', error);
+      res.status(500).json({ message: messages.FAILED_UPLOADING });
     }
   });
 
 
   images.post('/multi-upload',jwtMiddleware.verifyToken, (req, res) => {
     if (!req.files || Object.keys(req.files).length === 0) {
-      return res.status(400).json({ message: 'No files were uploaded.' });
+      return res.status(400).json({ message: messages.NO_FILE_UPLOADED });
     }
   
     const uploadedFiles = req.files.images; // 'images' should match your HTML form field name
@@ -71,14 +71,13 @@ AWS.config.update({
   
     Promise.all(uploadPromises)
       .then((results) => {
-        res.status(200).json({ message: 'Files uploaded successfully', results });
+        res.status(200).json({ message: messages.FILE_UPLOADED, results });
       })
       .catch((err) => {
-        console.error('Error uploading files to S3:', err);
-        res.status(500).json({ message: 'Error uploading files to S3', error: err });
+        logger.error('Error uploading files to S3:', err);
+        res.status(500).json({ message: messages.FAILED_UPLOADING, error: err });
       });
   });
 
-  
 
   module.exports = images;

@@ -4,7 +4,8 @@ const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
-const jwtMiddleware = require('../../jwtMiddleware');;
+const jwtMiddleware = require('../../jwtMiddleware');
+const logger = require('../../logger');
 
 clinic.use(express.json()); // To parse JSON bodies
 clinic.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -22,14 +23,14 @@ try{
         await db.query(clinicQuery,clinicValues)
 
         await db.commit();
-
+        logger.info('Clinic added successfully'); 
         res.status(200).json({ message: messages.POST_SUCCESS});
 
 }catch(err){
 
     await db.rollback();
 
-    console.error('Error in transaction:', err.message);
+    logger.error('Error in transaction:', err.message);
 
     // Send an error response to the client
     res.status(500).json({ message:messages.POST_FAILED});
@@ -39,10 +40,10 @@ try{
 clinic.post('/clinic',jwtMiddleware.verifyToken, (req, res) => {
     clinicAddQueries(req, res)
         .then(() => {
-            console.log('Transaction completed successfully');
+            logger.info('Transaction completed successfully');
         })
         .catch((err) => {
-            console.error('Error in address.post API:', err);
+            logger.error('Error in posting clinic data:', err);
         });
 });
 
@@ -68,7 +69,7 @@ clinic.get('/clinic',jwtMiddleware.verifyToken,async(req,res)=>{
         });
         
     }catch(err){
-        console.error('Error fetching data:', err);
+        logger.error('Error fetching data:', err);
         res.status(500).json({
             message: messages.FAILURE_MESSAGE,
         });
@@ -110,7 +111,7 @@ clinic.get('/clinic-user-id',jwtMiddleware.verifyToken, async(req,res)=>{
         }
 
     }catch(err){
-        console.error('Error fetching data:', err);
+        logger.error('Error fetching data:', err);
         res.status(500).json({
             message: messages.FAILURE_MESSAGE,
         });
@@ -189,14 +190,10 @@ clinic.put('/update-clinic', jwtMiddleware.verifyToken, async (req, res) => {
         });
     } catch (err) {
         await db.rollback();
-        console.error('Error updating data:', err.message);
+        logger.error('Error updating data:', err.message);
         res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
     }
 });
-
-
-
-
 
 
 

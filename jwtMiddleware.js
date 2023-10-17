@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 // const crypto = require('crypto');
+const logger = require('./logger');
+const messages = require('./src/messages/constants');
 
 require('dotenv').config();
 
@@ -12,23 +14,21 @@ const secretKey = process.env.SECRET_KEY_JWT;
   function generateToken(userId) {
     return jwt.sign({ userId }, secretKey, { expiresIn: '24h' }); // You can adjust the expiration time
   }
-
 // Verify a JWT token
 function verifyToken(req, res, next) {
   const tokenHeader = req.headers.authorization;
-
   if (!tokenHeader) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: messages.UNAUTH });
   }
   // Extract the token part
   const token = tokenHeader.split(' ')[1];
 
   jwt.verify(token, secretKey, (err, decoded) => {
-    console.log("Decoded:",decoded);
+    logger.info("Decoded:",decoded);
 
     if (err) {
-      console.error('JWT verification error:', err);
-      return res.status(403).json({ message: 'Forbidden' });
+      logger.error('JWT verification error:', err);
+      return res.status(403).json({ message: messages.FORBID });
     }
     req.userId = decoded;
     next();
@@ -40,23 +40,20 @@ function verifyToken(req, res, next) {
 function generateRefreshToken(userId) {
     return jwt.sign({ userId }, secretKey, { expiresIn: '7d' }); // Use the same secret key
   }
-
 // Handle token refresh
 function refreshToken(req, res) {
     const refreshToken = req.body.refreshToken;
-    
-  
     // Verify the refresh token
     jwt.verify(refreshToken, secretKey, (err, decoded) => {
-        console.log("Decoded:",decoded);
+        logger.info("Decoded:",decoded);
       if (err) {
-        console.error('Refresh token verification error:', err);
-        return res.status(403).json({ message: 'Forbidden' });
+        logger.error('Refresh token verification error:', err);
+        return res.status(403).json({ message: messages.FORBID });
       }
   
       // Generate a new access token
       const newAccessToken = generateToken(decoded.userId);
-  console.log(newAccessToken)
+      logger.info('New_Access_token:',newAccessToken)
       // Send the new access token to the client
       res.json({ accessToken: newAccessToken });
     });

@@ -10,7 +10,18 @@ module.exports = {
     DATA_UPDATED:"Data updated successfully.",
     DATA_UPDATE_FALIED:"Failed to update data",
     DATA_DELETED:"Data deleted successfully",
-    FAILED_TO_DELETE:"Failed to delete post"
+    FAILED_TO_DELETE:"Failed to delete post",
+    NO_FILE_UPLOADED:"No file uploaded",
+    FILE_UPLOADED:"File uploaded successfully",
+    FAILED_UPLOADING:"Failed to upload file",
+    UNAUTH:"Unauthorized",
+    FORBID:"Forbidden",
+    ALREADY_LIKED:"User has already liked the post",
+    LIKE_SUCCESSFUL:"Post liked successfully",
+    LIKE_FAILED:"Failed to like the post",
+    UNLIKE_FAILED:"Failed to unlike the post",
+    UNLIKE_SUCCESSFUL:"Post unliked successfully",
+    NOT_LIKED_YET:"User has not liked the post"
     
  
   };

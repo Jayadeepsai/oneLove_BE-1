@@ -1,8 +1,10 @@
 const express = require('express');
 const registration = express.Router();
 const bodyParser = require('body-parser');
-const connection = require('../../dbConnection')
-const messages = require('../messages/constants')
+const connection = require('../../dbConnection');
+const messages = require('../messages/constants');
+const logger = require('../../logger');
+
 require('dotenv').config();
 
 registration.use(express.json()); // To parse JSON bodies
@@ -58,8 +60,7 @@ async function performTransaction(req, res) {
             const [imageResult] = await connection.query(imageQuery, imageValues);
             image_id = imageResult.insertId;
         } catch (error) {
-            console.error('Error inserting image:', error);
-        
+            logger.error('Error inserting image:', error);
         }
       }      
 
@@ -175,15 +176,13 @@ async function performTransaction(req, res) {
         await connection.commit();
 
         // Send a success response to the client
-       return res.status(200).json({ message: 'Transaction committed successfully.' });
+       return res.status(200).json({ message: messages.POST_SUCCESS });
     } catch (error) { 
         // Rollback the transaction if any query fails
         await connection.rollback();
-
-        console.error('Error in transaction:', error);
-
+        logger.error('Error in transaction:', error);
         // Send an error response to the client
-       return res.status(500).json({ message: 'Failed to perform transaction.' });
+       return res.status(500).json({ message: messages.POST_FAILED });
     }
 }
 
@@ -192,13 +191,12 @@ async function performTransaction(req, res) {
 registration.post('/registration', (req, res) => {
     performTransaction(req, res)
         .then(() => {
-            console.log('Transaction completed successfully');
+            logger.info('Transaction completed successfully');
         })
         .catch((err) => {
-            console.error('Error in address.post API:', err);
+            logger.info('Error in address.post API:', err);
         });
 });
-
 
 registration.get('/registration',jwtMiddleware.verifyToken, async (req, res) => {
     try {
@@ -211,14 +209,14 @@ registration.get('/registration',jwtMiddleware.verifyToken, async (req, res) => 
 
         const [data] = await connection.query(sql);
 
-        res.status(200).json({
+        return res.status(200).json({
             registrationData: data,
             message: messages.SUCCESS_MESSAGE
         });
 
     } catch (error) {
-        console.error('Error fetching registers data:', error.message);
-        res.status(500).json({
+        logger.error('Error fetching registers data:', error.message);
+        return res.status(500).json({
             message: messages.FAILURE_MESSAGE
         });
     }
@@ -242,17 +240,17 @@ try{
     const [data] = await connection.query(sql,[reg_id]);
 
     if (data.length === 0) {
-        return res.status(404).json({ message: messages.SUCCESS_MESSAGE  });
+        return res.status(202).json({ message: messages.NO_DATA });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
         registrationData: data,
-        message: "Registration Data"
+        message: messages.SUCCESS_MESSAGE
     });
 
 }catch(error){
-    console.log("Error", error);
-    res.status(500).json({ message:messages.FAILURE_MESSAGE});
+    logger.error("Error", error);
+    return res.status(500).json({ message:messages.FAILURE_MESSAGE});
 }
 
 });
@@ -285,7 +283,6 @@ try{
 registration.post('/registration-mobile-number', async (req, res) => {
     const mobile_number = req.query.mobile_number;
     const { new_external_id } = req.body;
-
     try {
         if (!mobile_number) {
             return res.status(400).json({ message: messages.INVALID_ID });
@@ -330,15 +327,15 @@ registration.post('/registration-mobile-number', async (req, res) => {
             await connection.query(updateExternalIdSql, [new_external_id, userId]);
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             registrationData: modifiedData,
             token,
             refreshToken,
             message: messages.SUCCESS_MESSAGE,
         });
     } catch (error) {
-        console.log("Error", error);
-        res.status(500).json({ message: messages.FAILURE_MESSAGE });
+        logger.error("Error", error);
+        return res.status(500).json({ message: messages.FAILURE_MESSAGE });
     }
 });
 
@@ -352,13 +349,13 @@ registration.delete('/delete-registration-data',jwtMiddleware.verifyToken, async
         // Execute the delete query
         const [result] = await connection.query(sql, reg_id);
 
-        res.status(200).json({
+        return res.status(200).json({
             deletedData: result,
             message: messages.DATA_DELETED
         });
     } catch (err) {
-        console.error("Error deleting data", err.message);
-        res.status(400).json({ message: messages.FAILED_TO_DELETE });
+        logger.error("Error deleting data", err.message);
+        return res.status(400).json({ message: messages.FAILED_TO_DELETE });
     }
 });
 

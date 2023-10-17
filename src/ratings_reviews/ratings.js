@@ -5,7 +5,8 @@ const messages = require('../messages/constants');
 
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
-const notification= require('../oneSignal/notifications')
+const notification= require('../oneSignal/notifications');
+const logger = require('../../logger');
 
 
 ratings.use(express.json()); // To parse JSON bodies
@@ -38,7 +39,7 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
                     updatedReviews = parsedReviews.concat(ratings_reviews);
                 } catch (parseError) {
                     // Handle JSON parsing error here
-                    console.error('Error parsing existingReviews:', parseError);
+                    logger.error('Error parsing existingReviews:', parseError);
                     res.status(400).json({
                         message: 'Error parsing existingReviews',
                     });
@@ -70,12 +71,12 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
         await notification.sendnotification(Name, mess, uniqId);
 
         res.status(200).json({
-            message: "Data posted or updated"
+            message: messages.POST_SUCCESS
         });
     } catch (err) {
-        console.error('Error posting/updating data:', err.message);
+        logger.error('Error posting/updating data:', err.message);
         res.status(400).json({
-            message: err
+            message:messages.POST_FAILED
         });
     }
 });
@@ -102,7 +103,7 @@ ratings.get('/rating-review',jwtMiddleware.verifyToken,async(req,res)=>{
     });
 
       }catch(err){
-        console.error('Error fetching  data:', err);
+        logger.error('Error fetching data:', err);
         res.status(500).json({
             message: messages.FAILURE_MESSAGE,
         });
@@ -131,7 +132,7 @@ ratings.get('/rating-review-user',jwtMiddleware.verifyToken,async(req,res)=>{
      });
  
        }catch(err){
-         console.error('Error fetching  data:', err);
+         logger.error('Error fetching  data:', err);
          res.status(500).json({
              message: messages.FAILURE_MESSAGE,
          });

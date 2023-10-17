@@ -5,6 +5,7 @@ const messages = require('../messages/constants');
 
 const db = require('../../dbConnection')
 const jwtMiddleware = require('../../jwtMiddleware');
+const logger = require('../../logger');
 
 posts.use(express.json()); // To parse JSON bodies
 posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -13,21 +14,17 @@ posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodie
 async function performTransaction(req, res) {
     try {
         await db.beginTransaction();
-
         const { likes, comments, image_url, image_type } = req.body;
-
         // Insert love_index data
         const loveIndexSql = 'INSERT INTO onelove.love_index ( likes, comments) VALUES ( ?, ?)';
         const loveIndexValues = [JSON.stringify(likes), JSON.stringify(comments)];
         const [loveIndexResult] = await db.query(loveIndexSql, loveIndexValues);
         const love_index_id = loveIndexResult.insertId;
-
         // Insert images data
         const imageInsertSql = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
         const imageValues = [image_type, JSON.stringify(image_url)];
             const [imageResult] = await db.query(imageInsertSql, imageValues);
             const image_id = imageResult.insertId;
-            console.log(image_id)
             
         const { video_type, video_url} = req.body;
         let video_id = null;
@@ -47,17 +44,14 @@ async function performTransaction(req, res) {
 
 
         await db.commit();
-        console.log('Transaction committed successfully.');
-
+        logger.info('Transaction committed successfully.');
         // Send a success response to the client
-        res.status(200).json({ message: 'Transaction committed successfully.' });
+        res.status(200).json({ message: messages.POST_SUCCESS });
     } catch (err) {
         await db.rollback();
-
-        console.error('Error in transaction:', err);
-
+        logger.error('Error in transaction:', err);
         // Send an error response to the client
-        res.status(500).json({ message: 'Failed to perform transaction.' });
+        res.status(500).json({ message: messages.POST_FAILED });
     }
 }
 
@@ -65,10 +59,10 @@ async function performTransaction(req, res) {
 posts.post('/post-feed',jwtMiddleware.verifyToken,(req,res)=>{
     performTransaction(req, res)
     .then(() => {
-        console.log('Transaction completed successfully');
+        logger.info('Transaction completed successfully');
     })
     .catch((err) => {
-        console.error('Error in address.post API:', err);
+        logger.error('Error in address.post API:', err);
     });
 })
 
@@ -77,7 +71,6 @@ posts.post('/post-feed',jwtMiddleware.verifyToken,(req,res)=>{
 
 posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
 
-    
     const sql = `SELECT p.*, u.*, p1.pet_id AS pet_id,
      p1.pet_name AS pet_name, p1.image_id AS pet_image_id,
      i2.image_url AS pet_image_url, i1.image_id AS post_image_id,
@@ -102,7 +95,7 @@ posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
         });
 
     }catch(err){
-        console.error('Error fetching data:', err);
+        logger.error('Error fetching data:', err);
         res.status(500).json({
             message: messages.FAILED,
         });
@@ -151,7 +144,7 @@ posts.get('/posts-id',jwtMiddleware.verifyToken, async (req, res) => {
         }
 
     } catch (err) {
-        console.error('Error fetching data:', err);
+        logger.error('Error fetching data:', err);
         res.status(500).json({
             message: messages.FAILURE_MESSAGE,
         });
@@ -162,7 +155,6 @@ posts.get('/posts-id',jwtMiddleware.verifyToken, async (req, res) => {
 posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
     const userId = req.query.user_id; 
     
-  
     if (!userId) {
         return res.status(400).json({
             message: messages.INVALID_ID,
@@ -199,7 +191,7 @@ posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
         }
 
     } catch (err) {
-        console.error('Error fetching data:', err);
+        logger.error('Error fetching data:', err);
         res.status(500).json({
             message: messages.FAILURE_MESSAGE,
         });
@@ -264,7 +256,7 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
             });
         }
     } catch (err) {
-        console.error('Error fetching data:', err);
+        logger.error('Error fetching data:', err);
         res.status(500).json({
             message: messages.FAILURE_MESSAGE,
         });
@@ -317,7 +309,7 @@ posts.put('/update-post',jwtMiddleware.verifyToken, async (req, res) => {
             message: messages.DATA_UPDATED,
         });
     } catch (err) {
-        console.error('Error updating data:', err.message);
+        logger.error('Error updating data:', err.message);
         res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
     }
 });
@@ -343,13 +335,11 @@ posts.delete('/delete-post',jwtMiddleware.verifyToken, async (req, res) => {
             });
         }
     } catch (err) {
-        console.error('Error deleting post:', err);
+        logger.error('Error deleting post:', err);
         res.status(500).json({
             message: messages.FAILED_TO_DELETE,
         });
     }
 });
-
-
 
 module.exports=posts;
