@@ -21,7 +21,9 @@ module.exports = {
     LIKE_FAILED:"Failed to like the post",
     UNLIKE_FAILED:"Failed to unlike the post",
     UNLIKE_SUCCESSFUL:"Post unliked successfully",
-    NOT_LIKED_YET:"User has not liked the post"
+    NOT_LIKED_YET:"User has not liked the post",
+    LOGOUT:"Loggedout successfully",
+    LOGOUT_FAILED:"Failed to logout"
     
  
   };

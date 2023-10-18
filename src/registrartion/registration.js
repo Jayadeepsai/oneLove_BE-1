@@ -158,19 +158,6 @@ async function performTransaction(req, res) {
                 break;
         }
 
-             // Send notifications to pet owners
-             const sql1 = `SELECT external_id FROM onelove.users WHERE contact_id =${contact_id}`
-             const [sql1Result] = await connection.query(sql1)
-             console.log("sqlResul",sql1Result)
-             const uuId=sql1Result[0].external_id;
-             console.log('external id',uuId)
-     
-             const Name = "Profile creation success";
-             const mess = "Welcome to One Love app! Your profile is ready. Start exploring!";
-             const uniqId = [uuId]; 
-
-             // Call the sendnotification function
-        await notification.sendnotification(Name, mess, uniqId);
 
         // Commit the transaction if all queries are successful
         await connection.commit();
@@ -263,6 +250,34 @@ try{
     // Verify the refresh token
     jwtMiddleware.refreshToken(req, res);
   });
+
+
+  registration.post('/logout', async (req, res) => {
+    try {
+        const user = req.body.user_id;
+        const sql = `SELECT external_id FROM onelove.users WHERE user_id =?`;
+        const [sqlResult] = await connection.query(sql, user);
+        logger.info("sqlResult", sqlResult);
+        const uuId = sqlResult[0].external_id;
+        logger.info('external id', uuId);
+
+        const Name = "";
+        const mess = "Logged out successfully. Visit again soon!";
+        const uniqId = [uuId];
+    
+        // Check if Name, mess, and uniqId all exist before calling the function
+        if (Name && mess && uniqId) {
+            await notification.sendnotification(Name, mess, uniqId);
+        }
+
+        return res.status(200).json({
+            message: messages.LOGOUT
+        });
+    } catch (err) {
+        logger.error("Error", err);
+        return res.status(500).json({ message: messages.LOGOUT_FAILED });
+    }
+});
 
   
 //   registration.post('/refresh-token', (req, res) => {
