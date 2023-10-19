@@ -74,7 +74,7 @@ async function performTransaction(req, res) {
         switch (user_type) {
             case 'pet_owner':
                 const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-                const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id];
+                const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, JSON.stringify(external_id)];
     
                 const [userResult] = await connection.query(userQuery, userValues);
                 const user_id = userResult.insertId;
@@ -97,7 +97,7 @@ async function performTransaction(req, res) {
 
             // Insert into users and registrations tables for pet_doctor
                 const userQuery1 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-                const userValues1 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id];
+                const userValues1 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, JSON.stringify(external_id)];
 
                 const [userResult1] = await connection.query(userQuery1, userValues1);
                 const user_id1 = userResult1.insertId;
@@ -119,7 +119,7 @@ async function performTransaction(req, res) {
     
                 // Insert into users and registrations tables for pet_trainer
                 const userQuery2 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-                const userValues2 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id];
+                const userValues2 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, JSON.stringify(external_id)];
     
                 const [userResult2] = await connection.query(userQuery2, userValues2);
                 const user_id2 = userResult2.insertId;
@@ -141,7 +141,7 @@ async function performTransaction(req, res) {
 
              // Insert into users and registrations tables for pet_trainer
                 const userQuery3 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-                const userValues3 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id];
+                const userValues3 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, JSON.stringify(external_id)];
  
                 const [userResult3] = await connection.query(userQuery3, userValues3);
                 const user_id3 = userResult3.insertId;
@@ -338,8 +338,9 @@ registration.post('/registration-mobile-number', async (req, res) => {
 
         // Update the external_id in the database only if new_external_id is provided
         if (new_external_id !== undefined) {
+            const serializedExternalId = JSON.stringify(new_external_id); // Serialize as JSON string
             const updateExternalIdSql = 'UPDATE onelove.users SET external_id = ? WHERE user_id = ?';
-            await connection.query(updateExternalIdSql, [new_external_id, userId]);
+            await connection.query(updateExternalIdSql, [serializedExternalId, userId]);
         }
 
         return res.status(200).json({

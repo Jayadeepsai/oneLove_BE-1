@@ -61,8 +61,8 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
         const sql1 = `SELECT external_id FROM onelove.users WHERE user_id = ${user_id}`
         const [sql1Result] = await db.query(sql1)
         const external_id=sql1Result[0].external_id;
-        console.log('external id',external_id)
-
+        logger.info('external id',external_id)
+ 
         const Name = "Feedback!";
         const mess = "Recieved a feedback for your service, Please visit and check";
         const uniqId = [external_id]; 
