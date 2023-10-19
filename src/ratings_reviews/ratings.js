@@ -65,7 +65,7 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
  
         const Name = "Feedback!";
         const mess = "Recieved a feedback for your service, Please visit and check";
-        const uniqId = [external_id]; 
+        const uniqId = external_id; 
 
         // Call the sendnotification function
         await notification.sendnotification(Name, mess, uniqId);

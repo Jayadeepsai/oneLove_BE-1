@@ -37,7 +37,7 @@ orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
 
         const Name = "New Product orders";
         const mess = "New order for pet products! Process it now";
-        const uniqId = [external_id]; 
+        const uniqId = external_id; 
 
         // Call the sendnotification function
         await notification.sendnotification(Name, mess, uniqId);

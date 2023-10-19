@@ -14,51 +14,103 @@ items.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodie
 
 
 
-async function performTransaction(req,res){
-    try{
+// async function performTransaction(req,res){
+//     try{
+//         await db.beginTransaction();
+
+//         const { image_type, image_url } = req.body;
+//         const imageSql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
+//         const imageValues = [image_type, JSON.stringify(image_url)];
+//         const [imageResult] = await db.query(imageSql,imageValues);
+//         const image_id = imageResult.insertId;
+
+//         const { brand_name, product_title, pet_type_product, item_description, product_details, store_id, quantity, sub_category_name, collection_name } = req.body;
+//         const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, quantity, sub_category_name, collection_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+//         const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, JSON.stringify(quantity), sub_category_name, collection_name];
+//         const [itemResult] = await db.query(itemSql,itemValues);
+//         const item_id = itemResult.insertId;
+
+        
+//         await db.commit();
+
+//        // Send notifications to pet owners
+//        const notifSql = `SELECT external_id FROM onelove.users WHERE user_type = 'pet_owner'`;
+//        const [notifSqlResult] = await db.query(notifSql);
+
+//        if (notifSqlResult && notifSqlResult.length > 0) {
+//            const uniqId = notifSqlResult
+//                .filter(item => item.external_id !== null && item.external_id !== 'null')
+//                .map(item => item.external_id);
+
+//            if (uniqId.length > 0) {
+//                const Name = "New stock!";
+//                const mess = "Check out the latest products for your pet in the store!";
+//                await notification.sendnotification(Name, mess, uniqId);
+//            }
+//        }
+       
+//         // Send a success response to the client
+//         res.status(200).json({ message: messages.POST_SUCCESS });
+
+//     }catch(err){
+//         await db.rollback();
+//         logger.error('Error in transaction:', err);
+//         // Send an error response to the client
+//         res.status(500).json({ message: messages.POST_FAILED });
+//     }
+// }
+
+async function performTransaction(req, res) {
+    try {
         await db.beginTransaction();
 
         const { image_type, image_url } = req.body;
         const imageSql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
         const imageValues = [image_type, JSON.stringify(image_url)];
-        const [imageResult] = await db.query(imageSql,imageValues);
+        const [imageResult] = await db.query(imageSql, imageValues);
         const image_id = imageResult.insertId;
 
         const { brand_name, product_title, pet_type_product, item_description, product_details, store_id, quantity, sub_category_name, collection_name } = req.body;
         const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, quantity, sub_category_name, collection_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, JSON.stringify(quantity), sub_category_name, collection_name];
-        const [itemResult] = await db.query(itemSql,itemValues);
+        const [itemResult] = await db.query(itemSql, itemValues);
         const item_id = itemResult.insertId;
 
-        
         await db.commit();
 
-       // Send notifications to pet owners
-       const notifSql = `SELECT external_id FROM onelove.users WHERE user_type = 'pet_owner'`;
-       const [notifSqlResult] = await db.query(notifSql);
+        // Send notifications to pet owners
+        const notifSql = `SELECT external_id FROM onelove.users WHERE user_type = 'pet_owner'`;
+        const [notifSqlResult] = await db.query(notifSql);
 
-       if (notifSqlResult && notifSqlResult.length > 0) {
-           const uniqId = notifSqlResult
-               .filter(item => item.external_id !== null && item.external_id !== 'null')
-               .map(item => item.external_id);
+        if (notifSqlResult && notifSqlResult.length > 0) {
+            // Filter and map the external IDs
+            const externalIds = notifSqlResult
+                .filter(item => item.external_id !== null && item.external_id !== 'null')
+                .map(item => item.external_id);
 
-           if (uniqId.length > 0) {
-               const Name = "New stock!";
-               const mess = "Check out the latest products for your pet in the store!";
-               await notification.sendnotification(Name, mess, uniqId);
-           }
-       }
-       
+            if (externalIds.length > 0) {
+                const Name = "New stock!";
+                const mess = "Check out the latest products for your pet in the store!";
+                for (const uniqId of externalIds) {
+                    await notification.sendnotification(Name, mess, uniqId);
+                }
+            }
+        }
+
         // Send a success response to the client
         res.status(200).json({ message: messages.POST_SUCCESS });
 
-    }catch(err){
+    } catch (err) {
         await db.rollback();
         logger.error('Error in transaction:', err);
         // Send an error response to the client
         res.status(500).json({ message: messages.POST_FAILED });
     }
 }
+
+
+
+
 
 
 items.post('/item-entry',jwtMiddleware.verifyToken,(req,res)=>{

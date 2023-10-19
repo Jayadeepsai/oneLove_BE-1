@@ -384,20 +384,19 @@ registration.post('/registration-mobile-number', async (req, res) => {
         const userId = userData[0].user_id;
         let existingExternalId = userData[0].external_id;
 
-        // Parse the existingExternalId if it's a JSON string
-        if (existingExternalId && typeof existingExternalId === 'string') {
+        // Parse the existingExternalId if it's a JSON string or initialize as an empty array
+        if (existingExternalId === null) {
+            existingExternalId = [];
+        } else if (typeof existingExternalId === 'string') {
             existingExternalId = JSON.parse(existingExternalId);
         }
 
         // Check if new_external_id is different from the existing one, and add it to the array
-        if (new_external_id !== undefined && JSON.stringify(new_external_id) !== JSON.stringify(existingExternalId)) {
-            if (!Array.isArray(existingExternalId)) {
-                existingExternalId = [existingExternalId];
-            }
+        if (new_external_id !== undefined && !existingExternalId.includes(new_external_id)) {
             existingExternalId.push(new_external_id);
         }
 
-        // Serialize the updated external_id as a JSON string
+        // Serialize the updated external_id as a JSON array
         const serializedExternalId = JSON.stringify(existingExternalId);
 
         // Modify boolean values from 1 and 0 to true and false
@@ -432,6 +431,11 @@ registration.post('/registration-mobile-number', async (req, res) => {
 });
 
 
+
+
+
+  
+ 
 
 registration.delete('/delete-registration-data',jwtMiddleware.verifyToken, async (req, res) => {
     const reg_id = req.query.reg_id;
