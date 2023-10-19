@@ -295,9 +295,71 @@ try{
 
 
 
+// registration.post('/registration-mobile-number', async (req, res) => {
+//     const mobile_number = req.query.mobile_number;
+//     const { new_external_id } = req.body;
+//     try {
+//         if (!mobile_number) {
+//             return res.status(400).json({ message: messages.INVALID_ID });
+//         }
+
+//         // First, retrieve the user's data
+//         const selectUserSql = `SELECT a.*, c.*, u.*, i.*, s.*, c1.clinic_name AS clinic_name
+//                   FROM onelove.users u
+//                    LEFT JOIN address a ON u.address_id = a.address_id
+//                    LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+//                    LEFT JOIN store s ON u.store_id = s.store_id
+//                    LEFT JOIN clinics c1 ON u.clinic_id = c1.clinic_id
+//                    LEFT JOIN images i ON u.image_id = i.image_id WHERE c.mobile_number=?`;
+
+//         const [userData] = await connection.query(selectUserSql, [mobile_number]);
+
+//         if (userData.length === 0) {
+//             return res.status(404).json({ message: messages.NO_DATA });
+//         }
+
+//         // Update the external_id (or set it for the first time)
+//         const userId = userData[0].user_id;
+
+//         // Modify boolean values from 1 and 0 to true and false
+//         const modifiedData = userData.map((row) => ({
+//             ...row,
+//             food_treats: row.food_treats === 1,
+//             accessories: row.accessories === 1,
+//             toys: row.toys === 1,
+//             health_care: row.health_care === 1,
+//             dog_service: row.dog_service === 1,
+//             breader_adoption_sale: row.breader_adoption_sale === 1,
+//         }));
+
+//         // After verifying the mobile number and logging in the user, generate a JWT token
+//         const token = jwtMiddleware.generateToken(userId);
+//         const refreshToken = jwtMiddleware.generateRefreshToken(userId);
+
+//         // Update the external_id in the database only if new_external_id is provided
+//         if (new_external_id !== undefined) {
+//             const serializedExternalId = JSON.stringify(new_external_id); // Serialize as JSON string
+//             const updateExternalIdSql = 'UPDATE onelove.users SET external_id = ? WHERE user_id = ?';
+//             await connection.query(updateExternalIdSql, [serializedExternalId, userId]);
+//         }
+
+//         return res.status(200).json({
+//             registrationData: modifiedData,
+//             token,
+//             refreshToken,
+//             message: messages.SUCCESS_MESSAGE,
+//         });
+//     } catch (error) {
+//         logger.error("Error", error);
+//         return res.status(500).json({ message: messages.FAILURE_MESSAGE });
+//     }
+// });
+
+
 registration.post('/registration-mobile-number', async (req, res) => {
     const mobile_number = req.query.mobile_number;
     const { new_external_id } = req.body;
+
     try {
         if (!mobile_number) {
             return res.status(400).json({ message: messages.INVALID_ID });
@@ -320,6 +382,23 @@ registration.post('/registration-mobile-number', async (req, res) => {
 
         // Update the external_id (or set it for the first time)
         const userId = userData[0].user_id;
+        let existingExternalId = userData[0].external_id;
+
+        // Parse the existingExternalId if it's a JSON string
+        if (existingExternalId && typeof existingExternalId === 'string') {
+            existingExternalId = JSON.parse(existingExternalId);
+        }
+
+        // Check if new_external_id is different from the existing one, and add it to the array
+        if (new_external_id !== undefined && JSON.stringify(new_external_id) !== JSON.stringify(existingExternalId)) {
+            if (!Array.isArray(existingExternalId)) {
+                existingExternalId = [existingExternalId];
+            }
+            existingExternalId.push(new_external_id);
+        }
+
+        // Serialize the updated external_id as a JSON string
+        const serializedExternalId = JSON.stringify(existingExternalId);
 
         // Modify boolean values from 1 and 0 to true and false
         const modifiedData = userData.map((row) => ({
@@ -336,12 +415,9 @@ registration.post('/registration-mobile-number', async (req, res) => {
         const token = jwtMiddleware.generateToken(userId);
         const refreshToken = jwtMiddleware.generateRefreshToken(userId);
 
-        // Update the external_id in the database only if new_external_id is provided
-        if (new_external_id !== undefined) {
-            const serializedExternalId = JSON.stringify(new_external_id); // Serialize as JSON string
-            const updateExternalIdSql = 'UPDATE onelove.users SET external_id = ? WHERE user_id = ?';
-            await connection.query(updateExternalIdSql, [serializedExternalId, userId]);
-        }
+        // Update the external_id in the database
+        const updateExternalIdSql = 'UPDATE onelove.users SET external_id = ? WHERE user_id = ?';
+        await connection.query(updateExternalIdSql, [serializedExternalId, userId]);
 
         return res.status(200).json({
             registrationData: modifiedData,
