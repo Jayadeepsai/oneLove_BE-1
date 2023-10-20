@@ -64,7 +64,7 @@ clinic.get('/clinic',jwtMiddleware.verifyToken,async(req,res)=>{
     const [results] = await db.query(sql);
         const clinicsData = JSON.parse(JSON.stringify(results));
         res.status(200).json({
-            data: clinicsData,
+            clinicsData,
             message: messages.SUCCESS_MESSAGE
         });
         

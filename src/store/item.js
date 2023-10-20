@@ -88,6 +88,7 @@ async function performTransaction(req, res) {
                 .filter(item => item.external_id !== null && item.external_id !== 'null')
                 .map(item => item.external_id);
 
+                console.log(externalIds)
             if (externalIds.length > 0) {
                 const Name = "New stock!";
                 const mess = "Check out the latest products for your pet in the store!";
