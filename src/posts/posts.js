@@ -220,7 +220,7 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
             values.push(pet_id);
         }
 
-        let sql = `SELECT p.*, u.*, p1.pet_id AS pet_id,a.*,
+        let sql = `SELECT p.*, u.*,c.*, p1.pet_id AS pet_id,a.*,
         p1.pet_name AS pet_name, p1.image_id AS pet_image_id,
         p1.pet_gender AS pet_gender, p1.pet_type AS pet_type,
         p1.pet_breed AS pet_breed, p1.pet_dob AS pet_dob,
@@ -235,6 +235,7 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
         LEFT JOIN images i1 ON p.image_id = i1.image_id
         LEFT JOIN images i2 ON p1.image_id = i2.image_id
         LEFT JOIN images i3 ON u.image_id = i3.image_id
+        LEFT JOIN contact_details c ON u.contact_id = c.contact_id
         LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
        `;
         
