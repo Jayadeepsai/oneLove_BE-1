@@ -191,40 +191,40 @@ message.get('/messages', async (req, res) => {
 
 const axios = require('axios');
 
-message.post('/whatsapp-webhook', (req, res) => {
-  const userMessage = req.body.Body; // Extract the user's message
-  // Send the user's message to your Rasa chatbot
-  // You can use the axios library to make a POST request to your Rasa server
-  axios.post('http://rasa-chatbot-server:5005/webhooks/twilio/webhook', {
-      Body: userMessage,
-  })
-  .then(response => {
-      const chatbotResponse = response.data.text;
-      // Send the chatbot response back to the user using Twilio
-      // You can use Twilio's Node.js library to send WhatsApp messages
-      sendWhatsAppMessage(req.body.From, chatbotResponse);
-      res.send('Message sent to chatbot and user.');
-  })
-  .catch(error => {
-      console.error('Error:', error);
-      res.send('Error processing the message.');
-  });
-});
+// message.post('/whatsapp-webhook', (req, res) => {
+//   const userMessage = req.body.Body; // Extract the user's message
+//   // Send the user's message to your Rasa chatbot
+//   // You can use the axios library to make a POST request to your Rasa server
+//   axios.post('http://rasa-chatbot-server:5005/webhooks/twilio/webhook', {
+//       Body: userMessage,
+//   })
+//   .then(response => {
+//       const chatbotResponse = response.data.text;
+//       // Send the chatbot response back to the user using Twilio
+//       // You can use Twilio's Node.js library to send WhatsApp messages
+//       sendWhatsAppMessage(req.body.From, chatbotResponse);
+//       res.send('Message sent to chatbot and user.');
+//   })
+//   .catch(error => {
+//       console.error('Error:', error);
+//       res.send('Error processing the message.');
+//   });
+// });
 
-const accountSid = 'ACc6d7d622dcf2e757db03180cd003bbca';
-const authToken = '8a7927303b4605a03c2645b4b0fe76ca';
-const client = require('twilio')(accountSid, authToken);
+// const accountSid = 'ACc6d7d622dcf2e757db03180cd003bbca';
+// const authToken = '8a7927303b4605a03c2645b4b0fe76ca';
+// const client = require('twilio')(accountSid, authToken);
 
-client.messages
-    .create({
-        body: 'Your appointment is coming up on July 21 at 3PM',
-        from: 'whatsapp:+14155238886',
-        to: 'whatsapp:+918897820507'
-    })
-    // .then(message => console.log(message.sid))
-    // .done();
-    .then(message => console.log(message.sid))
-    .catch(error => console.error(error));
+// client.messages
+//     .create({
+//         body: 'Your appointment is coming up on July 21 at 3PM',
+//         from: 'whatsapp:+14155238886',
+//         to: 'whatsapp:+918897820507'
+//     })
+//     // .then(message => console.log(message.sid))
+//     // .done();
+//     .then(message => console.log(message.sid))
+//     .catch(error => console.error(error));
 
 
 module.exports = message;

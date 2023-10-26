@@ -42,12 +42,13 @@ pets.post('/pet-post',jwtMiddleware.verifyToken, async (req, res) => { // Add "a
 
 pets.get('/pets',jwtMiddleware.verifyToken, async (req, res) => { // Add "async" keyword
     try {
-        const sql = `SELECT p.*, v.*, i1.image_id AS pet_image_id, i1.image_url AS pet_image_url, u.* , i2.image_id AS user_image_id, i2.image_url AS user_image_url,c.*
+        const sql = `SELECT p.*, v.*, a.*, i1.image_id AS pet_image_id, i1.image_url AS pet_image_url, u.* , i2.image_id AS user_image_id, i2.image_url AS user_image_url,c.*
         FROM onelove.pet p
         LEFT JOIN vaccination v ON p.vaccination_id = v.vaccination_id
         LEFT JOIN images i1 ON p.image_id = i1.image_id
         LEFT JOIN users u ON p.user_id = u.user_id
         LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+        LEFT JOIN address a ON u.address_id = a.address_id
         LEFT JOIN images i2 ON u.image_id = i2.image_id`;
 
         const [results] = await db.query(sql); // Use await to execute the query
