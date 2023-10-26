@@ -163,6 +163,70 @@ message.get('/messages', async (req, res) => {
   // Schedule the deletion job to run every 10 mins
   cron.schedule('*/10 * * * *', deleteOldConversations); // This schedules the job to run at the beginning of every 10 mins
 
+
+  // Create a route to get the mobile number based on user_id
+  message.get('/get-mobile-number', async (req, res) => {
+  try {
+    const userId = req.query.user_id;
+
+    if (!userId) {
+      return res.status(400).json({ message: 'user_id is required' });
+    }
+
+    // Query to retrieve the mobile number based on user_id
+    const sql = 'SELECT cd.mobile_number FROM users u INNER JOIN contact_details cd ON u.contact_id = cd.contact_id WHERE u.user_id = ?';
+    const [rows] = await db.query(sql, [userId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const mobileNumber = rows[0].mobile_number;
+    return res.status(200).json({ mobile_number: mobileNumber });
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ message: 'An error occurred' });
+  }
+});
+
+const axios = require('axios');
+
+message.post('/whatsapp-webhook', (req, res) => {
+  const userMessage = req.body.Body; // Extract the user's message
+  // Send the user's message to your Rasa chatbot
+  // You can use the axios library to make a POST request to your Rasa server
+  axios.post('http://rasa-chatbot-server:5005/webhooks/twilio/webhook', {
+      Body: userMessage,
+  })
+  .then(response => {
+      const chatbotResponse = response.data.text;
+      // Send the chatbot response back to the user using Twilio
+      // You can use Twilio's Node.js library to send WhatsApp messages
+      sendWhatsAppMessage(req.body.From, chatbotResponse);
+      res.send('Message sent to chatbot and user.');
+  })
+  .catch(error => {
+      console.error('Error:', error);
+      res.send('Error processing the message.');
+  });
+});
+
+const accountSid = 'ACc6d7d622dcf2e757db03180cd003bbca';
+const authToken = '8a7927303b4605a03c2645b4b0fe76ca';
+const client = require('twilio')(accountSid, authToken);
+
+client.messages
+    .create({
+        body: 'Your appointment is coming up on July 21 at 3PM',
+        from: 'whatsapp:+14155238886',
+        to: 'whatsapp:+918897820507'
+    })
+    // .then(message => console.log(message.sid))
+    // .done();
+    .then(message => console.log(message.sid))
+    .catch(error => console.error(error));
+
+
 module.exports = message;
 // Export the httpServer for Socket.io
 module.exports.io = io;
