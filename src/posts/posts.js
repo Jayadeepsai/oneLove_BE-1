@@ -138,7 +138,7 @@ posts.get('/posts-id',jwtMiddleware.verifyToken, async (req, res) => {
                 message: messages.SUCCESS_MESSAGE,
             });
         } else {
-            res.status(404).json({
+            res.status(202).json({
                 message: messages.FAILED,
             });
         }
@@ -173,7 +173,8 @@ posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
     LEFT JOIN images i2 ON p1.image_id = i2.image_id
     LEFT JOIN images i3 ON u.image_id = i3.image_id
     LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
-    WHERE p.user_id = ?`;
+    WHERE p.user_id = ?
+    ORDER BY p.post_id DESC`;
 
     try {
         const [results] = await db.query(sql, [userId]);
@@ -185,7 +186,7 @@ posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
                 message:messages.SUCCESS_MESSAGE,
             });
         } else {
-            res.status(404).json({
+            res.status(202).json({
                 message: messages.NO_DATA,
             });
         }
@@ -238,7 +239,7 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
         LEFT JOIN contact_details c ON u.contact_id = c.contact_id
         LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
        `;
-        
+       sql += 'ORDER BY p.post_id DESC';
         if (condition) {
             sql += ' WHERE ' + condition;
         }
@@ -252,7 +253,7 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
                 message: messages.SUCCESS_MESSAGE,
             });
         } else {
-            res.status(404).json({
+            res.status(202).json({
                 message: messages.NO_DATA,
             });
         }
