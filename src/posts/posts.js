@@ -239,7 +239,6 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
         LEFT JOIN contact_details c ON u.contact_id = c.contact_id
         LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
        `;
-       sql += 'ORDER BY p.post_id DESC';
         if (condition) {
             sql += ' WHERE ' + condition;
         }
