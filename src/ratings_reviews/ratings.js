@@ -15,6 +15,12 @@ ratings.use(express.urlencoded({ extended: true })); // To parse URL-encoded bod
 
 
 ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+         if (userType !== 'pet_owner') {
+             return res.status(403).json({ message: messages.FORBID });
+         }
+
     try {
         const { user_id, ratings_reviews } = req.body;          //here the user_id is the pet_trainer user_id
                                                                 //ratings_reviews is an json array which contains the user_id of the pet_owner who is giving the feedback
@@ -112,6 +118,12 @@ ratings.get('/rating-review',jwtMiddleware.verifyToken,async(req,res)=>{
 
 
 ratings.get('/rating-review-user',jwtMiddleware.verifyToken,async(req,res)=>{
+
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+    
        const user_id = req.query.user_id
 
     try{

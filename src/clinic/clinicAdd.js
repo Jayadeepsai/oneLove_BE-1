@@ -51,6 +51,11 @@ clinic.post('/clinic',jwtMiddleware.verifyToken, (req, res) => {
 
 clinic.get('/clinic',jwtMiddleware.verifyToken,async(req,res)=>{
 
+    const { userType } = req;
+    if (userType !== 'pet_owner') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     const sql = `
     SELECT  s.*,u.*,a.*,c.*,i.*
     FROM users u
@@ -78,6 +83,11 @@ clinic.get('/clinic',jwtMiddleware.verifyToken,async(req,res)=>{
 
 
 clinic.get('/clinic-user-id',jwtMiddleware.verifyToken, async(req,res)=>{
+
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_doctor') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
 
     const userId = req.query.user_id; 
     

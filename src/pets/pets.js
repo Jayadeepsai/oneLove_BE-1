@@ -11,8 +11,21 @@ pets.use(express.json()); // To parse JSON bodies
 pets.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-pets.post('/pet-post',jwtMiddleware.verifyToken, async (req, res) => { // Add "async" keyword
+pets.post('/pet-post',jwtMiddleware.verifyToken, async (req, res) => { 
+
+    const { userType } = req;
+    if (userType !== 'pet_owner') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     try {
+
+         // Extract user_type from the decoded token
+         const { userType } = req;
+         if (userType !== 'pet_owner') {
+             return res.status(403).json({ message: messages.FORBID });
+         }
+
         const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, spay_neuter, image_type, image_url, user_id } = req.body;
 
         // Insert into images table
@@ -40,7 +53,15 @@ pets.post('/pet-post',jwtMiddleware.verifyToken, async (req, res) => { // Add "a
     }
 });
 
-pets.get('/pets',jwtMiddleware.verifyToken, async (req, res) => { // Add "async" keyword
+
+
+pets.get('/pets',jwtMiddleware.verifyToken, async (req, res) => { 
+
+    const { userType } = req;
+    if (userType !== 'pet_owner') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     try {
         const sql = `SELECT p.*, v.*, a.*, i1.image_id AS pet_image_id, i1.image_url AS pet_image_url, u.* , i2.image_id AS user_image_id, i2.image_url AS user_image_url,c.*
         FROM onelove.pet p
@@ -66,9 +87,17 @@ pets.get('/pets',jwtMiddleware.verifyToken, async (req, res) => { // Add "async"
     }
 });
 
-pets.put('/update-pet',jwtMiddleware.verifyToken, async (req, res) => { // Use "async" keyword   
+
+
+pets.put('/update-pet',jwtMiddleware.verifyToken, async (req, res) => {  
+
+    const { userType } = req;
+    if (userType !== 'pet_owner') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     try {
-        const pet_id = req.query.pet_id; // Use "req.query" instead of "req.params"
+        const pet_id = req.query.pet_id; 
         const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, vaccination_id, pet_dob, image_id, user_id, spay_neuter, image_type, image_url } = req.body;
 
         await db.beginTransaction();
@@ -210,6 +239,10 @@ pets.get('/pets-images',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 pets.get('/pets-users',jwtMiddleware.verifyToken, async (req, res) => { 
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
     const user_id = req.query.user_id;
 
     if (!user_id) {

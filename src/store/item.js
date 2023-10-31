@@ -13,53 +13,6 @@ items.use(express.json()); // To parse JSON bodies
 items.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 
-
-// async function performTransaction(req,res){
-//     try{
-//         await db.beginTransaction();
-
-//         const { image_type, image_url } = req.body;
-//         const imageSql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
-//         const imageValues = [image_type, JSON.stringify(image_url)];
-//         const [imageResult] = await db.query(imageSql,imageValues);
-//         const image_id = imageResult.insertId;
-
-//         const { brand_name, product_title, pet_type_product, item_description, product_details, store_id, quantity, sub_category_name, collection_name } = req.body;
-//         const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, quantity, sub_category_name, collection_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-//         const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, JSON.stringify(quantity), sub_category_name, collection_name];
-//         const [itemResult] = await db.query(itemSql,itemValues);
-//         const item_id = itemResult.insertId;
-
-        
-//         await db.commit();
-
-//        // Send notifications to pet owners
-//        const notifSql = `SELECT external_id FROM onelove.users WHERE user_type = 'pet_owner'`;
-//        const [notifSqlResult] = await db.query(notifSql);
-
-//        if (notifSqlResult && notifSqlResult.length > 0) {
-//            const uniqId = notifSqlResult
-//                .filter(item => item.external_id !== null && item.external_id !== 'null')
-//                .map(item => item.external_id);
-
-//            if (uniqId.length > 0) {
-//                const Name = "New stock!";
-//                const mess = "Check out the latest products for your pet in the store!";
-//                await notification.sendnotification(Name, mess, uniqId);
-//            }
-//        }
-       
-//         // Send a success response to the client
-//         res.status(200).json({ message: messages.POST_SUCCESS });
-
-//     }catch(err){
-//         await db.rollback();
-//         logger.error('Error in transaction:', err);
-//         // Send an error response to the client
-//         res.status(500).json({ message: messages.POST_FAILED });
-//     }
-// }
-
 async function performTransaction(req, res) {
     try {
         await db.beginTransaction();
@@ -99,7 +52,7 @@ async function performTransaction(req, res) {
         }
 
         // Send a success response to the client
-        res.status(200).json({ message: messages.POST_SUCCESS });
+        res.status(201).json({ message: messages.POST_SUCCESS });
 
     } catch (err) {
         await db.rollback();
@@ -110,11 +63,13 @@ async function performTransaction(req, res) {
 }
 
 
-
-
-
-
 items.post('/item-entry',jwtMiddleware.verifyToken,(req,res)=>{
+
+    const { userType } = req;
+    if (userType !== 'pet_store') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     performTransaction(req,res)
     .then(() => {
         logger.info('Transaction completed successfully');
@@ -151,6 +106,10 @@ items.get('/products',jwtMiddleware.verifyToken,async(req,res)=>{
 
 
 items.get('/products-id',jwtMiddleware.verifyToken,async(req,res)=>{
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_store') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
     const item_id = req.query.item_id
     const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
                  FROM onelove.items i
@@ -179,6 +138,11 @@ items.get('/products-id',jwtMiddleware.verifyToken,async(req,res)=>{
 
 
 items.get('/products-store-id',jwtMiddleware.verifyToken,async(req,res)=>{
+
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_store') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
 
     const store_id = req.query.store_id
 
@@ -277,6 +241,12 @@ items.get('/product-store-item-id',jwtMiddleware.verifyToken, async (req, res) =
 
 
 items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+    if (userType !== 'pet_store') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     try {
         const item_id = req.query.item_id;
 
@@ -326,23 +296,6 @@ items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
                 itemValues.push(JSON.stringify(quantity));
             }
 
-            // if (quantity !== undefined){
-            //     // Retrieve the current quantity from the database
-            //     const [currentQuantityRow] = await db.query('SELECT quantity FROM onelove.items WHERE item_id = ?', [item_id]);
-            //     const currentQuantity = currentQuantityRow[0].quantity;
-
-            //     if (!Array.isArray(currentQuantity)) {
-            //         throw new Error('Invalid quantity data in the database.');
-            //     }
-
-            //     // Merge the current quantity with the new quantity data
-            //     const mergedQuantity = [...currentQuantity, ...quantity];
-
-            //     // Update the item record with the merged quantity
-            //     itemSql += ' quantity=?,';
-            //     itemValues.push(JSON.stringify(mergedQuantity));
-            // }
-
             itemSql = itemSql.slice(0, -1);
             itemSql += ' WHERE item_id= ?';
             itemValues.push(item_id);
@@ -384,6 +337,12 @@ items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 items.delete('/delete-items',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+    if (userType !== 'pet_store') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     try {
         const itemIds = req.query.item_id; // Accept item_ids as an array of IDs
         
@@ -417,59 +376,13 @@ items.delete('/delete-items',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 
-// items.get('/stores',async(req,res)=>{
-
-//     const sql = `
-//     SELECT  s.*,u.*,a.*,c.*,i.*
-//     FROM users u
-//     LEFT JOIN address a ON u.address_id = a.address_id
-//     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-//     LEFT JOIN store s ON u.store_id = s.store_id
-//     LEFT JOIN images i ON u.image_id = i.image_id
-//      WHERE u.user_type = 'pet_store'`;
-
-//     try{
-//     const [results] = await db.query(sql);
-//         const storesData = JSON.parse(JSON.stringify(results));
-//         if (storesData.length > 0) {
-//             // Convert numeric boolean values to actual boolean values in the response
-//             const convertedStoresData = storesData.map(store => ({
-//                 ...store,
-//                 food_treats: store.food_treats === 1,
-//                 accessories: store.accessories === 1,
-//                 pet_boarding: store.pet_boarding === 1,
-//                 toys: store.toys === 1,
-//                 health_care: store.health_care === 1,
-//                 dog_service: store.dog_service === 1,
-//                 breader_adoption_sale: store.breader_adoption_sale === 1
-              
-//             }));
-
-//             res.status(200).json({
-//                 storesData: convertedStoresData,
-//                 message: messages.SUCCESS_MESSAGE,
-//             });
-
-//         // if (storesData.length > 0) {
-//         //     res.status(200).json({
-//         //         storesData,
-//         //         message:messages.SUCCESS_MESSAGE,
-//         //     });
-//         } else {
-//             res.status(404).json({
-//                 message: messages.NO_DATA,
-//             });
-//         }
-//     }catch(err){
-//         console.error('Error fetching data:', err);
-//         res.status(500).json({
-//             message: messages.FAILURE_MESSAGE,
-//         });
-//     }
-// });
-
-
 items.get('/stores',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+    if (userType !== 'pet_owner') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+    
     const sql = `
       SELECT
         s.*,

@@ -13,6 +13,12 @@ orders.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodi
 
 
 orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+    if (userType !== 'pet_owner') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     const { store_id, user_id, orders, status } = req.body;
 
     try {
@@ -94,6 +100,10 @@ orders.get('/all-orders',jwtMiddleware.verifyToken,async(req,res)=>{
 });
 
 orders.get('/orders',jwtMiddleware.verifyToken, async (req, res) => {
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_store') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
     const { user_id, order_id, store_id } = req.query;
     
     try {
@@ -154,6 +164,12 @@ orders.get('/orders',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 orders.put('/update-status',jwtMiddleware.verifyToken,async(req,res)=>{
+
+    const { userType } = req;
+    if (userType !== 'pet_store') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     const order_id = req.query.order_id;
     const status = req.body.status;
  try{

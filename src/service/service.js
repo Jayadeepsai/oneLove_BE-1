@@ -53,6 +53,11 @@ service.post('/service',jwtMiddleware.verifyToken, (req, res) => {
 
 service.get('/service',jwtMiddleware.verifyToken, async(req,res)=>{
 
+    const { userType } = req;
+    if (userType !== 'pet_owner') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     const sql = `
     SELECT  s.*,u.*,a.*,c.*, i.*
     FROM users u
@@ -100,6 +105,12 @@ service.get('/service',jwtMiddleware.verifyToken, async(req,res)=>{
 
 
 service.get('/service-user-id',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     const userId = req.query.user_id;
 
     if (!userId) {

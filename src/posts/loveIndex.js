@@ -11,6 +11,12 @@ loveIndx.use(express.urlencoded({ extended: true })); // To parse URL-encoded bo
 
 
 loveIndx.post('/like-post',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     const { user_id, user_name } = req.body;
     const { love_index_id } = req.query;
     try {
@@ -49,6 +55,12 @@ loveIndx.post('/like-post',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 loveIndx.post('/unlike-post',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+         if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+             return res.status(403).json({ message: messages.FORBID });
+         }
+
     const { user_id } = req.body;
     const { love_index_id } = req.query;
     try {
@@ -92,6 +104,12 @@ loveIndx.post('/unlike-post',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+         if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+             return res.status(403).json({ message: messages.FORBID });
+         }
+
     const { love_index_id } = req.query;
     const { comments } = req.body;
 

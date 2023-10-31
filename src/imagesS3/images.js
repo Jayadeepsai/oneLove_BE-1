@@ -64,6 +64,32 @@ AWS.config.update({
         Body: imageFile.data,
         ACL: 'public-read'
       };
+      const uploadResult = await s3.upload(params).promise();
+      res.status(200).json({
+        message: messages.FILE_UPLOADED,
+        imageUrl: uploadResult.Location
+      });
+    } catch (error) {
+      logger.error('Error uploading image:', error);
+      res.status(500).json({ message: messages.FAILED_UPLOADING });
+    }
+  });
+
+
+  images.post('/upload-registration', async (req, res) => {
+    try {
+      if (!req.files || !req.files.image) {
+        return res.status(400).json({ message: messages.NO_FILE_UPLOADED });
+      }
+  
+      const imageFile = req.files.image;
+  
+      const params = {
+        Bucket: 'onelovemysql', // Update with your S3 bucket name
+        Key: imageFile.name,
+        Body: imageFile.data,
+        ACL: 'public-read'
+      };
   
       const uploadResult = await s3.upload(params).promise();
 

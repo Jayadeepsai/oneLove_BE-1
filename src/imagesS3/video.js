@@ -23,6 +23,12 @@ videos.use(express.urlencoded({ extended: true }));
 
 // Handle video uploads
 videos.post('/upload-video',jwtMiddleware.verifyToken, (req, res) => {
+
+  const { userType } = req;
+  if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+      return res.status(403).json({ message: messages.FORBID });
+  }
+
   try {
     if (!req.files || !req.files.video) {
       return res.status(400).json({ message: messages.NO_FILE_UPLOADED });

@@ -57,6 +57,10 @@ async function performTransaction(req, res) {
 
 
 posts.post('/post-feed',jwtMiddleware.verifyToken,(req,res)=>{
+    const { userType } = req;
+         if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+             return res.status(403).json({ message: messages.FORBID });
+         }
     performTransaction(req, res)
     .then(() => {
         logger.info('Transaction completed successfully');
@@ -70,6 +74,11 @@ posts.post('/post-feed',jwtMiddleware.verifyToken,(req,res)=>{
 
 
 posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
+
+    const { userType } = req;
+         if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+             return res.status(403).json({ message: messages.FORBID });
+         }
 
     const sql = `SELECT p.*, u.*, p1.pet_id AS pet_id,
      p1.pet_name AS pet_name, p1.image_id AS pet_image_id,
@@ -106,6 +115,12 @@ posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
 
 
 posts.get('/posts-id',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     const postId = req.query.post_id; 
     
     if (!postId) {
@@ -153,6 +168,7 @@ posts.get('/posts-id',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
+    
     const userId = req.query.user_id; 
     
     if (!userId) {
@@ -202,6 +218,12 @@ posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     try {
         const { user_id, pet_id } = req.query;
 

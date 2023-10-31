@@ -161,7 +161,7 @@ message.get('/messages', async (req, res) => {
   };
   
   // Schedule the deletion job to run every 10 mins
-  cron.schedule('*/10 * * * *', deleteOldConversations); // This schedules the job to run at the beginning of every 10 mins
+  // cron.schedule('*/10 * * * *', deleteOldConversations); // This schedules the job to run at the beginning of every 10 mins
 
 
   // Create a route to get the mobile number based on user_id
