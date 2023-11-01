@@ -30,7 +30,10 @@ async function sendnotification(Name,mess,uniqId,endpoint) {
         notification.include_external_user_ids = uniqId;
         notification.contents = { 
             en: Name +
-            "  " +mess
+            "  " +mess,
+            data:{
+                deepLinkUrl:`roone://onelove/${endpoint}`
+            }
         };
         notification.custom_data ={
             deepLinkUrl:`roone://onelove/${endpoint}`
