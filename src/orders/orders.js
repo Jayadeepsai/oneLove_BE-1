@@ -7,20 +7,13 @@ const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
 const notification= require('../oneSignal/notifications');
 const logger = require('../../logger');
-// const app = require('../../app');
-// const cors = require('cors');
+const cors = require('cors');
 
-// const corsOptions = {
-//     origin: 'https://onelove-80825b023778.herokuapp.com/', // Replace with your allowed origin
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify the HTTP methods you want to allow
-//     allowedHeaders: ['Authorization', 'Content-Type'], // Specify the allowed request headers
-//   };
-  
-//   // Enable CORS with the specified options
-//   orders.use(cors(corsOptions));
 orders.use(express.json()); // To parse JSON bodies
 orders.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
-
+orders.use(cors({
+    origin:'https://onelove-80825b023778.herokuapp.com'
+}));
 
 orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
 

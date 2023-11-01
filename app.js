@@ -7,7 +7,9 @@ const fileUpload = require('express-fileupload');
 const actuator = require('express-actuator');
 const cors = require('cors')
 
-// app.use(cors());
+app.use(cors({
+    origin:'https://onelove-80825b023778.herokuapp.com'
+}));
 
 // // Or, enable CORS for specific routes or origins:
 // const allowedOrigins = ['https://onelove-80825b023778.herokuapp.com/']; // Add your frontend URLs
