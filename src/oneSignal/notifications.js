@@ -6,7 +6,7 @@ require('dotenv').config();
 const OneSignal = require('@onesignal/node-onesignal');
 const logger = require('../../logger');
 
-async function sendnotification(Name,mess,uniqId) {
+async function sendnotification(Name,mess,uniqId,endpoint) {
     try {
         const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
  
@@ -32,6 +32,9 @@ async function sendnotification(Name,mess,uniqId) {
             en: Name +
             "  " +mess
         };
+        notification.custom_data ={
+            deepLinkUrl:`roone://onelove/${endpoint}`
+        }
         
         const {id} = await client.createNotification(notification);
       

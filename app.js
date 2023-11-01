@@ -5,6 +5,24 @@ require('dotenv').config();
 const connection = require('./dbConnection');
 const fileUpload = require('express-fileupload');
 const actuator = require('express-actuator');
+const cors = require('cors')
+
+// app.use(cors());
+
+// // Or, enable CORS for specific routes or origins:
+// const allowedOrigins = ['https://onelove-80825b023778.herokuapp.com/']; // Add your frontend URLs
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       // Check if the origin is in the allowed list; reflect it if it is, or disallow it otherwise
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error('Not allowed by CORS'));
+//       }
+//     },
+//   })
+// );
 
 
 // const vaccine = require('./src/clinic/vaccine');
@@ -27,7 +45,7 @@ const message = require('./src/messages/message');
 // const notification = require('./src/oneSignal/notifications');
 
 
-
+app.use(actuator());
 app.use(fileUpload());
 // app.use('/onelove/vaccine',vaccine);
 app.use('/onelove/items',items);
