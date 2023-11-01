@@ -32,15 +32,19 @@ async function sendnotification(Name,mess,uniqId,endpoint) {
             en: Name +
             "  " +mess
         };
-        notification.custom_data ={
+        notification.url ={
             deepLinkUrl:`roone://onelove/${endpoint}`
         }
+        // notification.custom_data ={
+        //     deepLinkUrl:`roone://onelove/${endpoint}`
+        // }
         
         const {id} = await client.createNotification(notification);
       
         const response = await client.getNotification(ONESIGNAL_APP_ID, id);
         logger.info('notification response',id)
         logger.info('notification message',response )
+        // console.log('notificaiton message', response);
     }catch(err) {
         logger.error('notification func error', err)
     }
