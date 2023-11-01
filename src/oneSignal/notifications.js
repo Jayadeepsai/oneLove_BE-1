@@ -32,9 +32,9 @@ async function sendnotification(Name,mess,uniqId,endpoint) {
             en: Name +
             "  " +mess
         };
-        // notification.url ={
-        //     deepLinkUrl:`roone://onelove/${endpoint}`
-        // }
+        notification.url ={
+            deepLinkUrl:`roone://onelove/${endpoint}`
+        }
         // notification.custom_data ={
         //     deepLinkUrl:`roone://onelove/${endpoint}`
         // }
