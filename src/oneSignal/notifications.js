@@ -32,12 +32,9 @@ async function sendnotification(Name,mess,uniqId,endpoint) {
             en: Name +
             "  " +mess
         };
-        notification.url ={
+        notification.custom_data ={
             deepLinkUrl:`roone://onelove/${endpoint}`
         }
-        // notification.custom_data ={
-        //     deepLinkUrl:`roone://onelove/${endpoint}`
-        // }
         
         const {id} = await client.createNotification(notification);
       
