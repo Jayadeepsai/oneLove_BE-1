@@ -43,11 +43,11 @@ async function performTransaction(req, res) {
 
                 console.log(externalIds)
             if (externalIds.length > 0) {
-                const Name = "New stock!";
                 const mess = "Check out the latest products for your pet in the store!";
+                const Heading = "New stock!"
                 const endpoint = `ShopScreen/${store_id}`
                 for (const uniqId of externalIds) {
-                    await notification.sendnotification(Name, mess, uniqId, endpoint);
+                    await notification.sendnotification(mess, uniqId,Heading, endpoint);
                 }
             }
         }

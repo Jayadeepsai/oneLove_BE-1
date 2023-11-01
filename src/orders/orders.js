@@ -44,13 +44,13 @@ orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
         const external_id=sql1Result[0].external_id;
         console.log('external id',external_id)
 
-        const Name = "New Product orders";
         const mess = "New order for pet products! Process it now";
         const uniqId = external_id; 
-        const endpoint = `ShopScreen/${store_id}`
+        const Heading = "New Product orders"
+        const endpoint = `Orders`
 
         // Call the sendnotification function
-        await notification.sendnotification(Name, mess, uniqId,endpoint);
+        await notification.sendnotification(mess, uniqId,Heading,endpoint);
 
         res.status(200).json({
             data: result,

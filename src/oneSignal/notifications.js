@@ -6,7 +6,7 @@ require('dotenv').config();
 const OneSignal = require('@onesignal/node-onesignal');
 const logger = require('../../logger');
 
-async function sendnotification(Name,mess,uniqId,endpoint) {
+async function sendnotification(mess,uniqId,Heading,endpoint) {
     try {
         const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
  
@@ -29,22 +29,18 @@ async function sendnotification(Name,mess,uniqId,endpoint) {
         notification.app_id = ONESIGNAL_APP_ID;
         notification.include_external_user_ids = uniqId;
         notification.contents = { 
-            en: Name +
-            "  " +mess,
+            en: mess,
         };
         notification.headings={
-            en:"onelove"
+            en: Heading
         }
-        notification.custom_data ={
-            deepLinkUrl:`roone://onelove/${endpoint}`
-        }
+        notification.app_url = `roone://onelove/${endpoint}`
         
         const {id} = await client.createNotification(notification);
       
         const response = await client.getNotification(ONESIGNAL_APP_ID, id);
         logger.info('notification response',id)
         logger.info('notification message',response )
-        console.log('notificaiton message', response);
     }catch(err) {
         logger.error('notification func error', err)
     }

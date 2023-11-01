@@ -261,15 +261,6 @@ try{
         const uuId = sqlResult[0].external_id;
         logger.info('external id', uuId);
 
-        const Name = "";
-        const mess = "Logged out successfully. Visit again soon!";
-        const uniqId = [uuId];
-    
-        // Check if Name, mess, and uniqId all exist before calling the function
-        if (Name && mess && uniqId) {
-            await notification.sendnotification(Name, mess, uniqId);
-        }
-
         return res.status(200).json({
             message: messages.LOGOUT
         });
