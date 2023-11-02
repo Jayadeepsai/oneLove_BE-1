@@ -46,7 +46,7 @@ videos.post('/upload-video',jwtMiddleware.verifyToken, (req, res) => {
     s3.upload(params, (err, data) => {
       if (err) {
         logger.error('Error uploading video:', err);
-        return res.status(500).json({ message: messages.FAILED_UPLOADING });
+        return res.status(400).json({ message: messages.FAILED_UPLOADING });
       }
 
       res.status(200).json({
@@ -56,7 +56,7 @@ videos.post('/upload-video',jwtMiddleware.verifyToken, (req, res) => {
     });
   } catch (error) {
     logger.error('Error handling video upload:', error);
-    res.status(500).json({ message: messages.FAILED_UPLOADING });
+    res.status(400).json({ message: messages.FAILED_UPLOADING });
   }
 });
 

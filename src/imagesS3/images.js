@@ -45,7 +45,7 @@ AWS.config.update({
       });
     } catch (error) {
       logger.error('Error uploading image:', error);
-      res.status(500).json({ message: messages.FAILED_UPLOADING });
+      res.status(400).json({ message: messages.FAILED_UPLOADING });
     }
   });
 
@@ -71,7 +71,7 @@ AWS.config.update({
       });
     } catch (error) {
       logger.error('Error uploading image:', error);
-      res.status(500).json({ message: messages.FAILED_UPLOADING });
+      res.status(400).json({ message: messages.FAILED_UPLOADING });
     }
   });
 
@@ -100,7 +100,7 @@ AWS.config.update({
       });
     } catch (error) {
       logger.error('Error uploading image:', error);
-      res.status(500).json({ message: messages.FAILED_UPLOADING });
+      res.status(400).json({ message: messages.FAILED_UPLOADING });
     }
   });
 
@@ -130,7 +130,7 @@ AWS.config.update({
       })
       .catch((err) => {
         logger.error('Error uploading files to S3:', err);
-        res.status(500).json({ message: messages.FAILED_UPLOADING, error: err });
+        res.status(400).json({ message: messages.FAILED_UPLOADING, error: err });
       });
   });
 

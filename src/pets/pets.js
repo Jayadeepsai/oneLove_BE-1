@@ -20,12 +20,6 @@ pets.post('/pet-post',jwtMiddleware.verifyToken, async (req, res) => {
 
     try {
 
-         // Extract user_type from the decoded token
-         const { userType } = req;
-         if (userType !== 'pet_owner') {
-             return res.status(403).json({ message: messages.FORBID });
-         }
-
         const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, spay_neuter, image_type, image_url, user_id } = req.body;
 
         // Insert into images table
@@ -81,7 +75,7 @@ pets.get('/pets',jwtMiddleware.verifyToken, async (req, res) => {
         });
     } catch (err) {
         logger.error('Error fetching pets data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILURE_MESSAGE,
         });
     }
@@ -208,12 +202,12 @@ pets.put('/pet-update-image',jwtMiddleware.verifyToken, async (req, res) => {
         const [updateImageResult] = await db.query(updateImageSql, updateImageValues);
 
         if (updateImageResult.affectedRows === 0) {
-            return res.status(404).json({ message: messages.DATA_UPDATE_FALIED });
+            return res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
         }
         return res.status(200).json({ message: messages.DATA_UPDATED });
     } catch (err) {
         logger.error("Error updating image details:", err);
-        return res.status(500).json({ message: messages.DATA_UPDATE_FALIED, err });
+        return res.status(400).json({ message: messages.DATA_UPDATE_FALIED, err });
     }
 });
 
@@ -231,7 +225,7 @@ pets.get('/pets-images',jwtMiddleware.verifyToken, async (req, res) => {
         });
     } catch (err) {
         logger.error('Error fetching images:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILURE_MESSAGE,
         });
     }
@@ -289,7 +283,7 @@ pets.get('/pets-users',jwtMiddleware.verifyToken, async (req, res) => {
         });
     } catch (err) {
         logger.error('Error fetching:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILURE_MESSAGE,
         });
     }
@@ -315,7 +309,7 @@ pets.delete('/delete-pet',jwtMiddleware.verifyToken, async (req, res) => {
         }
     } catch (err) {
         logger.error('Error deleting pet:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILED_TO_DELETE,
         });
     }

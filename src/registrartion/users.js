@@ -34,14 +34,14 @@ try{
             message:messages.SUCCESS_MESSAGE,
         });
     } else {
-        return res.status(404).json({
+        return res.status(200).json({
             message: messages.NO_DATA,
         });
     }
 
 }catch(err){
     logger.error('Error fetching data:', err);
-    return res.status(500).json({
+    return res.status(400).json({
         message: messages.FAILURE_MESSAGE,
     });
 }
@@ -71,14 +71,14 @@ try{
             message:messages.SUCCESS_MESSAGE,
         });
     } else {
-        return res.status(404).json({
+        return res.status(200).json({
             message: messages.NO_DATA,
         });
     }
 
 }catch(err){
     logger.error('Error fetching data:', err);
-    return res.status(500).json({
+    return res.status(400).json({
         message: messages.FAILURE_MESSAGE,
     });
 }
@@ -106,14 +106,14 @@ try{
             message:messages.SUCCESS_MESSAGE,
         });
     } else {
-        return res.status(202).json({
+        return res.status(200).json({
             message: messages.NO_DATA,
         });
     }
 
 }catch(err){
     logger.error('Error fetching data:', err);
-    return res.status(500).json({
+    return res.status(400).json({
         message: messages.FAILURE_MESSAGE,
     });
 }

@@ -51,7 +51,7 @@ async function performTransaction(req, res) {
         await db.rollback();
         logger.error('Error in transaction:', err);
         // Send an error response to the client
-        res.status(500).json({ message: messages.POST_FAILED });
+        res.status(400).json({ message: messages.POST_FAILED });
     }
 }
 
@@ -105,7 +105,7 @@ posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
 
     }catch(err){
         logger.error('Error fetching data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILED,
         });
     }
@@ -153,14 +153,14 @@ posts.get('/posts-id',jwtMiddleware.verifyToken, async (req, res) => {
                 message: messages.SUCCESS_MESSAGE,
             });
         } else {
-            res.status(202).json({
-                message: messages.FAILED,
+            res.status(200).json({
+                message: messages.NO_DATA,
             });
         }
 
     } catch (err) {
         logger.error('Error fetching data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILURE_MESSAGE,
         });
     }
@@ -202,14 +202,14 @@ posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
                 message:messages.SUCCESS_MESSAGE,
             });
         } else {
-            res.status(202).json({
+            res.status(200).json({
                 message: messages.NO_DATA,
             });
         }
 
     } catch (err) {
         logger.error('Error fetching data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILURE_MESSAGE,
         });
     }
@@ -274,13 +274,13 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
                 message: messages.SUCCESS_MESSAGE,
             });
         } else {
-            res.status(202).json({
+            res.status(200).json({
                 message: messages.NO_DATA,
             });
         }
     } catch (err) {
         logger.error('Error fetching data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILURE_MESSAGE,
         });
     }
@@ -349,7 +349,7 @@ posts.delete('/delete-post',jwtMiddleware.verifyToken, async (req, res) => {
 
         // Check if the post was deleted successfully
         if (result.affectedRows === 0) {
-            res.status(404).json({
+            res.status(400).json({
                 message: messages.INVALID_ID,
             });
         } else {
@@ -359,7 +359,7 @@ posts.delete('/delete-post',jwtMiddleware.verifyToken, async (req, res) => {
         }
     } catch (err) {
         logger.error('Error deleting post:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILED_TO_DELETE,
         });
     }

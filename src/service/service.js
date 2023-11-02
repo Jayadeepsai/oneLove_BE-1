@@ -33,7 +33,7 @@ async function serviceQueries(req, res) { // Pass req and res as arguments
         await db.rollback();
         logger.error('Error in transaction:', error.message);
         // Send an error response to the client
-        res.status(500).json({ message: messages.POST_FAILED });
+        res.status(400).json({ message: messages.POST_FAILED });
     }
 
 }
@@ -90,14 +90,14 @@ service.get('/service',jwtMiddleware.verifyToken, async(req,res)=>{
                 message: messages.SUCCESS_MESSAGE,
             });
         } else {
-            res.status(202).json({
+            res.status(200).json({
                 message: messages.NO_DATA,
             });
         }
 
     }catch(err){
         logger.error('Error fetching data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILURE_MESSAGE,
         });
     }
@@ -151,13 +151,13 @@ service.get('/service-user-id',jwtMiddleware.verifyToken, async (req, res) => {
                 message: messages.SUCCESS_MESSAGE,
             });
         } else {
-            res.status(202).json({
+            res.status(200).json({
                 message: messages.NO_DATA,
             });
         }
     } catch (err) {
         logger.error('Error fetching data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILURE_MESSAGE,
         });
     }

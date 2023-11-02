@@ -111,7 +111,7 @@ ratings.get('/rating-review',jwtMiddleware.verifyToken,async(req,res)=>{
 
       }catch(err){
         logger.error('Error fetching data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILURE_MESSAGE,
         });
      }
@@ -146,7 +146,7 @@ ratings.get('/rating-review-user',jwtMiddleware.verifyToken,async(req,res)=>{
  
        }catch(err){
          logger.error('Error fetching  data:', err);
-         res.status(500).json({
+         res.status(400).json({
              message: messages.FAILURE_MESSAGE,
          });
       }

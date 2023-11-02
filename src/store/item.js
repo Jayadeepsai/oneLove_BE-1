@@ -53,13 +53,13 @@ async function performTransaction(req, res) {
         }
 
         // Send a success response to the client
-        res.status(201).json({ message: messages.POST_SUCCESS });
+        res.status(200).json({ message: messages.POST_SUCCESS });
 
     } catch (err) {
         await db.rollback();
         logger.error('Error in transaction:', err);
         // Send an error response to the client
-        res.status(500).json({ message: messages.POST_FAILED });
+        res.status(400).json({ message: messages.POST_FAILED });
     }
 }
 
@@ -99,7 +99,7 @@ items.get('/products',jwtMiddleware.verifyToken,async(req,res)=>{
         });
     }catch(err){
         logger.error('Error fetching pets data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message:messages.FAILURE_MESSAGE,
         });
     }
@@ -130,7 +130,7 @@ items.get('/products-id',jwtMiddleware.verifyToken,async(req,res)=>{
         });
     }catch(err){
         logger.error('Error fetching pets data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message:messages.FAILURE_MESSAGE,
         });
     }
@@ -176,14 +176,14 @@ items.get('/products-store-id',jwtMiddleware.verifyToken,async(req,res)=>{
                 message: messages.SUCCESS_MESSAGE,
             });
         } else {
-            res.status(404).json({
+            res.status(200).json({
                 message: messages.NO_DATA,
             });
         }
       
     }catch(err){
         logger.error('Error fetching pets data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message:messages.FAILURE_MESSAGE,
         });
     }
@@ -228,13 +228,13 @@ items.get('/product-store-item-id',jwtMiddleware.verifyToken, async (req, res) =
                 message: messages.SUCCESS_MESSAGE,
             });
         } else {
-            res.status(404).json({
+            res.status(200).json({
                 message: messages.NO_DATA,
             });
         }
     } catch (err) {
         logger.error('Error fetching data:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILURE_MESSAGE,
         });
     }
@@ -332,7 +332,7 @@ items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
         await db.rollback();
         logger.error('Error updating data:', err.message);
         // Send an error response to the client
-        res.status(500).json({ message: messages.DATA_UPDATE_FALIED });
+        res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
     }
 });
 
@@ -359,7 +359,7 @@ items.delete('/delete-items',jwtMiddleware.verifyToken, async (req, res) => {
 
         // Check if any items were deleted
         if (result.affectedRows === 0) {
-            res.status(202).json({
+            res.status(200).json({
                 message: messages.NO_DATA,
             });
         } else {
@@ -369,7 +369,7 @@ items.delete('/delete-items',jwtMiddleware.verifyToken, async (req, res) => {
         }
     } catch (err) {
         logger.error('Error deleting items:', err);
-        res.status(500).json({
+        res.status(400).json({
             message: messages.FAILED_TO_DELETE,
         });
     }
@@ -432,13 +432,13 @@ items.get('/stores',jwtMiddleware.verifyToken, async (req, res) => {
           message: messages.SUCCESS_MESSAGE,
         });
       } else {
-        res.status(404).json({
+        res.status(200).json({
           message: messages.NO_DATA,
         });
       }
     } catch (err) {
       logger.error('Error fetching data:', err);
-      res.status(500).json({
+      res.status(400).json({
         message: messages.FAILURE_MESSAGE,
       });
     }

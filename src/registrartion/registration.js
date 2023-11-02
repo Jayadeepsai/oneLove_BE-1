@@ -169,7 +169,7 @@ async function performTransaction(req, res) {
         await connection.rollback();
         logger.error('Error in transaction:', error);
         // Send an error response to the client
-       return res.status(500).json({ message: messages.POST_FAILED });
+       return res.status(400).json({ message: messages.POST_FAILED });
     }
 }
 
@@ -203,7 +203,7 @@ registration.get('/registration',jwtMiddleware.verifyToken, async (req, res) => 
 
     } catch (error) {
         logger.error('Error fetching registers data:', error.message);
-        return res.status(500).json({
+        return res.status(400).json({
             message: messages.FAILURE_MESSAGE
         });
     }
@@ -227,7 +227,7 @@ try{
     const [data] = await connection.query(sql,[reg_id]);
 
     if (data.length === 0) {
-        return res.status(202).json({ message: messages.NO_DATA });
+        return res.status(200).json({ message: messages.NO_DATA });
     }
 
     return res.status(200).json({
@@ -237,19 +237,19 @@ try{
 
 }catch(error){
     logger.error("Error", error);
-    return res.status(500).json({ message:messages.FAILURE_MESSAGE});
+    return res.status(400).json({ message:messages.FAILURE_MESSAGE});
 }
 
 });
 
 
   
-  registration.post('/refresh-token', (req, res) => {
-    const refreshTokenValue = req.body.refreshToken;
+//   registration.post('/refresh-token', (req, res) => {
+//     const refreshTokenValue = req.body.refreshToken;
   
-    // Verify the refresh token
-    jwtMiddleware.refreshToken(req, res);
-  });
+//     // Verify the refresh token
+//     jwtMiddleware.refreshToken(req, res);
+//   });
 
 
   registration.post('/logout', async (req, res) => {
@@ -261,12 +261,21 @@ try{
         const uuId = sqlResult[0].external_id;
         logger.info('external id', uuId);
 
+        const Name = "";
+        const mess = "Logged out successfully. Visit again soon!";
+        const uniqId = [uuId];
+    
+        // Check if Name, mess, and uniqId all exist before calling the function
+        if (Name && mess && uniqId) {
+            await notification.sendnotification(Name, mess, uniqId);
+        }
+
         return res.status(200).json({
             message: messages.LOGOUT
         });
     } catch (err) {
         logger.error("Error", err);
-        return res.status(500).json({ message: messages.LOGOUT_FAILED });
+        return res.status(400).json({ message: messages.LOGOUT_FAILED });
     }
 });
 
@@ -281,7 +290,7 @@ registration.post('/refresh-token', (req, res) => {
             return res.status(403).json({ message: messages.FORBID});
         }
         // Send the new access token to the client
-        res.json({ accessToken: newAccessToken });
+        res.status(200).json({ accessToken: newAccessToken });
     });
 });
 
@@ -308,7 +317,7 @@ registration.post('/registration-mobile-number', async (req, res) => {
         const [userData] = await connection.query(selectUserSql, [mobile_number]);
 
         if (userData.length === 0) {
-            return res.status(404).json({ message: messages.NO_DATA });
+            return res.status(200).json({ message: messages.NO_DATA });
         }
 
         // Update the external_id (or set it for the first time)
@@ -366,7 +375,7 @@ registration.post('/registration-mobile-number', async (req, res) => {
         });
     } catch (error) {
         logger.error("Error", error);
-        return res.status(500).json({ message: messages.FAILURE_MESSAGE });
+        return res.status(400).json({ message: messages.FAILURE_MESSAGE });
     }
 });
 

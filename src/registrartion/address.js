@@ -48,7 +48,7 @@ address.get('/address',jwtMiddleware.verifyToken, async (req, res) => {
         });
     } catch (error) {
         logger.error('Error fetching address data:', error.message);
-       return res.status(500).json({
+       return res.status(400).json({
             message: messages.FAILURE_MESSAGE
         });
     }
@@ -69,7 +69,7 @@ address.get('/address-id',jwtMiddleware.verifyToken, async (req, res) => {
         const [data] = await connection.query(sql, [address_id]);
 
         if (data.length === 0) {
-            return res.status(202).json({ message: messages.FAILURE_MESSAGE });
+            return res.status(200).json({ message: messages.NO_DATA });
         }
 
        return res.status(200).json({
@@ -78,7 +78,7 @@ address.get('/address-id',jwtMiddleware.verifyToken, async (req, res) => {
         });
     } catch (err) {
         logger.log("Error", err);
-        return res.status(500).json({ message: messages.FAILURE_MESSAGE });
+        return res.status(400).json({ message: messages.FAILURE_MESSAGE });
     }
 });
 

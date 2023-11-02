@@ -24,7 +24,7 @@ loveIndx.post('/like-post',jwtMiddleware.verifyToken, async (req, res) => {
         const existingLikesSql = 'SELECT likes FROM onelove.love_index WHERE love_index_id = ?';
         const [existingLikesResult] = await db.query(existingLikesSql, [love_index_id]);
         if (existingLikesResult.length === 0) {
-            return res.status(404).json({ message:messages.NO_DATA });
+            return res.status(200).json({ message:messages.NO_DATA });
         }
         // Extract the likes data from the query result or initialize it as an empty array if it's null
         const existingLikes = existingLikesResult[0].likes || [];
@@ -47,7 +47,7 @@ loveIndx.post('/like-post',jwtMiddleware.verifyToken, async (req, res) => {
         res.status(200).json({ message: messages.LIKE_SUCCESSFUL, like_count: likeCount });
     } catch (err) {
         logger.error('Error while liking post:', err);
-        res.status(500).json({ message: messages.LIKE_FAILED });
+        res.status(400).json({ message: messages.LIKE_FAILED });
     }
 });
 
@@ -69,7 +69,7 @@ loveIndx.post('/unlike-post',jwtMiddleware.verifyToken, async (req, res) => {
         const [existingLikesResult] = await db.query(existingLikesSql, [love_index_id]);
 
         if (existingLikesResult.length === 0) {
-            return res.status(404).json({ message:messages.NO_DATA });
+            return res.status(200).json({ message:messages.NO_DATA });
         }
 
         let existingLikes = [];
@@ -78,7 +78,7 @@ loveIndx.post('/unlike-post',jwtMiddleware.verifyToken, async (req, res) => {
         } else {
             // If the likes data is not an array, log an error or handle it accordingly
             logger.error('Invalid likes data:', existingLikesResult[0].likes);
-            return res.status(500).json({ message:messages.UNLIKE_FAILED });
+            return res.status(400).json({ message:messages.UNLIKE_FAILED });
         }
         // Check if the user has liked the post
         const userLikedIndex = existingLikes.findIndex(like => like.user_id === user_id);
@@ -97,7 +97,7 @@ loveIndx.post('/unlike-post',jwtMiddleware.verifyToken, async (req, res) => {
         res.status(200).json({ message: messages.UNLIKE_SUCCESSFUL, like_count: likeCount });
     } catch (err) {
         logger.error('Error while unliking post:', err);
-        res.status(500).json({ message: messages.UNLIKE_FAILED });
+        res.status(400).json({ message: messages.UNLIKE_FAILED });
     }
 });
 
@@ -189,7 +189,7 @@ loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) =>
             } else {
                 // If the comments data is not an array, log an error or handle it accordingly
                 logger.error('Invalid comments data:', existingCommentsResult[0].comments);
-                return res.status(500).json({ message: messages.FAILED_TO_DELETE });
+                return res.status(400).json({ message: messages.FAILED_TO_DELETE });
             }
         }
 
@@ -197,7 +197,7 @@ loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) =>
         const commentIndex = existingComments.findIndex(comment => comment.user_id === user_id);
 
         if (commentIndex === -1) {
-            return res.status(404).json({ message:messages.NO_DATA});
+            return res.status(200).json({ message:messages.NO_DATA});
         }
 
         // Remove the comment from the existing comments array
@@ -212,7 +212,7 @@ loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) =>
         res.status(200).json({ message:messages.DATA_DELETED });
     } catch (err) {
         logger.error('Error while deleting comment:', err);
-        res.status(500).json({ message: messages.FAILED_TO_DELETE });
+        res.status(400).json({ message: messages.FAILED_TO_DELETE });
     }
 });
 
@@ -226,7 +226,7 @@ loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) =>
             const postData = JSON.parse(JSON.stringify(results));
     
             if (!postData) {
-                return res.status(404).json({
+                return res.status(400).json({
                     message: messages.FAILED,
                 });
             }
@@ -250,7 +250,7 @@ loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) =>
             });
         } catch (err) {
             logger.error('Error fetching data:', err);
-            res.status(500).json({
+            res.status(400).json({
                 message: messages.FAILURE_MESSAGE,
             });
         }
