@@ -35,7 +35,7 @@ async function sendnotification(mess,uniqId,Heading,endpoint) {
             en: Heading
         }
         notification.app_url = `roone://onelove/${endpoint}`
-        
+
         const {id} = await client.createNotification(notification);
       
         const response = await client.getNotification(ONESIGNAL_APP_ID, id);
