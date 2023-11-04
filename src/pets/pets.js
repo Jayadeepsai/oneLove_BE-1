@@ -48,7 +48,6 @@ pets.post('/pet-post',jwtMiddleware.verifyToken, async (req, res) => {
 });
 
 
-
 pets.get('/pets',jwtMiddleware.verifyToken, async (req, res) => { 
 
     const { userType } = req;
