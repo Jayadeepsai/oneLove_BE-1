@@ -68,14 +68,15 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
         const [sql1Result] = await db.query(sql1)
         const external_id=sql1Result[0].external_id;
         logger.info('external id',external_id)
- 
+
+    
         const mess = "Recieved a feedback for your service, Please visit and check";
         const uniqId = external_id; 
         const Heading = "Feedback!"
         const endpoint = "trainerreviews"
 
         // Call the sendnotification function
-        await notification.sendnotification(Name, mess, uniqId,Heading,endpoint);
+        await notification.sendnotification( mess, uniqId,Heading,endpoint);
 
         res.status(200).json({
             message: messages.POST_SUCCESS
