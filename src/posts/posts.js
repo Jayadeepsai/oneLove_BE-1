@@ -6,6 +6,7 @@ const messages = require('../messages/constants');
 const db = require('../../dbConnection')
 const jwtMiddleware = require('../../jwtMiddleware');
 const logger = require('../../logger');
+const he = require('he');
 
 posts.use(express.json()); // To parse JSON bodies
 posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
@@ -34,11 +35,12 @@ async function performTransaction(req, res) {
             const [videoResult] = await db.query(videoSql, videoValues);
              video_id = videoResult.insertId;
         }   
-    
+     // Encode the post_description to handle emojis
+     const encodedDescription = he.encode(req.body.post_description);
         // Insert posts data
-        const { post_type, post_description, user_id, pet_id } = req.body;
+        const { post_type, user_id, pet_id } = req.body;
         const postSql = 'INSERT INTO onelove.posts (post_type, post_description, video_id, love_index_id, image_id, user_id, pet_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        const postValues = [post_type, post_description, video_id, love_index_id, image_id, user_id, pet_id];
+        const postValues = [post_type, encodedDescription, video_id, love_index_id, image_id, user_id, pet_id];
         const [postResult] = await db.query(postSql, postValues);
         const post_id = postResult.insertId;
 
@@ -98,6 +100,11 @@ posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
     try{
          const [results]= await db.query(sql);
          const postsData = JSON.parse(JSON.stringify(results));
+
+         postsData.forEach(post => {
+            post.post_description = he.decode(post.post_description);
+        });
+
          res.status(200).json({
             postsData,
             message: messages.ALL_POSTS_DATA,
@@ -147,6 +154,10 @@ posts.get('/posts-id',jwtMiddleware.verifyToken, async (req, res) => {
         const [results] = await db.query(sql, [postId]);
         const postData = JSON.parse(JSON.stringify(results));
 
+        if (postData.length > 0) {
+            postData[0].post_description = he.decode(postData[0].post_description);
+        }
+
         if (postData) {
             res.status(200).json({
                 postData,
@@ -195,6 +206,10 @@ posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const [results] = await db.query(sql, [userId]);
         const postsData = JSON.parse(JSON.stringify(results));
+
+        postsData.forEach(post => {
+            post.post_description = he.decode(post.post_description);
+        });
 
         if (postsData.length > 0) {
             res.status(200).json({
@@ -267,6 +282,10 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
 
         const [results] = await db.query(sql, values);
         const postData = JSON.parse(JSON.stringify(results));
+
+        postData.forEach(post => {
+            post.post_description = he.decode(post.post_description);
+        });
 
         if (postData.length > 0) {
             res.status(200).json({
