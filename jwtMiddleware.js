@@ -53,7 +53,7 @@ const secretKey = process.env.SECRET_KEY_JWT;
 
 
 function generateRefreshToken(userId, userType) {
-    return jwt.sign({ userId, userType }, secretKey, { expiresIn: '7d' }); // Use the same secret key
+    return jwt.sign({ userId, userType }, secretKey, { expiresIn: '20m' }); // Use the same secret key
   }
 
 
