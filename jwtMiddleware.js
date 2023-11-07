@@ -4,6 +4,7 @@ const messages = require('./src/messages/constants');
 
 require('dotenv').config();
 
+
 const secretKey = process.env.SECRET_KEY_JWT;
 
   // function generateToken(userId) {
@@ -11,10 +12,18 @@ const secretKey = process.env.SECRET_KEY_JWT;
   // }
 
   function generateToken(userId, userType) {
-    return jwt.sign({ userId, userType }, secretKey, { expiresIn: '24h' });
+    return jwt.sign({ userId, userType }, secretKey, { expiresIn: '10m' });
   }
 
+  const tokenBlacklist = new Set();
 
+  function addToBlacklist(token) {
+      tokenBlacklist.add(token);
+  }
+  
+  function isBlacklisted(token) {
+      return tokenBlacklist.has(token);
+  }
 
   function verifyToken(req, res, next) {
     const tokenHeader = req.headers.authorization;
@@ -23,6 +32,11 @@ const secretKey = process.env.SECRET_KEY_JWT;
     }
     // Extract the token part
     const token = tokenHeader.split(' ')[1];
+
+    if (tokenBlacklist.has(token)) {
+      return res.status(401).json({ message: 'Token is blacklisted' });
+  }
+
     jwt.verify(token, secretKey, (err, decoded) => {
       logger.info("Decoded:", decoded);
   
@@ -63,6 +77,7 @@ function refreshToken(req, res) {
 }
 
 
-  module.exports = { generateToken, verifyToken, refreshToken, generateRefreshToken };
+  module.exports = { generateToken, verifyToken, refreshToken, generateRefreshToken, addToBlacklist, isBlacklisted};
+   
 
 
