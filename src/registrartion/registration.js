@@ -361,6 +361,7 @@ registration.post('/registration-mobile-number', async (req, res) => {
         const token = jwtMiddleware.generateToken(userId, userType);
         const refreshToken = jwtMiddleware.generateRefreshToken(userId, userType);
 
+        
         // Update the external_id in the database
         const updateExternalIdSql = 'UPDATE onelove.users SET external_id = ? WHERE user_id = ?';
         await connection.query(updateExternalIdSql, [serializedExternalId, userId]);
