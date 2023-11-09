@@ -50,6 +50,31 @@ AWS.config.update({
   });
 
 
+  images.delete('/delete', jwtMiddleware.verifyToken, async (req, res) => {
+    try {
+      const imageUrl = req.body.imageUrl; // You need to provide the URL of the image to delete
+  
+      // Extract the image key from the URL (assuming it's the last part of the path)
+      // const imageKey = imageUrl.split('/').pop();
+      const imageKey = decodeURIComponent(imageUrl.split('/').pop());
+      const params = {
+        Bucket: 'onelovemysql', // Update with your S3 bucket name
+        Key: imageKey,
+      };
+  
+      await s3.deleteObject(params).promise();
+  
+      res.status(200).json({
+        message: messages.FILE_DELETED,
+      });
+    } catch (error) {
+      logger.error('Error deleting image:', error);
+      res.status(400).json({ message: messages.FAILED_DELETING });
+    }
+  });
+
+
+
   images.post('/upload-registration', async (req, res) => {
     try {
       if (!req.files || !req.files.image) {
