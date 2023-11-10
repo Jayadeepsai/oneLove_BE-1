@@ -243,7 +243,6 @@ pets.get('/pets-users',jwtMiddleware.verifyToken, async (req, res) => {
             message: messages.INVALID_ID,
         });
     }
-
     const sql = `
     SELECT
         p.*,
