@@ -385,29 +385,36 @@ items.get('/stores',jwtMiddleware.verifyToken, async (req, res) => {
     }
     
     const sql = `
-      SELECT
-        s.*,
-        u.*,
-        a.*,
-        c.*,
-        i.*,
-        COUNT(i2.item_id) AS item_count
-      FROM
-        users u
-      LEFT JOIN
-        address a ON u.address_id = a.address_id
-      LEFT JOIN
-        contact_details c ON u.contact_id = c.contact_id
-      LEFT JOIN
-        store s ON u.store_id = s.store_id
-      LEFT JOIN
-        images i ON u.image_id = i.image_id
-      LEFT JOIN
-        items i2 ON u.store_id = i2.store_id
-      WHERE
-        u.user_type = 'pet_store'
-      GROUP BY
-        u.store_id`;
+    SELECT
+    u.store_id,
+    s.store_name, s.address_id, s.contact_id, s.food_treats, s.accessories, s.toys, s.health_care, s.dog_service, s.breader_adoption_sale,
+    a.address, a.city, a.state, a.zip, a.country, a.landmark, a.address_type, a.lat_cords, a.lan_cords,
+    c.mobile_number, c.email,
+    i.image_type, i.image_url,
+    COUNT(i2.item_id) AS item_count
+  FROM
+    users u
+  LEFT JOIN
+    address a ON u.address_id = a.address_id
+  LEFT JOIN
+    contact_details c ON u.contact_id = c.contact_id
+  LEFT JOIN
+    store s ON u.store_id = s.store_id
+  LEFT JOIN
+    images i ON u.image_id = i.image_id
+  LEFT JOIN
+    items i2 ON u.store_id = i2.store_id
+  WHERE
+    u.user_type = 'pet_store'
+  GROUP BY
+    u.store_id,
+    s.store_name, s.address_id, s.contact_id, s.food_treats, s.accessories, s.toys, s.health_care, s.dog_service, s.breader_adoption_sale,
+    a.address, a.city, a.state, a.zip, a.country, a.landmark, a.address_type, a.lat_cords, a.lan_cords,
+    c.mobile_number, c.email,
+    i.image_type, i.image_url;
+  
+
+  `;
   
     try {
       const [results] = await db.query(sql);
@@ -444,5 +451,6 @@ items.get('/stores',jwtMiddleware.verifyToken, async (req, res) => {
     }
   });
   
+
 
 module.exports = items;
