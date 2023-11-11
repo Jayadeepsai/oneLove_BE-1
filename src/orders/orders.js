@@ -170,7 +170,7 @@ orders.get('/orders',jwtMiddleware.verifyToken, async (req, res) => {
 orders.put('/update-status',jwtMiddleware.verifyToken,async(req,res)=>{
 
     const { userType } = req;
-    if (userType !== 'pet_store') {
+    if (userType !== 'pet_store' && userType !== 'pet_owner') {
         return res.status(403).json({ message: messages.FORBID });
     }
 
