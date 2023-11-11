@@ -186,6 +186,7 @@ orders.put('/update-status',jwtMiddleware.verifyToken,async(req,res)=>{
     result
     });
  }catch(err){
+    
       logger.error('Error updating data:', err.message);
       return res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
  }
