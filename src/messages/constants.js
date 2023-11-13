@@ -23,7 +23,8 @@ module.exports = {
     UNLIKE_SUCCESSFUL:"Post unliked successfully",
     NOT_LIKED_YET:"User has not liked the post",
     LOGOUT:"Loggedout successfully",
-    LOGOUT_FAILED:"Failed to logout"
+    LOGOUT_FAILED:"Failed to logout",
+    FILE_DELETED:"File deleted successfully"
     
  
   };

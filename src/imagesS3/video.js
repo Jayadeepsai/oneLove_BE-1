@@ -37,7 +37,7 @@ videos.post('/upload-video',jwtMiddleware.verifyToken, (req, res) => {
     const videoFile = req.files.video;
 
     const params = {
-      Bucket: 'onelovemysql', // Update with your S3 bucket name
+      Bucket: 'onelovebucket', // Update with your S3 bucket name
       Key: videoFile.name,
       Body: videoFile.data,
       ACL: 'public-read'

@@ -30,7 +30,7 @@ AWS.config.update({
       const imageFile = req.files.image;
   
       const params = {
-        Bucket: 'onelovemysql', // Update with your S3 bucket name
+        Bucket: 'onelovebucket', // Update with your S3 bucket name
         Key: imageFile.name,
         Body: imageFile.data,
         ACL: 'public-read'
@@ -54,11 +54,9 @@ AWS.config.update({
     try {
       const imageUrl = req.body.imageUrl; // You need to provide the URL of the image to delete
   
-      // Extract the image key from the URL (assuming it's the last part of the path)
-      // const imageKey = imageUrl.split('/').pop();
       const imageKey = decodeURIComponent(imageUrl.split('/').pop());
       const params = {
-        Bucket: 'onelovemysql', // Update with your S3 bucket name
+        Bucket: 'onelovebucket', // Update with your S3 bucket name
         Key: imageKey,
       };
   
@@ -84,7 +82,7 @@ AWS.config.update({
       const imageFile = req.files.image;
   
       const params = {
-        Bucket: 'onelovemysql', // Update with your S3 bucket name
+        Bucket: 'onelovebucket', // Update with your S3 bucket name
         Key: imageFile.name,
         Body: imageFile.data,
         ACL: 'public-read'
@@ -110,7 +108,7 @@ AWS.config.update({
       const imageFile = req.files.image;
   
       const params = {
-        Bucket: 'onelovemysql', // Update with your S3 bucket name
+        Bucket: 'onelovebucket', // Update with your S3 bucket name
         Key: imageFile.name,
         Body: imageFile.data,
         ACL: 'public-read'
@@ -140,7 +138,7 @@ AWS.config.update({
     // Iterate through the uploaded files and upload them to S3
     const uploadPromises = uploadedFiles.map((file) => {
       const params = {
-        Bucket: 'onelovemysql',
+        Bucket: 'onelovebucket',
         Key: file.name,
         Body: file.data,
         ACL: 'public-read'
