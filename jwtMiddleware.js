@@ -125,7 +125,7 @@ function verifyToken(req, res, next) {
 
 
 function generateRefreshToken(userId, userType) {
-    return jwt.sign({ userId, userType }, secretKey, { expiresIn: '2d' }); // Use the same secret key
+    return jwt.sign({ userId, userType }, secretKey, { expiresIn: '7d' }); // Use the same secret key
   }
 
 

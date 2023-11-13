@@ -32,7 +32,7 @@
 
     // module.exports = connection.promise();
 
-    const mysql = require('mysql2');
+const mysql = require('mysql2');
 require('dotenv').config();
 
 let connection;
