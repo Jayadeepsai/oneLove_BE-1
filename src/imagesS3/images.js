@@ -50,15 +50,16 @@ AWS.config.update({
   });
 
 
+
   images.delete('/delete', jwtMiddleware.verifyToken, async (req, res) => {
     try {
-      const imageUrl = req.body.imageUrl; 
-  console.log('imageUrl:',imageUrl)
-  console.log("111",req.body)
-      const imageKey = decodeURIComponent(imageUrl.split('/').pop());
+      const imageUrl = req.query.imageUrl; 
+  
+      // const imageKey = decodeURIComponent(imageUrl.split('/').pop());
+      console.log(imageKey)
       const params = {
         Bucket: 'onelovebucket', 
-        Key: imageKey,
+        Key: imageUrl,
       };
   
       await s3.deleteObject(params).promise();
@@ -71,8 +72,6 @@ AWS.config.update({
       res.status(400).json({ message: messages.FAILED_DELETING });
     }
   });
-
-
 
   images.post('/upload-registration', async (req, res) => {
     try {
