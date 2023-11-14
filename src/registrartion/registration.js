@@ -266,7 +266,6 @@ try{
             const token = tokenHeader.split(' ')[1];
             jwtMiddleware.addToBlacklist(token); // Add to the shared blacklist
         }
-
         return res.status(200).json({
             message: messages.LOGOUT
         });
