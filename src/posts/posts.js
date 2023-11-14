@@ -82,13 +82,14 @@ posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
              return res.status(403).json({ message: messages.FORBID });
          }
 
-    const sql = `SELECT p.*, u.*, p1.pet_id AS pet_id,
+    const sql = `SELECT p.*, c.*, u.*, p1.pet_id AS pet_id,
      p1.pet_name AS pet_name, p1.image_id AS pet_image_id,
      i2.image_url AS pet_image_url, i1.image_id AS post_image_id,
      i3.image_id AS user_image_id, i3.image_url AS user_image_url,
      i1.image_url AS post_image_url,l.*,v.video_id AS post_video_id, v.video_url AS post_video_url
      FROM onelove.posts p
      LEFT JOIN users u ON p.user_id = u.user_id
+     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
      LEFT JOIN pet p1 ON p.pet_id = p1.pet_id
      LEFT JOIN images i1 ON p.image_id = i1.image_id
      LEFT JOIN images i2 ON p1.image_id = i2.image_id
