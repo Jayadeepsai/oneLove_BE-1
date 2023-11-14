@@ -56,7 +56,7 @@ AWS.config.update({
       const imageUrl = req.query.imageUrl; 
   
       // const imageKey = decodeURIComponent(imageUrl.split('/').pop());
-      console.log(imageKey)
+      // console.log(imageKey)
       const params = {
         Bucket: 'onelovebucket', 
         Key: imageUrl,
