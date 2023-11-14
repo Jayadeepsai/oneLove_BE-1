@@ -53,7 +53,7 @@ AWS.config.update({
   images.delete('/delete', jwtMiddleware.verifyToken, async (req, res) => {
     try {
       const imageUrl = req.body.imageUrl; // You need to provide the URL of the image to delete
-  
+  console.log('imageUrl:',imageUrl)
       const imageKey = decodeURIComponent(imageUrl.split('/').pop());
       const params = {
         Bucket: 'onelovebucket', // Update with your S3 bucket name
