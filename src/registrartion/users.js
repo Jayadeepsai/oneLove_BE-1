@@ -14,16 +14,57 @@ users.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodie
 
 users.get('/users-id',jwtMiddleware.verifyToken,async(req,res)=>{
     const user_id=req.query.user_id;
-    const sql=`
-    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*, i.*
-    FROM users u
-    LEFT JOIN address a ON u.address_id = a.address_id
-    LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
-    LEFT JOIN service s ON u.service_id = s.service_id
-    LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
-    LEFT JOIN store s1 ON u.store_id = s1.store_id
-    LEFT JOIN images i ON u.image_id = i.image_id
-    WHERE u.user_id = ?`;
+    // const sql=`
+    // SELECT u.*, a.*, c.*,s.*,c1.*,s1.*, i.*
+    // FROM users u
+    // LEFT JOIN address a ON u.address_id = a.address_id
+    // LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
+    // LEFT JOIN service s ON u.service_id = s.service_id
+    // LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
+    // LEFT JOIN store s1 ON u.store_id = s1.store_id
+    // LEFT JOIN images i ON u.image_id = i.image_id
+    // WHERE u.user_id = ?`;
+    const sql=` SELECT
+    u.user_id,
+    u.user_type,
+    u.address_id,
+    u.contact_id,
+    u.user_name,
+    u.store_id,
+    u.service_id,
+    u.clinic_id,
+    u.image_id,
+    u.external_id,
+    a.address,
+    a.city,
+    a.state,
+    a.zip,
+    a.country,
+    a.landmark,
+    a.address_type,
+    a.lat_cords,
+    a.lan_cords,
+    c.mobile_number,
+    c.email,
+    s.store_name,
+    c1.clinic_name,
+    i.image_type,
+    i.image_url,
+    s.food_treats,
+    s.accessories,
+    s.toys,
+    s.health_care,
+    s.dog_service,
+    s.breader_adoption_sale
+FROM
+    onelove.users u
+    LEFT JOIN onelove.address a ON u.address_id = a.address_id
+    LEFT JOIN onelove.contact_details c ON u.contact_id = c.contact_id
+    LEFT JOIN onelove.store s ON u.store_id = s.store_id
+    LEFT JOIN onelove.clinics c1 ON u.clinic_id = c1.clinic_id
+    LEFT JOIN onelove.images i ON u.image_id = i.image_id
+WHERE
+    u.user_id=?;`
 try{
     const [results] = await db.query(sql, [user_id]);
     const userData = JSON.parse(JSON.stringify(results));
