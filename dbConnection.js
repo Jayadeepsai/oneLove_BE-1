@@ -67,7 +67,7 @@
           handleDisconnect();
         } else {
           console.error('Unexpected error. Throwing it for now:', err);
-          // Consider handling other types of errors according to your application's requirements.
+          
         }
       });
     }
