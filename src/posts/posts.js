@@ -127,8 +127,8 @@ posts.get('/posts', jwtMiddleware.verifyToken, async (req, res) => {
     }
 
     // Pagination parameters
-    const page = req.query.page || 1; // default to page 1
-    const perPage = req.query.perPage || 5; // default to 10 items per page
+    const page = req.query.page // default to page 1
+    const perPage = req.query.perPage// default to 10 items per page
 
     // Calculate the offset based on page and perPage
     const offset = (page - 1) * perPage;
