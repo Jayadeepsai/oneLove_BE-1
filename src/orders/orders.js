@@ -175,11 +175,27 @@ orders.put('/update-status',jwtMiddleware.verifyToken,async(req,res)=>{
     }
 
     const order_id = req.query.order_id;
+    const store_id = req.body.store_id
     const status = req.body.status;
  try{
        const sql = `UPDATE onelove.orders SET status = ? WHERE order_id = ?`;
        const values = [status, order_id];
-       const [result] = await db.query(sql,values)
+       const [result] = await db.query(sql,values);
+
+if(status === "Cancelled"){
+       const sql1 = `SELECT external_id FROM onelove.users WHERE store_id = ${store_id}`
+        const [sql1Result] = await db.query(sql1)
+        const external_id=sql1Result[0].external_id;
+        console.log('external id',external_id)
+
+        const mess = "Someone has cancelled their order!!Check it now";
+        const uniqId = external_id; 
+        const Heading = "Order Cancellation"
+        const endpoint = `Orders`
+
+        // Call the sendnotification function
+        await notification.sendnotification(mess, uniqId,Heading,endpoint);
+}
 
     return res.status(200).json({
     message: messages.DATA_UPDATED,
