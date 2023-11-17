@@ -11,7 +11,6 @@ const he = require('he');
 posts.use(express.json()); // To parse JSON bodies
 posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
   
-
 async function performTransaction(req, res) {
     try {
         await db.beginTransaction();
