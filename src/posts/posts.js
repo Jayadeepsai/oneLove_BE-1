@@ -127,7 +127,7 @@ posts.get('/posts', jwtMiddleware.verifyToken, async (req, res) => {
     }
 
     // Pagination parameters
-    const page = req.query.page // default to page 1
+    const page = req.query.page // default to page 
     const perPage = req.query.perPage// default to 10 items per page
 
     // Calculate the offset based on page and perPage
@@ -176,9 +176,6 @@ posts.get('/posts', jwtMiddleware.verifyToken, async (req, res) => {
         });
     }
 });
-
-
-
 
 
 posts.get('/posts-id',jwtMiddleware.verifyToken, async (req, res) => {
