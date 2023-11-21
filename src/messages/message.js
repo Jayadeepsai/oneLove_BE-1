@@ -44,9 +44,9 @@ io.on('connection', (socket) => {
     console.log('data', data)
     try {
       // Get data from the request body
-      const { sender_id, receiver_id, message } = data;
+      const { sender_id, receiver_id, message, currentTime} = data;
       // Get the current date and time
-      const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
+      // const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
      
 
       const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time) VALUES (?, ?, ?, ?)';
