@@ -47,12 +47,13 @@ io.on('connection', (socket) => {
       const { sender_id, receiver_id, message } = data;
       // Get the current date and time
       const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
-      logger.info("Time:",currentTime);
+     
 
       const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time) VALUES (?, ?, ?, ?)';
 
       // Insert the message into the database
       await db.query(sql, [sender_id, receiver_id, message, currentTime]);
+      logger.info("Time:",currentTime);
 
       // io.emit('receive_message', {
       //   sender_id,
