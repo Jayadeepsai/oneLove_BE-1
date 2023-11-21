@@ -53,7 +53,6 @@ io.on('connection', (socket) => {
 
       // Insert the message into the database
       await db.query(sql, [sender_id, receiver_id, message, currentTime]);
-      logger.info("Time:",currentTime);
 
       // io.emit('receive_message', {
       //   sender_id,
@@ -63,17 +62,13 @@ io.on('connection', (socket) => {
       // });
 
 
-      socket.emit("receive_message", data => {
-        logger.info('Message received event', data);
-      })
-
-
       const receiverSocketId = userSocketMap.get(receiver_id);
 
-
-      // if (receiverSocketId) {
-      //   io.to(receiverSocketId).emit('receive_message', data);
-      // }
+logger.info('receiverSocketId' ,receiverSocketId )
+logger.info('userSocketMap',userSocketMap)
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit('receive_message', data);
+      }
 
 
       logger.info('Message saved and sent:', data);
