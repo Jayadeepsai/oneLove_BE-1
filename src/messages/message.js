@@ -63,15 +63,17 @@ io.on('connection', (socket) => {
       // });
 
 
-      // socket.emit("receive_message", data)
+      socket.emit("receive_message", data => {
+        logger.info('Message received event', data);
+      })
 
 
       const receiverSocketId = userSocketMap.get(receiver_id);
 
 
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit('receive_message', data);
-      }
+      // if (receiverSocketId) {
+      //   io.to(receiverSocketId).emit('receive_message', data);
+      // }
 
 
       logger.info('Message saved and sent:', data);
