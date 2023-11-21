@@ -156,23 +156,23 @@ message.get('/chat_history', async (req, res) => {
 
 
 
-message.delete('/delete_old_conversations', async (req, res) => {
-  try {
-    // Calculate the timestamp representing 24 hours ago
-    const currentTime = new Date();
-    const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); // 24 hours in milliseconds
+// message.delete('/delete_old_conversations', async (req, res) => {
+//   try {
+//     // Calculate the timestamp representing 24 hours ago
+//     const currentTime = new Date();
+//     const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); // 24 hours in milliseconds
 
-    const sql = 'DELETE FROM messages WHERE time < ?';
+//     const sql = 'DELETE FROM messages WHERE time < ?';
 
-    // Delete conversations older than 24 hours
-    await db.query(sql, [twentyFourHoursAgo]);
+//     // Delete conversations older than 24 hours
+//     await db.query(sql, [twentyFourHoursAgo]);
 
-    res.status(200).json({ message: 'Old conversations deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting old conversations:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+//     res.status(200).json({ message: 'Old conversations deleted successfully' });
+//   } catch (error) {
+//     console.error('Error deleting old conversations:', error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
 const deleteOldConversations = async () => {
   try {
@@ -196,9 +196,6 @@ const deleteOldConversations = async () => {
 
 //Schedule the deletion job to run every 10 mins
 cron.schedule('*/10 * * * *', deleteOldConversations); // This schedules the job to run at the beginning of every 10 mins
-
-
-
 
 
 
