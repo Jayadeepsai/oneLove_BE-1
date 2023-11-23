@@ -9,11 +9,8 @@ const notification= require('../oneSignal/notifications');
 const logger = require('../../logger');
 const cors = require('cors');
 
-orders.use(express.json()); // To parse JSON bodies
-orders.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
-orders.use(cors({
-    origin:'https://onelove-80825b023778.herokuapp.com'
-}));
+orders.use(express.json());
+orders.use(express.urlencoded({ extended: true }));
 
 orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
 
@@ -28,9 +25,8 @@ orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
         let order_no;
         let isUnique = false;
 
-        // Generate a unique random 5-digit number
         while (!isUnique) {
-            order_no = generateRandomNumber(10000, 99999); // Generate a random number between 10000 and 99999
+            order_no = generateRandomNumber(10000, 99999);
             isUnique = await isOrderNoUnique(order_no);
         }
         const current_time =new Date();
@@ -49,7 +45,6 @@ orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
         const Heading = "New Product orders"
         const endpoint = `Orders`
 
-        // Call the sendnotification function
         await notification.sendnotification(mess, uniqId,Heading,endpoint);
 
         res.status(200).json({
@@ -64,12 +59,10 @@ orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
     }
 });
 
-// Function to generate a random number between min and max (inclusive)
 function generateRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Function to check if the generated order_no is unique
 async function isOrderNoUnique(order_no) {
     const sql = `SELECT COUNT(*) AS count FROM onelove.orders WHERE order_no = ?`;
     const [result] = await db.query(sql, [order_no]);
@@ -102,6 +95,8 @@ orders.get('/all-orders',jwtMiddleware.verifyToken,async(req,res)=>{
         });
     }
 });
+
+
 
 orders.get('/orders',jwtMiddleware.verifyToken, async (req, res) => {
     const { userType } = req;
@@ -193,7 +188,6 @@ if(status === "Cancelled"){
         const Heading = "Order Cancellation"
         const endpoint = `Orders`
 
-        // Call the sendnotification function
         await notification.sendnotification(mess, uniqId,Heading,endpoint);
 }
 

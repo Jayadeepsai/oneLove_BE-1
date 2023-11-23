@@ -2,16 +2,13 @@ const express = require('express');
 const ratings = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
-
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
 const notification= require('../oneSignal/notifications');
 const logger = require('../../logger');
 
-
-ratings.use(express.json()); // To parse JSON bodies
-ratings.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
-
+ratings.use(express.json());
+ratings.use(express.urlencoded({ extended: true }));
 
 
 ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
@@ -22,29 +19,22 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
          }
 
     try {
-        const { user_id, ratings_reviews } = req.body;          //here the user_id is the pet_trainer user_id
-                                                                //ratings_reviews is an json array which contains the user_id of the pet_owner who is giving the feedback
-
-        // Check if a row with the specified user_id exists
+        const { user_id, ratings_reviews } = req.body;          
         const checkIfExistsQuery = 'SELECT ratings_reviews FROM onelove.rating_review WHERE user_id = ?';
         const [existingRows] = await db.query(checkIfExistsQuery, [user_id]);
 
         let updatedReviews = [];
 
         if (existingRows.length > 0) {
-            // If a row exists, fetch the existing JSON array
             const existingReviews = existingRows[0].ratings_reviews;
             
             if (Array.isArray(existingReviews)) {
-                // If it's an array, concatenate the new data
                 updatedReviews = existingReviews.concat(ratings_reviews);
             } else {
                 try {
-                    // If it's not an array, parse it and then concatenate
                     const parsedReviews = JSON.parse(existingReviews);
                     updatedReviews = parsedReviews.concat(ratings_reviews);
                 } catch (parseError) {
-                    // Handle JSON parsing error here
                     logger.error('Error parsing existingReviews:', parseError);
                     res.status(400).json({
                         message: 'Error parsing existingReviews',
@@ -53,12 +43,10 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
                 }
             }
             
-            // Update the JSON data in the database
             const updateQuery = 'UPDATE onelove.rating_review SET ratings_reviews = ? WHERE user_id = ?';
             const updateValues = [JSON.stringify(updatedReviews), user_id];
             await db.query(updateQuery, updateValues);
         } else {
-            // If no row exists, insert a new row with the new data
             const insertQuery = 'INSERT INTO onelove.rating_review (user_id, ratings_reviews) VALUES (?, ?)';
             const insertValues = [user_id, JSON.stringify(ratings_reviews)];
             await db.query(insertQuery, insertValues);
@@ -69,13 +57,11 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
         const external_id=sql1Result[0].external_id;
         logger.info('external id',external_id)
 
-    
         const mess = "Recieved a feedback for your service, Please visit and check";
         const uniqId = external_id; 
         const Heading = "Feedback!"
         const endpoint = "trainerreviews"
 
-        // Call the sendnotification function
         await notification.sendnotification( mess, uniqId,Heading,endpoint);
 
         res.status(200).json({
@@ -88,9 +74,6 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
         });
     }
 });
-
-
-
 
 
 ratings.get('/rating-review',jwtMiddleware.verifyToken,async(req,res)=>{

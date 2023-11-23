@@ -2,25 +2,24 @@ const express = require('express');
 const posts = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
-
 const db = require('../../dbConnection')
 const jwtMiddleware = require('../../jwtMiddleware');
 const logger = require('../../logger');
 const he = require('he');
 
-posts.use(express.json()); // To parse JSON bodies
-posts.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+posts.use(express.json());
+posts.use(express.urlencoded({ extended: true }));
   
 async function performTransaction(req, res) {
     try {
         await db.beginTransaction();
         const { likes, comments, image_url, image_type } = req.body;
-        // Insert love_index data
+
         const loveIndexSql = 'INSERT INTO onelove.love_index ( likes, comments) VALUES ( ?, ?)';
         const loveIndexValues = [JSON.stringify(likes), JSON.stringify(comments)];
         const [loveIndexResult] = await db.query(loveIndexSql, loveIndexValues);
         const love_index_id = loveIndexResult.insertId;
-        // Insert images data
+
         const imageInsertSql = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
         const imageValues = [image_type, JSON.stringify(image_url)];
             const [imageResult] = await db.query(imageInsertSql, imageValues);
@@ -34,24 +33,20 @@ async function performTransaction(req, res) {
             const [videoResult] = await db.query(videoSql, videoValues);
              video_id = videoResult.insertId;
         }   
-     // Encode the post_description to handle emojis
      const encodedDescription = he.encode(req.body.post_description);
-        // Insert posts data
+
         const { post_type, user_id, pet_id } = req.body;
         const postSql = 'INSERT INTO onelove.posts (post_type, post_description, video_id, love_index_id, image_id, user_id, pet_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
         const postValues = [post_type, encodedDescription, video_id, love_index_id, image_id, user_id, pet_id];
         const [postResult] = await db.query(postSql, postValues);
         const post_id = postResult.insertId;
 
-
         await db.commit();
         logger.info('Transaction committed successfully.');
-        // Send a success response to the client
         res.status(200).json({ message: messages.POST_SUCCESS });
     } catch (err) {
         await db.rollback();
         logger.error('Error in transaction:', err);
-        // Send an error response to the client
         res.status(400).json({ message: messages.POST_FAILED });
     }
 }
@@ -73,63 +68,14 @@ posts.post('/post-feed',jwtMiddleware.verifyToken,(req,res)=>{
 
 
 
-
-// posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
-
-//     const { userType } = req;
-//          if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
-//              return res.status(403).json({ message: messages.FORBID });
-//          }
-
-//     const sql = `SELECT p.*, c.*, u.*, p1.pet_id AS pet_id,
-//      p1.pet_name AS pet_name, p1.image_id AS pet_image_id,
-//      i2.image_url AS pet_image_url, i1.image_id AS post_image_id,
-//      i3.image_id AS user_image_id, i3.image_url AS user_image_url,
-//      i1.image_url AS post_image_url,l.*,v.video_id AS post_video_id, v.video_url AS post_video_url
-//      FROM onelove.posts p
-//      LEFT JOIN users u ON p.user_id = u.user_id
-//      LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-//      LEFT JOIN pet p1 ON p.pet_id = p1.pet_id
-//      LEFT JOIN images i1 ON p.image_id = i1.image_id
-//      LEFT JOIN images i2 ON p1.image_id = i2.image_id
-//      LEFT JOIN images i3 ON u.image_id = i3.image_id
-//      LEFT JOIN love_index l ON p.love_index_id = l.love_index_id
-//      LEFT JOIN videos v ON p.video_id = v.video_id
-//      ORDER BY p.post_id DESC`
-
-//     try{
-//          const [results]= await db.query(sql);
-//          const postsData = JSON.parse(JSON.stringify(results));
-
-//          postsData.forEach(post => {
-//             post.post_description = he.decode(post.post_description);
-//         });
-
-//          res.status(200).json({
-//             postsData,
-//             message: messages.ALL_POSTS_DATA,
-//         });
-
-//     }catch(err){
-//         logger.error('Error fetching data:', err);
-//         res.status(400).json({
-//             message: messages.FAILED,
-//         });
-//     }
-// });
-
-
 posts.get('/posts', jwtMiddleware.verifyToken, async (req, res) => {
     const { userType } = req;
     if (userType !== 'pet_owner' && userType !== 'pet_doctor' && userType !== 'pet_trainer') {
         return res.status(403).json({ message: messages.FORBID });
     }
 
-    // Pagination parameters
-    const page = req.query.page // default to page 
-    const perPage = req.query.perPage// default to 10 items per page
-
-    // Calculate the offset based on page and perPage
+    const page = req.query.page;
+    const perPage = req.query.perPage;
     const offset = (page - 1) * perPage;
 
     const sql = `
@@ -362,9 +308,6 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
 });
 
 
-
-
-
 posts.put('/update-post',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const post_id = req.query.post_id;
@@ -417,12 +360,9 @@ posts.put('/update-post',jwtMiddleware.verifyToken, async (req, res) => {
 posts.delete('/delete-post',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const post_id = req.query.post_id;
-
         const sql = `DELETE FROM onelove.posts WHERE post_id = ?`;
-
         const [result] = await db.query(sql, [post_id]); 
 
-        // Check if the post was deleted successfully
         if (result.affectedRows === 0) {
             res.status(400).json({
                 message: messages.INVALID_ID,

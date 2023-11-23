@@ -1,15 +1,13 @@
 const express = require('express');
 const address = express.Router();
 const bodyParser = require('body-parser');
-
 const connection = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
 const logger = require('../../logger');
 const messages = require('../messages/constants');
 
-address.use(express.json()); // To parse JSON bodies
-address.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
-
+address.use(express.json());
+address.use(express.urlencoded({ extended: true }));
 
 
 address.post('/address',jwtMiddleware.verifyToken, async (req, res) => {
@@ -19,9 +17,7 @@ address.post('/address',jwtMiddleware.verifyToken, async (req, res) => {
     const values = [address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords];
 
     try {
-        // Execute the insert query
         const [result] = await db.query(sql, values);
-
         var data = JSON.parse(JSON.stringify(result));
         return res.status(200).json({
             data: data,
@@ -40,7 +36,7 @@ address.post('/address',jwtMiddleware.verifyToken, async (req, res) => {
 address.get('/address',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const sql = `SELECT * FROM onelove.address;`;
-        const [data] = await connection.query(sql); // Use await with promise-based query
+        const [data] = await connection.query(sql);
 
        return res.status(200).json({
             addressData: data, 
@@ -86,17 +82,13 @@ address.get('/address-id',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 address.put('/update-address',jwtMiddleware.verifyToken, async (req, res) => {
+
     const address_id = req.query.address_id;
-
     const { address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords } = req.body;
-
-    // Create the SQL query for the update operation
     let sql = 'UPDATE onelove.address SET';
 
-    // Initialize an array to store the values for the query
     const values = [];
 
-    // Append the fields to the query only if they are provided in the request body
     if (address !== undefined) {
         sql += ' address=?,';
         values.push(address);
@@ -133,14 +125,13 @@ address.put('/update-address',jwtMiddleware.verifyToken, async (req, res) => {
         sql += ' lan_cords=?,';
         values.push(lan_cords);
     }
-    // Remove the trailing comma from the SQL query
+
     sql = sql.slice(0, -1);
 
     sql += ' WHERE address_id=?';
     values.push(address_id);
 
     try {
-        // Execute the update query
         const [result] = await connection.query(sql, values);
 
        return res.status(200).json({
@@ -160,7 +151,6 @@ address.delete('/delete-address',jwtMiddleware.verifyToken, async (req, res) => 
     const sql = 'DELETE FROM `address` WHERE `address_id`=?';
 
     try {
-        // Execute the delete query
         const [result] = await connection.query(sql, address_id);
 
         return res.status(200).json({

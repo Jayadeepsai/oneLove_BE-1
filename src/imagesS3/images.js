@@ -4,8 +4,8 @@ const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 require('dotenv').config();
 
-images.use(express.json()); // To parse JSON bodies
-images.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+images.use(express.json()); 
+images.use(express.urlencoded({ extended: true })); 
 
 const AWS = require('aws-sdk');
 const jwtMiddleware = require('../../jwtMiddleware');
@@ -15,10 +15,8 @@ const logger = require('../../logger');
 AWS.config.update({
   accessKeyId: process.env.AWS_ID,
   secretAccessKey: process.env.SECRET_KEY,
-  // region: 'us-east-1' // Update with your region
 });
   
-  // Create an S3 instance
   const s3 = new AWS.S3();
 
   images.post('/upload',jwtMiddleware.verifyToken, async (req, res) => {
@@ -30,14 +28,13 @@ AWS.config.update({
       const imageFile = req.files.image;
   
       const params = {
-        Bucket: 'onelovebucket', // Update with your S3 bucket name
+        Bucket: 'onelovebucket', 
         Key: imageFile.name,
         Body: imageFile.data,
         ACL: 'public-read'
       };
   
       const uploadResult = await s3.upload(params).promise();
-
 
       res.status(200).json({
         message: messages.FILE_UPLOADED,
@@ -54,9 +51,7 @@ AWS.config.update({
   images.delete('/delete', jwtMiddleware.verifyToken, async (req, res) => {
     try {
       const imageUrl = req.query.imageUrl; 
-  
-      // const imageKey = decodeURIComponent(imageUrl.split('/').pop());
-      // console.log(imageKey)
+
       const params = {
         Bucket: 'onelovebucket', 
         Key: imageUrl,
@@ -73,6 +68,7 @@ AWS.config.update({
     }
   });
 
+
   images.post('/upload-registration', async (req, res) => {
     try {
       if (!req.files || !req.files.image) {
@@ -82,7 +78,7 @@ AWS.config.update({
       const imageFile = req.files.image;
   
       const params = {
-        Bucket: 'onelovebucket', // Update with your S3 bucket name
+        Bucket: 'onelovebucket',
         Key: imageFile.name,
         Body: imageFile.data,
         ACL: 'public-read'
@@ -108,14 +104,13 @@ AWS.config.update({
       const imageFile = req.files.image;
   
       const params = {
-        Bucket: 'onelovebucket', // Update with your S3 bucket name
+        Bucket: 'onelovebucket',
         Key: imageFile.name,
         Body: imageFile.data,
         ACL: 'public-read'
       };
   
       const uploadResult = await s3.upload(params).promise();
-
 
       res.status(200).json({
         message: messages.FILE_UPLOADED,
@@ -133,9 +128,8 @@ AWS.config.update({
       return res.status(400).json({ message: messages.NO_FILE_UPLOADED });
     }
   
-    const uploadedFiles = req.files.images; // 'images' should match your HTML form field name
-  
-    // Iterate through the uploaded files and upload them to S3
+    const uploadedFiles = req.files.images; 
+
     const uploadPromises = uploadedFiles.map((file) => {
       const params = {
         Bucket: 'onelovebucket',

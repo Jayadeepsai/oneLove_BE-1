@@ -7,8 +7,8 @@ const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
 const logger = require('../../logger');
 
-pets.use(express.json()); // To parse JSON bodies
-pets.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+pets.use(express.json());
+pets.use(express.urlencoded({ extended: true }));
 
 
 pets.post('/pet-post',jwtMiddleware.verifyToken, async (req, res) => { 
@@ -17,28 +17,22 @@ pets.post('/pet-post',jwtMiddleware.verifyToken, async (req, res) => {
     if (userType !== 'pet_owner') {
         return res.status(403).json({ message: messages.FORBID });
     }
-
     try {
-
         const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, spay_neuter, image_type, image_url, user_id } = req.body;
 
-        // Insert into images table
         const sql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
         const imageValues = [image_type,JSON.stringify(image_url)];
+        const [imageResult] = await db.query(sql, imageValues);
 
-        const [imageResult] = await db.query(sql, imageValues); // Use await to execute the query
+        const image_id = imageResult.insertId;
 
-        const image_id = imageResult.insertId; // Get the image_id generated from the previous query
-
-        // Insert into pet table
         const sql2 = `
             INSERT INTO onelove.pet 
             (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, spay_neuter, image_id, user_id) 
             VALUES 
             (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const petValues = [pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, spay_neuter, image_id, user_id];
-
-        const [petResult] = await db.query(sql2, petValues); // Use await to execute the query
+        const [petResult] = await db.query(sql2, petValues);
 
         return res.status(200).json({ message: messages.POST_SUCCESS, petResult });
     } catch (err) {
@@ -65,7 +59,7 @@ pets.get('/pets',jwtMiddleware.verifyToken, async (req, res) => {
         LEFT JOIN address a ON u.address_id = a.address_id
         LEFT JOIN images i2 ON u.image_id = i2.image_id`;
 
-        const [results] = await db.query(sql); // Use await to execute the query
+        const [results] = await db.query(sql);
 
         const petsData = JSON.parse(JSON.stringify(results));
         res.status(200).json({
@@ -96,11 +90,10 @@ pets.put('/update-pet',jwtMiddleware.verifyToken, async (req, res) => {
         await db.beginTransaction();
 
         if(pet_type || pet_name || pet_breed || pet_gender || pet_weight || pet_description || vaccination_id || pet_dob || image_id || user_id || spay_neuter){
-        // Create the SQL query for the update operation
         let sql = 'UPDATE onelove.pet SET';
-        // Initialize an array to store the values for the query
+
         const values = [];
-        // Append the fields to the query only if they are provided in the request body
+
         if (pet_type !== undefined) {
             sql += ' pet_type=?,';
             values.push(pet_type);
@@ -146,13 +139,12 @@ pets.put('/update-pet',jwtMiddleware.verifyToken, async (req, res) => {
             values.push(spay_neuter);
         }
 
-        // Remove the trailing comma from the SQL query
         sql = sql.slice(0, -1);
 
         sql += ' WHERE pet_id=?';
         values.push(pet_id);
 
-        await db.query(sql, values); // Use await to execute the query
+        await db.query(sql, values);
     }
     if(image_type || image_url){
         let imageSql = 'UPDATE images SET';
@@ -189,15 +181,15 @@ pets.put('/update-pet',jwtMiddleware.verifyToken, async (req, res) => {
 
 pets.put('/pet-update-image',jwtMiddleware.verifyToken, async (req, res) => {
     try {
-        const pet_id = req.query.pet_id; // Get the pet ID from the query parameter
-        const { image_type, image_url } = req.body; // Get the updated image_type from the request body
-        // Update the image_url and image_type in the images table
+        const pet_id = req.query.pet_id;
+        const { image_type, image_url } = req.body;
+  
         const updateImageSql = `
             UPDATE onelove.images
             SET image_type = ?, image_url = ?
             WHERE image_id = (SELECT image_id FROM onelove.pet WHERE pet_id = ?)`;
         const updateImageValues = [image_type, JSON.stringify(image_url), pet_id];
-        // Execute the update query for images table
+
         const [updateImageResult] = await db.query(updateImageSql, updateImageValues);
 
         if (updateImageResult.affectedRows === 0) {
@@ -292,10 +284,9 @@ pets.get('/pets-users',jwtMiddleware.verifyToken, async (req, res) => {
 pets.delete('/delete-pet',jwtMiddleware.verifyToken, async (req, res) => { 
     try {
         const pet_id = req.query.pet_id; 
-        // SQL query to delete the pet with the given petId
         const sql = `DELETE FROM pet WHERE pet_id = ?`;
-        const [result] = await db.query(sql, [pet_id]); // Use await to execute the query
-        // Check if the pet was deleted successfully
+        const [result] = await db.query(sql, [pet_id]);
+
         if (result.affectedRows === 0) {
             res.status(200).json({
                 message: messages.NO_DATA,

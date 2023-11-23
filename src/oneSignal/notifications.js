@@ -1,5 +1,4 @@
 const express = require("express");
-//define the router
 const notification = express.Router();
 require('dotenv').config();
 

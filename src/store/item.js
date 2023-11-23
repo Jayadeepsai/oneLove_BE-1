@@ -3,18 +3,18 @@ const items = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 const logger = require('../../logger');
-
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
 const notification= require('../oneSignal/notifications');
 
-
-items.use(express.json()); // To parse JSON bodies
-items.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+items.use(express.json());
+items.use(express.urlencoded({ extended: true }));
 
 
 async function performTransaction(req, res) {
+
     try {
+
         await db.beginTransaction();
 
         const { image_type, image_url } = req.body;
@@ -31,17 +31,13 @@ async function performTransaction(req, res) {
 
         await db.commit();
 
-        // Send notifications to pet owners
         const notifSql = `SELECT external_id FROM onelove.users WHERE user_type = 'pet_owner'`;
         const [notifSqlResult] = await db.query(notifSql);
 
         if (notifSqlResult && notifSqlResult.length > 0) {
-            // Filter and map the external IDs
             const externalIds = notifSqlResult
                 .filter(item => item.external_id !== null && item.external_id !== 'null')
                 .map(item => item.external_id);
-
-                console.log(externalIds)
             if (externalIds.length > 0) {
                 const mess = "Check out the latest products for your pet in the store!";
                 const Heading = "New stock!"
@@ -51,14 +47,11 @@ async function performTransaction(req, res) {
                 }
             }
         }
-
-        // Send a success response to the client
         res.status(200).json({ message: messages.POST_SUCCESS });
 
     } catch (err) {
         await db.rollback();
         logger.error('Error in transaction:', err);
-        // Send an error response to the client
         res.status(400).json({ message: messages.POST_FAILED });
     }
 }
@@ -83,6 +76,7 @@ items.post('/item-entry',jwtMiddleware.verifyToken,(req,res)=>{
 
 
 items.get('/products',jwtMiddleware.verifyToken,async(req,res)=>{
+
     const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
                  FROM onelove.items i
                  LEFT JOIN store s1 ON i.store_id = s1.store_id
@@ -90,7 +84,7 @@ items.get('/products',jwtMiddleware.verifyToken,async(req,res)=>{
                  LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
                  LEFT JOIN images i1 ON i.image_id = i1.image_id`
     try{
-        const [results] = await db.query(sql); // Use await to execute the query
+        const [results] = await db.query(sql);
 
         const productsData = JSON.parse(JSON.stringify(results));
         res.status(200).json({
@@ -120,7 +114,7 @@ items.get('/products-id',jwtMiddleware.verifyToken,async(req,res)=>{
                  LEFT JOIN images i1 ON i.image_id = i1.image_id
                  WHERE i.item_id=?`
     try{
-        const [results] = await db.query(sql,item_id); // Use await to execute the query
+        const [results] = await db.query(sql,item_id);
 
         const productData = JSON.parse(JSON.stringify(results));
       
@@ -160,7 +154,6 @@ items.get('/products-store-id',jwtMiddleware.verifyToken,async(req,res)=>{
 
         const productsData = JSON.parse(JSON.stringify(results));
         if (productsData.length > 0) {
-            // Convert numeric boolean values to actual boolean values in the response
             const convertedProductsData = productsData.map(item => ({
                 ...item,
                 food_treats: item.food_treats === 1,
@@ -345,19 +338,17 @@ items.delete('/delete-items',jwtMiddleware.verifyToken, async (req, res) => {
     }
 
     try {
-        const itemIds = req.query.item_id; // Accept item_ids as an array of IDs
-        
+        const itemIds = req.query.item_id;
         if (!Array.isArray(itemIds)) {
             res.status(400).json({
                 message: messages.INVALID_ID,
             });
             return;
         }
+
         const sql = `DELETE FROM onelove.items WHERE item_id IN (?)`; // Use IN clause for multiple IDs
-
         const [result] = await db.query(sql, [itemIds]); 
-
-        // Check if any items were deleted
+       
         if (result.affectedRows === 0) {
             res.status(200).json({
                 message: messages.NO_DATA,
@@ -412,8 +403,6 @@ items.get('/stores',jwtMiddleware.verifyToken, async (req, res) => {
     a.address, a.city, a.state, a.zip, a.country, a.landmark, a.address_type, a.lat_cords, a.lan_cords,
     c.mobile_number, c.email,
     i.image_type, i.image_url;
-  
-
   `;
   
     try {
@@ -421,7 +410,6 @@ items.get('/stores',jwtMiddleware.verifyToken, async (req, res) => {
       const storesData = JSON.parse(JSON.stringify(results));
       
       if (storesData.length > 0) {
-        // Convert numeric boolean values to actual boolean values in the response
         const convertedStoresData = storesData.map(store => ({
           ...store,
           food_treats: store.food_treats === 1,
@@ -431,7 +419,7 @@ items.get('/stores',jwtMiddleware.verifyToken, async (req, res) => {
           health_care: store.health_care === 1,
           dog_service: store.dog_service === 1,
           breader_adoption_sale: store.breader_adoption_sale === 1,
-          item_count: store.item_count // Add item_count to the response
+          item_count: store.item_count 
         }));
   
         res.status(200).json({

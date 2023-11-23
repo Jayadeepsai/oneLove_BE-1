@@ -7,8 +7,8 @@ const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
 const logger = require('../../logger');
 
-clinic.use(express.json()); // To parse JSON bodies
-clinic.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+clinic.use(express.json());
+clinic.use(express.urlencoded({ extended: true })); 
 
 
 async function clinicAddQueries(req,res){
@@ -27,12 +27,8 @@ try{
         res.status(200).json({ message: messages.POST_SUCCESS});
 
 }catch(err){
-
     await db.rollback();
-
     logger.error('Error in transaction:', err.message);
-
-    // Send an error response to the client
     res.status(400).json({ message:messages.POST_FAILED});
 }
 };
@@ -190,7 +186,6 @@ clinic.put('/update-clinic', jwtMiddleware.verifyToken, async (req, res) => {
 
         await db.beginTransaction();
 
-        // Update clinic data
         await db.query(clinicSql, values);
 
         await db.commit();

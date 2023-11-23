@@ -1,7 +1,6 @@
-
 const winston = require('winston');
 
-// Define log levels and colors
+
 const logLevels = {
   error: 'error',
   warn: 'warn',
@@ -18,30 +17,30 @@ const logColors = {
   debug: 'blue',
 };
 
-// Create the logger
+
 const logger = winston.createLogger({
   levels: logLevels,
-  format: winston.format.simple(), // You can customize the log format
+  format: winston.format.simple(),
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
         winston.format.simple()
       ),
-      level: 'info', // Set the desired log level
+      level: 'info', 
     }),
     new winston.transports.Stream({
-      stream: process.stdout, // Use stdout for general logs
-      level: 'warn', // Set the desired log level
+      stream: process.stdout,
+      level: 'warn',
     }),
     new winston.transports.Stream({
-      stream: process.stderr, // Use stderr for error logs
-      level: 'error', // Set the error log level
+      stream: process.stderr,
+      level: 'error',
     }),
   ],
 });
 
-// Define custom log function
+
 logger.stream = {
   write: (message) => {
     logger.info(message.trim());

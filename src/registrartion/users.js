@@ -2,28 +2,18 @@ const express = require('express');
 const users = express.Router();
 const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
-
 const db = require('../../dbConnection');
 const jwtMiddleware = require('../../jwtMiddleware');
 const logger = require('../../logger');
 
-users.use(express.json()); // To parse JSON bodies
-users.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
-
+users.use(express.json());
+users.use(express.urlencoded({ extended: true }));
 
 
 users.get('/users-id',jwtMiddleware.verifyToken,async(req,res)=>{
+
     const user_id=req.query.user_id;
-    // const sql=`
-    // SELECT u.*, a.*, c.*,s.*,c1.*,s1.*, i.*
-    // FROM users u
-    // LEFT JOIN address a ON u.address_id = a.address_id
-    // LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
-    // LEFT JOIN service s ON u.service_id = s.service_id
-    // LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
-    // LEFT JOIN store s1 ON u.store_id = s1.store_id
-    // LEFT JOIN images i ON u.image_id = i.image_id
-    // WHERE u.user_id = ?`;
+
     const sql=` SELECT
     u.user_id,
     u.user_type,
@@ -89,7 +79,6 @@ try{
 });
 
 
-
 users.get('/users-pet-owners-user-id',jwtMiddleware.verifyToken,async(req,res)=>{
     const user_id=req.query.user_id;
     const sql=`
@@ -124,6 +113,7 @@ try{
     });
 }
 });
+
 
 
 users.get('/users-pet-owners',jwtMiddleware.verifyToken,async(req,res)=>{
@@ -208,7 +198,6 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         let addressSql = 'UPDATE address SET';
         const addressValues = [];
 
-         // Update address table
          if (address !== undefined) {
             addressSql += ' address=?,';
             addressValues.push(address);
@@ -258,7 +247,6 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         let contact_detailsSql = 'UPDATE contact_details SET';
         const contactDetailsValues = [];
 
-          // Update contact_details table
           if (mobile_number !== undefined) {
             contact_detailsSql += ' mobile_number=?,';
             contactDetailsValues.push(mobile_number);
@@ -268,7 +256,6 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
             contactDetailsValues.push(email);
         }
     
-
         contact_detailsSql = contact_detailsSql.slice(0, -1);
         contact_detailsSql += ' WHERE contact_id=(SELECT contact_id FROM users WHERE user_id=?)';
         contactDetailsValues.push(user_id);
@@ -281,7 +268,6 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         let usersSql = 'UPDATE users SET';
         const usersValues = [];
 
-        // Update users table
         if (user_name !== undefined) {
             usersSql += ' user_name=?,';
             usersValues.push(user_name);
@@ -416,7 +402,6 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         let clinicSql = 'UPDATE clinics SET';
         const clinicValues = [];
 
-        // Update clinic table
         if (clinic_name !== undefined) {
             clinicSql += ' clinic_name=?,';
             clinicValues.push(clinic_name);
