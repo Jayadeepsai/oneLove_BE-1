@@ -65,7 +65,8 @@ message.get('/messages', async (req, res) => {
     const [messages] = await db.query(sql, [sender_id, receiver_id, receiver_id, sender_id]);
     const convo = messages.map((message) => ({
       ...message,
-      time: moment(message.time).format('YYYY-MM-DD HH:mm:ss'), 
+      time: moment(message.time).format('YYYY-MM-DD HH:mm:ss'),
+      message: he.decode(message.message), 
     }));
 
     const chat = JSON.parse(JSON.stringify(convo));
