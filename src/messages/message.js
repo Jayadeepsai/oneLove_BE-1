@@ -89,6 +89,7 @@ message.get('/chat_history', async (req, res) => {
       SELECT
           u.user_id,
           u.user_name,
+          u.user_type,
           i.image_url AS user_image_url,
           MAX(m.time) AS latest_time
       FROM
