@@ -8,7 +8,7 @@ const moment = require('moment');
 const logger = require('../../logger');
 const http = require('http')
 const { Server } = require("socket.io")
-
+const he = require('he')
 const httpServer = http.createServer();
 
 const io = new Server(httpServer)
@@ -28,16 +28,16 @@ io.on('connection', (socket) => {
   });
 
   socket.on('send_message', async (data) => {
-    console.log('data', data)
     try {
-      const { sender_id, receiver_id, message, currentTime} = data;
+      const { sender_id, receiver_id, message, time} = data;
       const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time) VALUES (?, ?, ?, ?)';
-      await db.query(sql, [sender_id, receiver_id, message, currentTime]);
+      const encodedMessage = he.encode(message);
+      await db.query(sql, [sender_id, receiver_id, encodedMessage, time]);
 
       const receiverSocketId = userSocketMap.get(receiver_id);
 
-logger.info('receiverSocketId' ,receiverSocketId )
-logger.info('userSocketMap',userSocketMap)
+      logger.info('receiverSocketId' ,receiverSocketId )
+      logger.info('userSocketMap',userSocketMap)
       if (receiverSocketId) {
         io.to(receiverSocketId).emit('receive_message', data);
       }
