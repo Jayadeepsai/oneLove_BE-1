@@ -138,7 +138,24 @@ message.get('/chat_history', async (req, res) => {
 });
 
 
-const deleteOldConversations = async () => {
+// const deleteOldConversations = async () => {
+//   try {
+//     const currentTime = new Date();
+//     const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); 
+//     const sql = 'DELETE FROM messages WHERE time < ?';
+//     const [sqlResult] = await db.query(sql, [twentyFourHoursAgo]);
+
+//     if (sqlResult.affectedRows > 0) {
+//       logger.info('Old conversations deleted');
+//     }
+
+//   } catch (error) {
+//     logger.error('Error deleting old conversations:', error);
+//   }
+// };
+
+
+cron.schedule('*/10 * * * *',  deleteOldConversations = async () => {
   try {
     const currentTime = new Date();
     const twentyFourHoursAgo = new Date(currentTime - 24 * 60 * 60 * 1000); 
@@ -152,10 +169,7 @@ const deleteOldConversations = async () => {
   } catch (error) {
     logger.error('Error deleting old conversations:', error);
   }
-};
-
-
-cron.schedule('*/10 * * * *', deleteOldConversations);
+});
 
 
 message.get('/get-mobile-number', async (req, res) => {
