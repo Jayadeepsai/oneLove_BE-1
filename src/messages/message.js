@@ -49,7 +49,11 @@ io.on('connection', (socket) => {
       const external_id=sql1Result[0].external_id;
       console.log('external id',external_id)
 
-      const mess = "Heyy you got a message";
+      const sql2 = `SELECT user_name FROM onelove.users WHERE user_id = ${sender_id}`
+      const [sql2Result] = await db.query(sql2);
+      const user_name = sql2Result[0].user_name
+
+      const mess = `Heyy you got a message from ${user_name}`;
       const uniqId = external_id; 
       const Heading = "New message"
       const endpoint = `Orders`
