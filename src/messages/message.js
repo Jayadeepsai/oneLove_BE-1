@@ -10,6 +10,7 @@ const http = require('http')
 const { Server } = require("socket.io")
 const he = require('he')
 const httpServer = http.createServer();
+const notification= require('../oneSignal/notifications');
 
 const io = new Server(httpServer)
 
@@ -42,6 +43,18 @@ io.on('connection', (socket) => {
         io.to(receiverSocketId).emit('receive_message', data);
       }
       logger.info('Message saved and sent:', data);
+      
+      const sql1 = `SELECT external_id FROM onelove.users WHERE user_id = ${receiver_id}`
+      const [sql1Result] = await db.query(sql1)
+      const external_id=sql1Result[0].external_id;
+      console.log('external id',external_id)
+
+      const mess = "Heyy you got a message";
+      const uniqId = external_id; 
+      const Heading = "New message"
+      const endpoint = `Orders`
+
+      await notification.sendnotification(mess, uniqId,Heading,endpoint);
 
     } catch (error) {
       logger.error('Error posting message:', error);
