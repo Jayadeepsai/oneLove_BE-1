@@ -53,10 +53,21 @@ io.on('connection', (socket) => {
       const [sql2Result] = await db.query(sql2);
       const user_name = sql2Result[0].user_name
 
+      const sql3 = `SELECT user_name FROM onelove.users WHERE user_id = ${receiver_id}`
+      const [sql3Result] = await db.query(sql3);
+      const user_type = sql3Result[0].user_type
+
+      const retriveEndpoint = {
+        pet_owner:`ChatScreen`,
+        pet_trainer:`trainer`,
+        pet_doctor:`doctor`
+
+      }
+
       const mess = `Heyy you got a message from ${user_name}`;
       const uniqId = external_id; 
       const Heading = "New message"
-      const endpoint = `Orders`
+      const endpoint = retriveEndpoint[user_type]
 
       await notification.sendnotification(mess, uniqId,Heading,endpoint);
 
