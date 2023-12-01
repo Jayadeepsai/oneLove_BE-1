@@ -34,7 +34,7 @@ async function sendnotification(mess,uniqId,Heading,endpoint) {
             en: Heading
         }
         notification.app_url = `roone://onelove/${endpoint}`
-        notification.android_channel_id = ['8024b972-0938-44f7-b466-a568a0848454','b797d43e-9212-421f-b5e6-900e95207e6c','d97d442f-dd48-4c86-b438-ae6d38da6578','e36cc1c1-9fa1-423c-9f6b-ff85d1d037a3']
+        notification.android_channel_id = ['8024b972-0938-44f7-b466-a568a0848454','8d6c6b90-029f-4728-af33-602a544625ba','84cc6567-6c47-4538-8817-78c02edbec95','dda94b5e-4aa1-4d68-b426-78f554bf73ce','d1b133f2-919b-457a-8563-0599b7d8c406']
 
         const {id} = await client.createNotification(notification);
       
