@@ -281,7 +281,12 @@ pets.get('/pets-users',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 
-pets.delete('/delete-pet',jwtMiddleware.verifyToken, async (req, res) => { 
+pets.delete('/delete-pet',jwtMiddleware.verifyToken, async (req, res) => {
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+    
     try {
         const pet_id = req.query.pet_id; 
         const sql = `DELETE FROM pet WHERE pet_id = ?`;

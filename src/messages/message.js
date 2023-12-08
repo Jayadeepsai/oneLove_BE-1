@@ -11,6 +11,7 @@ const { Server } = require("socket.io")
 const he = require('he')
 const httpServer = http.createServer();
 const notification= require('../oneSignal/notifications');
+const jwtMiddleware = require('../../jwtMiddleware');
 
 const io = new Server(httpServer)
 
@@ -86,7 +87,7 @@ io.on('connection', (socket) => {
 
 
 
-message.get('/messages', async (req, res) => {
+message.get('/messages',jwtMiddleware.verifyToken, async (req, res) => {
   try {
     const { sender_id, receiver_id } = req.query;
     const sql = 'SELECT * FROM messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY time ASC';
@@ -110,7 +111,7 @@ message.get('/messages', async (req, res) => {
 });
 
 
-message.get('/chat_history', async (req, res) => {
+message.get('/chat_history',jwtMiddleware.verifyToken, async (req, res) => {
   try {
     const { user_id } = req.query;
 

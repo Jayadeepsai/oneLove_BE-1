@@ -158,7 +158,7 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         const user_id = req.query.user_id;
 
         if(!user_id){
-         res.status(400).json({message:messages.INVALID_ID})
+            return res.status(400).json({message:messages.INVALID_ID})
         }
 
         const {address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords} = req.body;

@@ -355,6 +355,12 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 posts.put('/update-post',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     try {
         const post_id = req.query.post_id;
 
@@ -404,6 +410,12 @@ posts.put('/update-post',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 posts.delete('/delete-post',jwtMiddleware.verifyToken, async (req, res) => {
+
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
+
     try {
         const post_id = req.query.post_id;
         const sql = `DELETE FROM onelove.posts WHERE post_id = ?`;
