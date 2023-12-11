@@ -33,7 +33,7 @@ io.on('connection', (socket) => {
     try {
       const { sender_id, receiver_id, message, time, read} = data;
   
-      const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time, read) VALUES (?, ?, ?, ?, ?)';
+      const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time, `read`) VALUES (?, ?, ?, ?, ?)';
       const encodedMessage = he.encode(message);
       await db.query(sql, [sender_id, receiver_id, encodedMessage, time, read]);
 
