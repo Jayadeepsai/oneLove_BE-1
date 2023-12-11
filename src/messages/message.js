@@ -31,10 +31,10 @@ io.on('connection', (socket) => {
 
   socket.on('send_message', async (data) => {
     try {
-      const { sender_id, receiver_id, message, time} = data;
+      const { sender_id, receiver_id, message, time, read} = data;
       const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time, read) VALUES (?, ?, ?, ?, ?)';
       const encodedMessage = he.encode(message);
-      await db.query(sql, [sender_id, receiver_id, encodedMessage, time]);
+      await db.query(sql, [sender_id, receiver_id, encodedMessage, time, read]);
 
       const receiverSocketId = userSocketMap.get(receiver_id);
 
