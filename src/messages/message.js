@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
   socket.on('send_message', async (data) => {
     try {
       const { sender_id, receiver_id, message, time} = data;
-      const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time) VALUES (?, ?, ?, ?)';
+      const sql = 'INSERT INTO messages (sender_id, receiver_id, message, time, read) VALUES (?, ?, ?, ?, ?)';
       const encodedMessage = he.encode(message);
       await db.query(sql, [sender_id, receiver_id, encodedMessage, time]);
 
@@ -115,26 +115,56 @@ message.get('/chat_history',jwtMiddleware.verifyToken, async (req, res) => {
   try {
     const { user_id } = req.query;
 
-    const sql = `
-      SELECT
-          u.user_id,
-          u.user_name,
-          u.user_type,
-          i.image_url AS user_image_url,
-          MAX(m.time) AS latest_time
-      FROM
-          users u
-      JOIN
-          messages m ON (u.user_id = m.sender_id OR u.user_id = m.receiver_id)
-      LEFT JOIN
-          images i ON u.image_id = i.image_id
-      WHERE
-          (m.sender_id = ? OR m.receiver_id = ?) AND u.user_id != ?
-      GROUP BY
-          u.user_id, u.user_name, i.image_url
-      ORDER BY
-          latest_time DESC
-  `;
+  //   const sql = `
+  //     SELECT
+  //         u.user_id,
+  //         u.user_name,
+  //         u.user_type,
+  //         i.image_url AS user_image_url,
+  //         m.message,
+  //         m.read,
+  //         MAX(m.time) AS latest_time 
+  //     FROM
+  //         users u
+  //     JOIN
+  //         messages m ON (u.user_id = m.sender_id OR u.user_id = m.receiver_id)
+  //     LEFT JOIN
+  //         images i ON u.image_id = i.image_id
+  //     WHERE
+  //         (m.sender_id = ? OR m.receiver_id = ?) AND u.user_id != ?
+  //     GROUP BY
+  //         u.user_id, u.user_name, i.image_url, m.message, m.read
+  //     ORDER BY
+  //         latest_time DESC
+  // `;
+
+  const sql =`
+  SELECT
+    u.user_id,
+    u.user_name,
+    u.user_type,
+    i.image_url AS user_image_url,
+    m.read AS latest_read,
+    m.time AS latest_time,
+    m.message AS latest_message
+FROM
+    users u
+JOIN
+    messages m ON (u.user_id = m.sender_id OR u.user_id = m.receiver_id)
+LEFT JOIN
+    images i ON u.image_id = i.image_id
+WHERE
+    (m.sender_id = ? OR m.receiver_id = ?) AND u.user_id != ?
+AND
+    m.time = (
+        SELECT MAX(time)
+        FROM messages
+        WHERE (sender_id = u.user_id OR receiver_id = u.user_id)
+    )
+ORDER BY
+    m.time DESC
+
+`;
 
     const [chatHistory] = await db.query(sql, [user_id, user_id, user_id]);
     const Data = JSON.parse(JSON.stringify(chatHistory));
