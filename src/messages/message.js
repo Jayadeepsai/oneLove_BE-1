@@ -87,6 +87,23 @@ io.on('connection', (socket) => {
 });
 
 
+message.put('/message-status', jwtMiddleware.verifyToken, async (req, res) => {
+  try {
+    const { read } = req.body;
+    const {message_id} = req.query;
+    const sql = 'UPDATE onelove.messages SET `read` = ? WHERE message_id = ?';
+
+    await db.query(sql, [read, message_id]);
+
+    res.status(200).json({
+      message: constant.DATA_UPDATED,
+    });
+  } catch (err) {
+    console.error(constant.DATA_UPDATE_FALIED, err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 message.get('/messages',jwtMiddleware.verifyToken, async (req, res) => {
   try {
@@ -112,73 +129,50 @@ message.get('/messages',jwtMiddleware.verifyToken, async (req, res) => {
 });
 
 
-message.get('/chat_history',jwtMiddleware.verifyToken, async (req, res) => {
-  try {
-    const { user_id } = req.query;
+// message.get('/chat_history',jwtMiddleware.verifyToken, async (req, res) => {
+//   try {
+//     const { user_id } = req.query;
 
-  //   const sql = `
-  //     SELECT
-  //         u.user_id,
-  //         u.user_name,
-  //         u.user_type,
-  //         i.image_url AS user_image_url,
-  //         m.message,
-  //         m.read,
-  //         MAX(m.time) AS latest_time 
-  //     FROM
-  //         users u
-  //     JOIN
-  //         messages m ON (u.user_id = m.sender_id OR u.user_id = m.receiver_id)
-  //     LEFT JOIN
-  //         images i ON u.image_id = i.image_id
-  //     WHERE
-  //         (m.sender_id = ? OR m.receiver_id = ?) AND u.user_id != ?
-  //     GROUP BY
-  //         u.user_id, u.user_name, i.image_url, m.message, m.read
-  //     ORDER BY
-  //         latest_time DESC
-  // `;
+//   const sql =`
+//   SELECT
+//     u.user_id,
+//     u.user_name,
+//     u.user_type,
+//     i.image_url AS user_image_url,
+//     m.read AS latest_read,
+//     m.time AS latest_time,
+//     m.message AS latest_message
+// FROM
+//     users u
+// JOIN
+//     messages m ON (u.user_id = m.sender_id OR u.user_id = m.receiver_id)
+// LEFT JOIN
+//     images i ON u.image_id = i.image_id
+// WHERE
+//     (m.sender_id = ? OR m.receiver_id = ?) AND u.user_id != ?
+// AND
+//     m.time = (
+//         SELECT MAX(time)
+//         FROM messages
+//         WHERE (sender_id = u.user_id OR receiver_id = u.user_id)
+//     )
+// ORDER BY
+//     m.time DESC
 
-  const sql =`
-  SELECT
-    u.user_id,
-    u.user_name,
-    u.user_type,
-    i.image_url AS user_image_url,
-    m.read AS latest_read,
-    m.time AS latest_time,
-    m.message AS latest_message
-FROM
-    users u
-JOIN
-    messages m ON (u.user_id = m.sender_id OR u.user_id = m.receiver_id)
-LEFT JOIN
-    images i ON u.image_id = i.image_id
-WHERE
-    (m.sender_id = ? OR m.receiver_id = ?) AND u.user_id != ?
-AND
-    m.time = (
-        SELECT MAX(time)
-        FROM messages
-        WHERE (sender_id = u.user_id OR receiver_id = u.user_id)
-    )
-ORDER BY
-    m.time DESC
+// `;
 
-`;
+//     const [chatHistory] = await db.query(sql, [user_id, user_id, user_id]);
+//     const Data = JSON.parse(JSON.stringify(chatHistory));
 
-    const [chatHistory] = await db.query(sql, [user_id, user_id, user_id]);
-    const Data = JSON.parse(JSON.stringify(chatHistory));
-
-    res.status(200).json({
-      Data,
-      message: constant.SUCCESS_MESSAGE,
-    });
-  } catch (error) {
-    logger.error('Error getting chat history:', error);
-    res.status(500).json({ error: constant.FAILURE_MESSAGE });
-  }
-});
+//     res.status(200).json({
+//       Data,
+//       message: constant.SUCCESS_MESSAGE,
+//     });
+//   } catch (error) {
+//     logger.error('Error getting chat history:', error);
+//     res.status(500).json({ error: constant.FAILURE_MESSAGE });
+//   }
+// });
 
 
 // const deleteOldConversations = async () => {
@@ -196,6 +190,53 @@ ORDER BY
 //     logger.error('Error deleting old conversations:', error);
 //   }
 // };
+
+
+message.get('/chat_history', jwtMiddleware.verifyToken, async (req, res) => {
+  try {
+    const { user_id } = req.query;
+
+    const sql = `
+      SELECT
+        m.message_id,
+        u.user_id,
+        u.user_name,
+        u.user_type,
+        i.image_url AS user_image_url,
+        m.read AS latest_read,
+        m.time AS latest_time,
+        m.message AS latest_message
+      FROM
+        users u
+      JOIN
+        messages m ON (u.user_id = m.sender_id OR u.user_id = m.receiver_id)
+      LEFT JOIN
+        images i ON u.image_id = i.image_id
+      WHERE
+        (m.sender_id = ? OR m.receiver_id = ?) AND u.user_id != ?
+      AND
+        m.time = (
+          SELECT MAX(time)
+          FROM messages
+          WHERE (sender_id = u.user_id OR receiver_id = u.user_id)
+        )
+      ORDER BY
+        m.time DESC
+    `;
+
+    const [chatHistory] = await db.query(sql, [user_id, user_id, user_id]);
+    const Data = JSON.parse(JSON.stringify(chatHistory));
+
+    res.status(200).json({
+      Data,
+      message: constant.SUCCESS_MESSAGE,
+    });
+  } catch (error) {
+    logger.error('Error getting chat history:', error);
+    res.status(500).json({ error: constant.FAILURE_MESSAGE });
+  }
+});
+
 
 
 cron.schedule('*/10 * * * *',  deleteOldConversations = async () => {
