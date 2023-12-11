@@ -11,4 +11,4 @@ server.listen(port);
 console.log('Node server running on port '+port);
 
 
-
+module.exports = app;
