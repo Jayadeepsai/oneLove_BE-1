@@ -15,6 +15,7 @@ async function performTransaction(req, res) {
 
     try {
         await connection.beginTransaction();
+        
         const { mobile_number } = req.body;
         const checkQuery = 'SELECT contact_id FROM onelove.contact_details WHERE mobile_number = ?';
         const [checkResult] = await connection.query(checkQuery, [mobile_number]);
@@ -23,15 +24,23 @@ async function performTransaction(req, res) {
             return res.status(400).json({ message: 'User with this mobile number is already registered.' });
         }
 
+        const { email } = req.body;
+        const emailCheckQuery = 'SELECT contact_id FROM onelove.contact_details WHERE email = ?';
+        const [emailCheckResult] = await connection.query(emailCheckQuery, [email]);
+
+        if (emailCheckResult.length > 0) {
+            return res.status(400).json({ message: 'User with this email is already registered.' });
+        }
+
        const { address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords } = req.body;
        const addressQuery = 'INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
        const addressValues = [address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords];
        const [addressResult] = await connection.query(addressQuery, addressValues);
        const address_id = addressResult.insertId;
 
-       const {email} = req.body;
-       const contactQuery = 'INSERT INTO onelove.contact_details (mobile_number, email) VALUES (?, ?)';
-       const contactValues = [mobile_number,email ];
+       const { password } = req.body;
+       const contactQuery = 'INSERT INTO onelove.contact_details (mobile_number, email, password) VALUES (?, ?, ?)';
+       const contactValues = [mobile_number, email, password];
        const [contactResult] = await connection.query(contactQuery, contactValues);
        const contact_id = contactResult.insertId;
 
@@ -341,6 +350,91 @@ registration.post('/registration-mobile-number', async (req, res) => {
         return res.status(400).json({ message: messages.FAILURE_MESSAGE });
     }
 });
+
+
+registration.post('/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: messages.INVALID_ID });
+    }
+    
+      const sql =  ` SELECT
+      u.user_id,
+      u.user_type,
+      u.address_id,
+      u.contact_id,
+      u.user_name,
+      u.store_id,
+      u.service_id,
+      u.clinic_id,
+      u.image_id,
+      u.external_id,
+      a.address,
+      a.city,
+      a.state,
+      a.zip,
+      a.country,
+      a.landmark,
+      a.address_type,
+      a.lat_cords,
+      a.lan_cords,
+      c.mobile_number,
+      c.email,
+      s.store_name,
+      c1.clinic_name,
+      i.image_type,
+      i.image_url,
+      s.food_treats,
+      s.accessories,
+      s.toys,
+      s.health_care,
+      s.dog_service,
+      s.breader_adoption_sale
+  FROM
+      onelove.users u
+      LEFT JOIN onelove.address a ON u.address_id = a.address_id
+      LEFT JOIN onelove.contact_details c ON u.contact_id = c.contact_id
+      LEFT JOIN onelove.store s ON u.store_id = s.store_id
+      LEFT JOIN onelove.clinics c1 ON u.clinic_id = c1.clinic_id
+      LEFT JOIN onelove.images i ON u.image_id = i.image_id
+  WHERE
+  c.email = ? AND c.password = ?`;
+  
+      const [user] = await connection.query(sql, [email, password]);
+
+      if (user.length === 0) {
+        return res.status(200).json({ message: messages.NO_DATA });
+    }
+
+    const userId = user[0].user_id;
+    const userType = user[0].user_type;
+
+    const token = jwtMiddleware.generateToken(userId, userType);
+    const refreshToken = jwtMiddleware.generateRefreshToken(userId, userType);
+
+      const modifiedData = user.map((row) => ({
+        ...row,
+        food_treats: row.food_treats === 1,
+        accessories: row.accessories === 1,
+        toys: row.toys === 1,
+        health_care: row.health_care === 1,
+        dog_service: row.dog_service === 1,
+        breader_adoption_sale: row.breader_adoption_sale === 1,
+    }));
+  
+    return res.status(200).json({
+        registrationData: modifiedData,
+        token,
+        refreshToken,
+        message: messages.SUCCESS_MESSAGE,
+    });
+} catch (error) {
+    logger.error("Error", error);
+    return res.status(400).json({ message: messages.FAILURE_MESSAGE });
+}
+    });
 
 
 registration.delete('/delete-registration-data',jwtMiddleware.verifyToken, async (req, res) => {
