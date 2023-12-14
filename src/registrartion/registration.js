@@ -354,55 +354,75 @@ registration.post('/registration-mobile-number', async (req, res) => {
 
 registration.post('/login', async (req, res) => {
     try {
-      const { email, password } = req.body;
+        const { email, mobile_number, password } = req.body;
+        const { new_external_id } = req.body;
 
-      if (!email) {
-        return res.status(400).json({ message: messages.INVALID_ID });
-    }
+        if (!email && !mobile_number) {
+          return res.status(400).json({ message: messages.INVALID_ID });
+        }
+
+        let condition = '';
+        let values = [];
     
-      const sql =  ` SELECT
-      u.user_id,
-      u.user_type,
-      u.address_id,
-      u.contact_id,
-      u.user_name,
-      u.store_id,
-      u.service_id,
-      u.clinic_id,
-      u.image_id,
-      u.external_id,
-      a.address,
-      a.city,
-      a.state,
-      a.zip,
-      a.country,
-      a.landmark,
-      a.address_type,
-      a.lat_cords,
-      a.lan_cords,
-      c.mobile_number,
-      c.email,
-      s.store_name,
-      c1.clinic_name,
-      i.image_type,
-      i.image_url,
-      s.food_treats,
-      s.accessories,
-      s.toys,
-      s.health_care,
-      s.dog_service,
-      s.breader_adoption_sale
-  FROM
-      onelove.users u
-      LEFT JOIN onelove.address a ON u.address_id = a.address_id
-      LEFT JOIN onelove.contact_details c ON u.contact_id = c.contact_id
-      LEFT JOIN onelove.store s ON u.store_id = s.store_id
-      LEFT JOIN onelove.clinics c1 ON u.clinic_id = c1.clinic_id
-      LEFT JOIN onelove.images i ON u.image_id = i.image_id
-  WHERE
-  c.email = ? AND c.password = ?`;
-  
-      const [user] = await connection.query(sql, [email, password]);
+        if (email) {
+            condition += 'c.email = ?';
+            values.push(email);
+          }
+      
+          if (mobile_number) {
+            if (condition) condition += ' OR ';
+            condition += 'c.mobile_number = ?';
+            values.push(mobile_number);
+          }
+      
+          const sql = `
+            SELECT
+              u.user_id,
+              u.user_type,
+              u.address_id,
+              u.contact_id,
+              u.user_name,
+              u.store_id,
+              u.service_id,
+              u.clinic_id,
+              u.image_id,
+              u.external_id,
+              a.address,
+              a.city,
+              a.state,
+              a.zip,
+              a.country,
+              a.landmark,
+              a.address_type,
+              a.lat_cords,
+              a.lan_cords,
+              c.mobile_number,
+              c.email,
+              s.store_name,
+              c1.clinic_name,
+              i.image_type,
+              i.image_url,
+              s.food_treats,
+              s.accessories,
+              s.toys,
+              s.health_care,
+              s.dog_service,
+              s.breader_adoption_sale
+            FROM
+              onelove.users u
+              LEFT JOIN onelove.address a ON u.address_id = a.address_id
+              LEFT JOIN onelove.contact_details c ON u.contact_id = c.contact_id
+              LEFT JOIN onelove.store s ON u.store_id = s.store_id
+              LEFT JOIN onelove.clinics c1 ON u.clinic_id = c1.clinic_id
+              LEFT JOIN onelove.images i ON u.image_id = i.image_id
+            WHERE
+              ${condition} AND c.password = ?
+          `;
+      
+          values.push(password);
+      
+          const [user] = await connection.query(sql, values);
+      
 
       if (user.length === 0) {
         return res.status(200).json({ message: messages.NO_DATA });
@@ -411,8 +431,28 @@ registration.post('/login', async (req, res) => {
     const userId = user[0].user_id;
     const userType = user[0].user_type;
 
+    let existingExternalId = user[0].external_id;
+
+        if (existingExternalId === null) {
+            existingExternalId = [];
+        } else if (typeof existingExternalId === 'string') {
+            existingExternalId = JSON.parse(existingExternalId);
+        }
+        if (new_external_id !== undefined) {
+            if (existingExternalId.includes(new_external_id)) {
+                existingExternalId = existingExternalId.filter((id) => id !== new_external_id);
+            }
+            existingExternalId.push(new_external_id);
+            if (existingExternalId.length > 5) {
+                existingExternalId = existingExternalId.slice(-5);
+            }
+        }
+        const serializedExternalId = JSON.stringify(existingExternalId);
+
     const token = jwtMiddleware.generateToken(userId, userType);
     const refreshToken = jwtMiddleware.generateRefreshToken(userId, userType);
+    const updateExternalIdSql = 'UPDATE onelove.users SET external_id = ? WHERE user_id = ?';
+    await connection.query(updateExternalIdSql, [serializedExternalId, userId]);
 
       const modifiedData = user.map((row) => ({
         ...row,
