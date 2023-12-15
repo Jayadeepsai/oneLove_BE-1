@@ -357,6 +357,8 @@ registration.post('/login', async (req, res) => {
         const { email, mobile_number, password } = req.body;
         const { new_external_id } = req.body;
 
+        console.log(req.body)
+
         if (!email && !mobile_number) {
           return res.status(400).json({ message: messages.INVALID_ID });
         }
@@ -475,6 +477,35 @@ registration.post('/login', async (req, res) => {
     return res.status(400).json({ message: messages.FAILURE_MESSAGE });
 }
     });
+
+
+    async function getUserByMobileNumber(mobile_number) {
+        try {
+          const [user] = await connection.query('SELECT * FROM users WHERE contact_id IN (SELECT contact_id FROM contact_details WHERE mobile_number = ?)', [mobile_number]);
+          return user[0];
+        } catch (error) {
+          throw error;
+        }
+      }
+      
+
+    registration.post('/verify-mobile-number', async (req, res) => {
+        try {
+          const { mobile_number } = req.body;
+      
+          const user = await getUserByMobileNumber(mobile_number);
+      
+          if (user) {
+            return res.status(200).json({ message: 'Mobile number is registered', isRegistered: true });
+          } else {
+            return res.status(200).json({ message: 'Mobile number is not registered', isRegistered: false });
+          }
+        } catch (error) {
+          logger.error('Error', error);
+          return res.status(400).json({ message: messages.FAILURE_MESSAGE });
+        }
+      });
+
 
 
 registration.delete('/delete-registration-data',jwtMiddleware.verifyToken, async (req, res) => {
