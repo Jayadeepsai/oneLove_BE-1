@@ -359,7 +359,7 @@ registration.post('/login', async (req, res) => {
 
         console.log(req.body)
 
-        if (!email || !mobile_number) {
+        if (!email && !mobile_number) {
           return res.status(400).json({ message: messages.INVALID_ID });
         }
 
