@@ -11,37 +11,37 @@ clinic.use(express.json());
 clinic.use(express.urlencoded({ extended: true })); 
 
 
-async function clinicAddQueries(req,res){
+// async function clinicAddQueries(req,res){
 
-try{
-    await db.beginTransaction();
+// try{
+//     await db.beginTransaction();
 
-        const {clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time} = req.body;
-        const clinicQuery ='INSERT INTO onelove.clinics(clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        const clinicValues = [clinic_name, JSON.stringify(specialisation), clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time]
+//         const {clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time} = req.body;
+//         const clinicQuery ='INSERT INTO onelove.clinics(clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+//         const clinicValues = [clinic_name, JSON.stringify(specialisation), clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time]
 
-        await db.query(clinicQuery,clinicValues)
+//         await db.query(clinicQuery,clinicValues)
 
-        await db.commit();
-        logger.info('Clinic added successfully'); 
-        res.status(200).json({ message: messages.POST_SUCCESS});
+//         await db.commit();
+//         logger.info('Clinic added successfully'); 
+//         res.status(200).json({ message: messages.POST_SUCCESS});
 
-}catch(err){
-    await db.rollback();
-    logger.error('Error in transaction:', err.message);
-    res.status(400).json({ message:messages.POST_FAILED});
-}
-};
+// }catch(err){
+//     await db.rollback();
+//     logger.error('Error in transaction:', err.message);
+//     res.status(400).json({ message:messages.POST_FAILED});
+// }
+// };
 
-clinic.post('/clinic',jwtMiddleware.verifyToken, (req, res) => {
-    clinicAddQueries(req, res)
-        .then(() => {
-            logger.info('Transaction completed successfully');
-        })
-        .catch((err) => {
-            logger.error('Error in posting clinic data:', err);
-        });
-});
+// clinic.post('/clinic',jwtMiddleware.verifyToken, (req, res) => {
+//     clinicAddQueries(req, res)
+//         .then(() => {
+//             logger.info('Transaction completed successfully');
+//         })
+//         .catch((err) => {
+//             logger.error('Error in posting clinic data:', err);
+//         });
+// });
 
 
 
@@ -126,79 +126,79 @@ clinic.get('/clinic-user-id',jwtMiddleware.verifyToken, async(req,res)=>{
 
 
 
-clinic.put('/update-clinic', jwtMiddleware.verifyToken, async (req, res) => {
-    const clinic_id = req.query.clinic_id;
+// clinic.put('/update-clinic', jwtMiddleware.verifyToken, async (req, res) => {
+//     const clinic_id = req.query.clinic_id;
 
-    if (!clinic_id) {
-        return res.status(400).json({
-            message: messages.INVALID_ID,
-        });
-    }
+//     if (!clinic_id) {
+//         return res.status(400).json({
+//             message: messages.INVALID_ID,
+//         });
+//     }
 
-    try {
-        const { clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time } = req.body;
+//     try {
+//         const { clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time } = req.body;
 
-        let clinicSql = 'UPDATE onelove.clinics SET';
+//         let clinicSql = 'UPDATE onelove.clinics SET';
 
-        const values = [];
+//         const values = [];
 
-        if (clinic_name !== undefined) {
-            clinicSql += ' clinic_name=?,';
-            values.push(clinic_name);
-        }
-        if (specialisation !== undefined) {
-            clinicSql += ' specialisation=?,';
-            values.push(JSON.stringify(specialisation));
-        }
-        if (clinic_license !== undefined) {
-            clinicSql += ' clinic_license=?,';
-            values.push(clinic_license);
-        }
-        if (experience !== undefined) {
-            clinicSql += ' experience=?,';
-            values.push(experience);
-        }
-        if (education !== undefined) {
-            clinicSql += ' education=?,';
-            values.push(education);
-        }
+//         if (clinic_name !== undefined) {
+//             clinicSql += ' clinic_name=?,';
+//             values.push(clinic_name);
+//         }
+//         if (specialisation !== undefined) {
+//             clinicSql += ' specialisation=?,';
+//             values.push(JSON.stringify(specialisation));
+//         }
+//         if (clinic_license !== undefined) {
+//             clinicSql += ' clinic_license=?,';
+//             values.push(clinic_license);
+//         }
+//         if (experience !== undefined) {
+//             clinicSql += ' experience=?,';
+//             values.push(experience);
+//         }
+//         if (education !== undefined) {
+//             clinicSql += ' education=?,';
+//             values.push(education);
+//         }
 
-        if (week_start_day !== undefined) {
-            clinicSql += ' week_start_day=?,';
-            values.push(week_start_day);
-        }
-        if (week_end_day !== undefined) {
-            clinicSql += ' week_end_day=?,';
-            values.push(week_end_day);
-        }
-        if (start_time !== undefined) {
-            clinicSql += ' start_time=?,';
-            values.push(start_time);
-        }
-        if (end_time !== undefined) {
-            clinicSql += ' end_time=?,';
-            values.push(end_time);
-        }
+//         if (week_start_day !== undefined) {
+//             clinicSql += ' week_start_day=?,';
+//             values.push(week_start_day);
+//         }
+//         if (week_end_day !== undefined) {
+//             clinicSql += ' week_end_day=?,';
+//             values.push(week_end_day);
+//         }
+//         if (start_time !== undefined) {
+//             clinicSql += ' start_time=?,';
+//             values.push(start_time);
+//         }
+//         if (end_time !== undefined) {
+//             clinicSql += ' end_time=?,';
+//             values.push(end_time);
+//         }
 
-        clinicSql = clinicSql.slice(0, -1);
-        clinicSql += ' WHERE clinic_id=?';
-        values.push(clinic_id);
+//         clinicSql = clinicSql.slice(0, -1);
+//         clinicSql += ' WHERE clinic_id=?';
+//         values.push(clinic_id);
 
-        await db.beginTransaction();
+//         await db.beginTransaction();
 
-        await db.query(clinicSql, values);
+//         await db.query(clinicSql, values);
 
-        await db.commit();
+//         await db.commit();
 
-        res.status(200).json({
-            message: messages.DATA_UPDATED,
-        });
-    } catch (err) {
-        await db.rollback();
-        logger.error('Error updating data:', err.message);
-        res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
-    }
-});
+//         res.status(200).json({
+//             message: messages.DATA_UPDATED,
+//         });
+//     } catch (err) {
+//         await db.rollback();
+//         logger.error('Error updating data:', err.message);
+//         res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
+//     }
+// });
 
 
 

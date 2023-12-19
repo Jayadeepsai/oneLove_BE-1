@@ -79,76 +79,76 @@ try{
 });
 
 
-users.get('/users-pet-owners-user-id',jwtMiddleware.verifyToken,async(req,res)=>{
-    const user_id=req.query.user_id;
-    const sql=`
-    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*, i.*
-    FROM users u
-    LEFT JOIN address a ON u.address_id = a.address_id
-    LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
-    LEFT JOIN service s ON u.service_id = s.service_id
-    LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
-    LEFT JOIN store s1 ON u.store_id = s1.store_id
-    LEFT JOIN images i ON u.image_id = i.image_id
-    WHERE u.user_id = ? AND u.user_type='pet_owner'`;
-try{
-    const [results] = await db.query(sql, [user_id]);
-    const userData = JSON.parse(JSON.stringify(results));
+// users.get('/users-pet-owners-user-id',jwtMiddleware.verifyToken,async(req,res)=>{
+//     const user_id=req.query.user_id;
+//     const sql=`
+//     SELECT u.*, a.*, c.*,s.*,c1.*,s1.*, i.*
+//     FROM users u
+//     LEFT JOIN address a ON u.address_id = a.address_id
+//     LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
+//     LEFT JOIN service s ON u.service_id = s.service_id
+//     LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
+//     LEFT JOIN store s1 ON u.store_id = s1.store_id
+//     LEFT JOIN images i ON u.image_id = i.image_id
+//     WHERE u.user_id = ? AND u.user_type='pet_owner'`;
+// try{
+//     const [results] = await db.query(sql, [user_id]);
+//     const userData = JSON.parse(JSON.stringify(results));
 
-    if (userData.length > 0) {
-        return res.status(200).json({
-            userData,
-            message:messages.SUCCESS_MESSAGE,
-        });
-    } else {
-        return res.status(200).json({
-            message: messages.NO_DATA,
-        });
-    }
+//     if (userData.length > 0) {
+//         return res.status(200).json({
+//             userData,
+//             message:messages.SUCCESS_MESSAGE,
+//         });
+//     } else {
+//         return res.status(200).json({
+//             message: messages.NO_DATA,
+//         });
+//     }
 
-}catch(err){
-    logger.error('Error fetching data:', err);
-    return res.status(400).json({
-        message: messages.FAILURE_MESSAGE,
-    });
-}
-});
+// }catch(err){
+//     logger.error('Error fetching data:', err);
+//     return res.status(400).json({
+//         message: messages.FAILURE_MESSAGE,
+//     });
+// }
+// });
 
 
 
-users.get('/users-pet-owners',jwtMiddleware.verifyToken,async(req,res)=>{
-    const sql=`
-    SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,i.*
-    FROM users u
-    LEFT JOIN address a ON u.address_id = a.address_id
-    LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
-    LEFT JOIN service s ON u.service_id = s.service_id
-    LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
-    LEFT JOIN store s1 ON u.store_id = s1.store_id
-    LEFT JOIN images i ON u.image_id = i.image_id
-    WHERE u.user_type='pet_owner'`;
-try{
-    const [results] = await db.query(sql);
-    const userData = JSON.parse(JSON.stringify(results));
+// users.get('/users-pet-owners',jwtMiddleware.verifyToken,async(req,res)=>{
+//     const sql=`
+//     SELECT u.*, a.*, c.*,s.*,c1.*,s1.*,i.*
+//     FROM users u
+//     LEFT JOIN address a ON u.address_id = a.address_id
+//     LEFT JOIN contact_details c ON u.contact_id = c.contact_id 
+//     LEFT JOIN service s ON u.service_id = s.service_id
+//     LEFT JOIN clinics c1 ON  u.clinic_id = c1.clinic_id
+//     LEFT JOIN store s1 ON u.store_id = s1.store_id
+//     LEFT JOIN images i ON u.image_id = i.image_id
+//     WHERE u.user_type='pet_owner'`;
+// try{
+//     const [results] = await db.query(sql);
+//     const userData = JSON.parse(JSON.stringify(results));
 
-    if (userData.length > 0) {
-        return res.status(200).json({
-            userData,
-            message:messages.SUCCESS_MESSAGE,
-        });
-    } else {
-        return res.status(200).json({
-            message: messages.NO_DATA,
-        });
-    }
+//     if (userData.length > 0) {
+//         return res.status(200).json({
+//             userData,
+//             message:messages.SUCCESS_MESSAGE,
+//         });
+//     } else {
+//         return res.status(200).json({
+//             message: messages.NO_DATA,
+//         });
+//     }
 
-}catch(err){
-    logger.error('Error fetching data:', err);
-    return res.status(400).json({
-        message: messages.FAILURE_MESSAGE,
-    });
-}
-});
+// }catch(err){
+//     logger.error('Error fetching data:', err);
+//     return res.status(400).json({
+//         message: messages.FAILURE_MESSAGE,
+//     });
+// }
+// });
 
 
 

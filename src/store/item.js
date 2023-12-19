@@ -75,29 +75,29 @@ items.post('/item-entry',jwtMiddleware.verifyToken,(req,res)=>{
 
 
 
-items.get('/products',jwtMiddleware.verifyToken,async(req,res)=>{
+// items.get('/products',jwtMiddleware.verifyToken,async(req,res)=>{
 
-    const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
-                 FROM onelove.items i
-                 LEFT JOIN store s1 ON i.store_id = s1.store_id
-                 LEFT JOIN address a ON s1.address_id = a.address_id
-                 LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
-                 LEFT JOIN images i1 ON i.image_id = i1.image_id`
-    try{
-        const [results] = await db.query(sql);
+//     const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
+//                  FROM onelove.items i
+//                  LEFT JOIN store s1 ON i.store_id = s1.store_id
+//                  LEFT JOIN address a ON s1.address_id = a.address_id
+//                  LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
+//                  LEFT JOIN images i1 ON i.image_id = i1.image_id`
+//     try{
+//         const [results] = await db.query(sql);
 
-        const productsData = JSON.parse(JSON.stringify(results));
-        res.status(200).json({
-            productsData,
-            message: messages.SUCCESS_MESSAGE,
-        });
-    }catch(err){
-        logger.error('Error fetching pets data:', err);
-        res.status(400).json({
-            message:messages.FAILURE_MESSAGE,
-        });
-    }
-});
+//         const productsData = JSON.parse(JSON.stringify(results));
+//         res.status(200).json({
+//             productsData,
+//             message: messages.SUCCESS_MESSAGE,
+//         });
+//     }catch(err){
+//         logger.error('Error fetching pets data:', err);
+//         res.status(400).json({
+//             message:messages.FAILURE_MESSAGE,
+//         });
+//     }
+// });
 
 
 items.get('/products-id',jwtMiddleware.verifyToken,async(req,res)=>{
@@ -183,55 +183,55 @@ items.get('/products-store-id',jwtMiddleware.verifyToken,async(req,res)=>{
 });
 
 
-items.get('/product-store-item-id',jwtMiddleware.verifyToken, async (req, res) => {
-    try {
-        const { store_id, item_id } = req.query;
+// items.get('/product-store-item-id',jwtMiddleware.verifyToken, async (req, res) => {
+//     try {
+//         const { store_id, item_id } = req.query;
 
-        let condition = '';
-        const values = [];
+//         let condition = '';
+//         const values = [];
 
-        if (store_id) {
-            condition += 'i.store_id = ?';
-            values.push(store_id);
-        }
+//         if (store_id) {
+//             condition += 'i.store_id = ?';
+//             values.push(store_id);
+//         }
 
-        if (item_id) {
-            if (condition) {
-                condition += ' AND ';
-            }
-            condition += 'i.item_id = ?';
-            values.push(item_id);
-        }
+//         if (item_id) {
+//             if (condition) {
+//                 condition += ' AND ';
+//             }
+//             condition += 'i.item_id = ?';
+//             values.push(item_id);
+//         }
 
-        let sql = `SELECT i.*,s1.*,i1.*
-        FROM onelove.items i
-        LEFT JOIN store s1 ON i.store_id = s1.store_id
-        LEFT JOIN images i1 ON i.image_id = i1.image_id`;
+//         let sql = `SELECT i.*,s1.*,i1.*
+//         FROM onelove.items i
+//         LEFT JOIN store s1 ON i.store_id = s1.store_id
+//         LEFT JOIN images i1 ON i.image_id = i1.image_id`;
         
-        if (condition) {
-            sql += ' WHERE ' + condition;
-        }
+//         if (condition) {
+//             sql += ' WHERE ' + condition;
+//         }
 
-        const [results] = await db.query(sql, values);
-        const productData = JSON.parse(JSON.stringify(results));
+//         const [results] = await db.query(sql, values);
+//         const productData = JSON.parse(JSON.stringify(results));
 
-        if (productData.length > 0) {
-            res.status(200).json({
-                productData,
-                message: messages.SUCCESS_MESSAGE,
-            });
-        } else {
-            res.status(200).json({
-                message: messages.NO_DATA,
-            });
-        }
-    } catch (err) {
-        logger.error('Error fetching data:', err);
-        res.status(400).json({
-            message: messages.FAILURE_MESSAGE,
-        });
-    }
-});
+//         if (productData.length > 0) {
+//             res.status(200).json({
+//                 productData,
+//                 message: messages.SUCCESS_MESSAGE,
+//             });
+//         } else {
+//             res.status(200).json({
+//                 message: messages.NO_DATA,
+//             });
+//         }
+//     } catch (err) {
+//         logger.error('Error fetching data:', err);
+//         res.status(400).json({
+//             message: messages.FAILURE_MESSAGE,
+//         });
+//     }
+// });
 
 
 items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {

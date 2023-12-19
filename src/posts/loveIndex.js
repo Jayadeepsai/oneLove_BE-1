@@ -150,104 +150,104 @@ loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 
-loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) => {
-    const { love_index_id, user_id } = req.query;
+// loveIndx.delete('/delete-comment',jwtMiddleware.verifyToken, async (req, res) => {
+//     const { love_index_id, user_id } = req.query;
 
-    try {
-        const existingCommentsSql = 'SELECT comments FROM onelove.love_index WHERE love_index_id = ?';
-        const [existingCommentsResult] = await db.query(existingCommentsSql, [love_index_id]);
+//     try {
+//         const existingCommentsSql = 'SELECT comments FROM onelove.love_index WHERE love_index_id = ?';
+//         const [existingCommentsResult] = await db.query(existingCommentsSql, [love_index_id]);
 
-        if (existingCommentsResult.length === 0) {
-            return res.status(404).json({ message: messages.NO_DATA });
-        }
+//         if (existingCommentsResult.length === 0) {
+//             return res.status(404).json({ message: messages.NO_DATA });
+//         }
 
-        let existingComments = [];
+//         let existingComments = [];
 
-        if (existingCommentsResult[0].comments !== null) {
-            if (Array.isArray(existingCommentsResult[0].comments)) {
-                existingComments = existingCommentsResult[0].comments;
-            } else {
-                logger.error('Invalid comments data:', existingCommentsResult[0].comments);
-                return res.status(400).json({ message: messages.FAILED_TO_DELETE });
-            }
-        }
-        const commentIndex = existingComments.findIndex(comment => comment.user_id === user_id);
+//         if (existingCommentsResult[0].comments !== null) {
+//             if (Array.isArray(existingCommentsResult[0].comments)) {
+//                 existingComments = existingCommentsResult[0].comments;
+//             } else {
+//                 logger.error('Invalid comments data:', existingCommentsResult[0].comments);
+//                 return res.status(400).json({ message: messages.FAILED_TO_DELETE });
+//             }
+//         }
+//         const commentIndex = existingComments.findIndex(comment => comment.user_id === user_id);
 
-        if (commentIndex === -1) {
-            return res.status(200).json({ message:messages.NO_DATA});
-        }
-        existingComments.splice(commentIndex, 1);
+//         if (commentIndex === -1) {
+//             return res.status(200).json({ message:messages.NO_DATA});
+//         }
+//         existingComments.splice(commentIndex, 1);
 
-        const updateCommentsSql = 'UPDATE onelove.love_index SET comments = ? WHERE love_index_id = ?';
-        const updateCommentsValues = [JSON.stringify(existingComments), love_index_id];
-        await db.query(updateCommentsSql, updateCommentsValues);
+//         const updateCommentsSql = 'UPDATE onelove.love_index SET comments = ? WHERE love_index_id = ?';
+//         const updateCommentsValues = [JSON.stringify(existingComments), love_index_id];
+//         await db.query(updateCommentsSql, updateCommentsValues);
 
-        res.status(200).json({ message:messages.DATA_DELETED });
-    } catch (err) {
-        logger.error('Error while deleting comment:', err);
-        res.status(400).json({ message: messages.FAILED_TO_DELETE });
-    }
-});
+//         res.status(200).json({ message:messages.DATA_DELETED });
+//     } catch (err) {
+//         logger.error('Error while deleting comment:', err);
+//         res.status(400).json({ message: messages.FAILED_TO_DELETE });
+//     }
+// });
 
 
 
-loveIndx.get('/love_index_data',jwtMiddleware.verifyToken, async (req, res) => {
-        const post_id = req.query.post_id;
-        try {
-            const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = (SELECT love_index_id FROM onelove.posts WHERE post_id = ?)`;
-            const [results] = await db.query(sql, [post_id]);
-            const postData = JSON.parse(JSON.stringify(results));
+// loveIndx.get('/love_index_data',jwtMiddleware.verifyToken, async (req, res) => {
+//         const post_id = req.query.post_id;
+//         try {
+//             const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = (SELECT love_index_id FROM onelove.posts WHERE post_id = ?)`;
+//             const [results] = await db.query(sql, [post_id]);
+//             const postData = JSON.parse(JSON.stringify(results));
     
-            if (!postData) {
-                return res.status(400).json({
-                    message: messages.FAILED,
-                });
-            }
+//             if (!postData) {
+//                 return res.status(400).json({
+//                     message: messages.FAILED,
+//                 });
+//             }
     
-            let likesCount = 0;
-            let commentsCount = 0;
+//             let likesCount = 0;
+//             let commentsCount = 0;
     
-            if (postData[0].likes) {
-                likesCount = postData[0].likes.length;
-            }
+//             if (postData[0].likes) {
+//                 likesCount = postData[0].likes.length;
+//             }
     
-            if (postData[0].comments) {
-                commentsCount = postData[0].comments.length;
-            }
+//             if (postData[0].comments) {
+//                 commentsCount = postData[0].comments.length;
+//             }
     
-            res.status(200).json({
-                postData,
-                likesCount,
-                commentsCount,
-                message: messages.SUCCESS_MESSAGE,
-            });
-        } catch (err) {
-            logger.error('Error fetching data:', err);
-            res.status(400).json({
-                message: messages.FAILURE_MESSAGE,
-            });
-        }
-    });
+//             res.status(200).json({
+//                 postData,
+//                 likesCount,
+//                 commentsCount,
+//                 message: messages.SUCCESS_MESSAGE,
+//             });
+//         } catch (err) {
+//             logger.error('Error fetching data:', err);
+//             res.status(400).json({
+//                 message: messages.FAILURE_MESSAGE,
+//             });
+//         }
+//     });
     
 
-loveIndx.get('/loveIndexDataByCondition/:love_index_id',jwtMiddleware.verifyToken, (req, res) => { 
-    const love_index_id = req.params.love_index_id;
-    const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = ?`;
+// loveIndx.get('/loveIndexDataByCondition/:love_index_id',jwtMiddleware.verifyToken, (req, res) => { 
+//     const love_index_id = req.params.love_index_id;
+//     const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = ?`;
 
-    db.query(sql, love_index_id, function (err, result, fields) {
-        if (!err) {
-            var data = JSON.parse(JSON.stringify(result));
-            res.status(200).json({
-                loveIndexData: data,
-                message: "loveIndex Data"
-            });
-        } else {
-            res.status(400).json({
-                message: err
-            });
-        }
-    });
-});
+//     db.query(sql, love_index_id, function (err, result, fields) {
+//         if (!err) {
+//             var data = JSON.parse(JSON.stringify(result));
+//             res.status(200).json({
+//                 loveIndexData: data,
+//                 message: "loveIndex Data"
+//             });
+//         } else {
+//             res.status(400).json({
+//                 message: err
+//             });
+//         }
+//     });
+// });
 
 
 module.exports=loveIndx;

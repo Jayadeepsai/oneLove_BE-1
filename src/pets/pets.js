@@ -179,48 +179,48 @@ pets.put('/update-pet',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 
-pets.put('/pet-update-image',jwtMiddleware.verifyToken, async (req, res) => {
-    try {
-        const pet_id = req.query.pet_id;
-        const { image_type, image_url } = req.body;
+// pets.put('/pet-update-image',jwtMiddleware.verifyToken, async (req, res) => {
+//     try {
+//         const pet_id = req.query.pet_id;
+//         const { image_type, image_url } = req.body;
   
-        const updateImageSql = `
-            UPDATE onelove.images
-            SET image_type = ?, image_url = ?
-            WHERE image_id = (SELECT image_id FROM onelove.pet WHERE pet_id = ?)`;
-        const updateImageValues = [image_type, JSON.stringify(image_url), pet_id];
+//         const updateImageSql = `
+//             UPDATE onelove.images
+//             SET image_type = ?, image_url = ?
+//             WHERE image_id = (SELECT image_id FROM onelove.pet WHERE pet_id = ?)`;
+//         const updateImageValues = [image_type, JSON.stringify(image_url), pet_id];
 
-        const [updateImageResult] = await db.query(updateImageSql, updateImageValues);
+//         const [updateImageResult] = await db.query(updateImageSql, updateImageValues);
 
-        if (updateImageResult.affectedRows === 0) {
-            return res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
-        }
-        return res.status(200).json({ message: messages.DATA_UPDATED });
-    } catch (err) {
-        logger.error("Error updating image details:", err);
-        return res.status(400).json({ message: messages.DATA_UPDATE_FALIED, err });
-    }
-});
+//         if (updateImageResult.affectedRows === 0) {
+//             return res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
+//         }
+//         return res.status(200).json({ message: messages.DATA_UPDATED });
+//     } catch (err) {
+//         logger.error("Error updating image details:", err);
+//         return res.status(400).json({ message: messages.DATA_UPDATE_FALIED, err });
+//     }
+// });
 
 
 
-pets.get('/pets-images',jwtMiddleware.verifyToken, async (req, res) => { 
-    try {
-        const pet_id = req.query.pet_id; 
-        const sql = `SELECT i.* FROM images i WHERE i.image_id IN (SELECT p.image_id FROM pets p WHERE p.pet_id = ?)`;
-        const [results] = await db.query(sql, [pet_id]); 
-        const images = JSON.parse(JSON.stringify(results));
-        res.status(200).json({
-            images,
-            message: messages.SUCCESS_MESSAGE,
-        });
-    } catch (err) {
-        logger.error('Error fetching images:', err);
-        res.status(400).json({
-            message: messages.FAILURE_MESSAGE,
-        });
-    }
-});
+// pets.get('/pets-images',jwtMiddleware.verifyToken, async (req, res) => { 
+//     try {
+//         const pet_id = req.query.pet_id; 
+//         const sql = `SELECT i.* FROM images i WHERE i.image_id IN (SELECT p.image_id FROM pets p WHERE p.pet_id = ?)`;
+//         const [results] = await db.query(sql, [pet_id]); 
+//         const images = JSON.parse(JSON.stringify(results));
+//         res.status(200).json({
+//             images,
+//             message: messages.SUCCESS_MESSAGE,
+//         });
+//     } catch (err) {
+//         logger.error('Error fetching images:', err);
+//         res.status(400).json({
+//             message: messages.FAILURE_MESSAGE,
+//         });
+//     }
+// });
 
 
 pets.get('/pets-users',jwtMiddleware.verifyToken, async (req, res) => { 
@@ -281,33 +281,33 @@ pets.get('/pets-users',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 
-pets.delete('/delete-pet',jwtMiddleware.verifyToken, async (req, res) => {
-    const { userType } = req;
-    if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
-        return res.status(403).json({ message: messages.FORBID });
-    }
+// pets.delete('/delete-pet',jwtMiddleware.verifyToken, async (req, res) => {
+//     const { userType } = req;
+//     if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+//         return res.status(403).json({ message: messages.FORBID });
+//     }
     
-    try {
-        const pet_id = req.query.pet_id; 
-        const sql = `DELETE FROM pet WHERE pet_id = ?`;
-        const [result] = await db.query(sql, [pet_id]);
+//     try {
+//         const pet_id = req.query.pet_id; 
+//         const sql = `DELETE FROM pet WHERE pet_id = ?`;
+//         const [result] = await db.query(sql, [pet_id]);
 
-        if (result.affectedRows === 0) {
-            res.status(200).json({
-                message: messages.NO_DATA,
-            });
-        } else {
-            res.status(200).json({
-                message: messages.DATA_DELETED,
-            });
-        }
-    } catch (err) {
-        logger.error('Error deleting pet:', err);
-        res.status(400).json({
-            message: messages.FAILED_TO_DELETE,
-        });
-    }
-});
+//         if (result.affectedRows === 0) {
+//             res.status(200).json({
+//                 message: messages.NO_DATA,
+//             });
+//         } else {
+//             res.status(200).json({
+//                 message: messages.DATA_DELETED,
+//             });
+//         }
+//     } catch (err) {
+//         logger.error('Error deleting pet:', err);
+//         res.status(400).json({
+//             message: messages.FAILED_TO_DELETE,
+//         });
+//     }
+// });
 
 
 module.exports = pets

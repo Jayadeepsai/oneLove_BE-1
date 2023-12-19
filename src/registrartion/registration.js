@@ -152,60 +152,60 @@ registration.post('/registration', (req, res) => {
 });
 
 
-registration.get('/registration',jwtMiddleware.verifyToken, async (req, res) => {
-    try {
-        const sql = `SELECT a.*, c.*, u.*, r.*,i.*
-                     FROM onelove.registrations r
-                     LEFT JOIN address a ON r.address_id = a.address_id
-                     LEFT JOIN contact_details c ON r.contact_id = c.contact_id
-                     LEFT JOIN users u ON r.user_id = u.user_id
-                     LEFT JOIN images i ON r.image_id = i.image_id`;
-        const [data] = await connection.query(sql);
+// registration.get('/registration',jwtMiddleware.verifyToken, async (req, res) => {
+//     try {
+//         const sql = `SELECT a.*, c.*, u.*, r.*,i.*
+//                      FROM onelove.registrations r
+//                      LEFT JOIN address a ON r.address_id = a.address_id
+//                      LEFT JOIN contact_details c ON r.contact_id = c.contact_id
+//                      LEFT JOIN users u ON r.user_id = u.user_id
+//                      LEFT JOIN images i ON r.image_id = i.image_id`;
+//         const [data] = await connection.query(sql);
 
-        return res.status(200).json({
-            registrationData: data,
-            message: messages.SUCCESS_MESSAGE
-        });
-    } catch (error) {
-        logger.error('Error fetching registers data:', error.message);
-        return res.status(400).json({
-            message: messages.FAILURE_MESSAGE
-        });
-    }
-});
+//         return res.status(200).json({
+//             registrationData: data,
+//             message: messages.SUCCESS_MESSAGE
+//         });
+//     } catch (error) {
+//         logger.error('Error fetching registers data:', error.message);
+//         return res.status(400).json({
+//             message: messages.FAILURE_MESSAGE
+//         });
+//     }
+// });
 
 
-registration.get('/registration-id',jwtMiddleware.verifyToken, async(req,res)=>{
+// registration.get('/registration-id',jwtMiddleware.verifyToken, async(req,res)=>{
 
-const reg_id = req.query.reg_id;
-try{
-    if (!reg_id) {
-        return res.status(400).json({ message:messages.NO_DATA });
-    }
+// const reg_id = req.query.reg_id;
+// try{
+//     if (!reg_id) {
+//         return res.status(400).json({ message:messages.NO_DATA });
+//     }
 
-    const sql =`SELECT a.*, c.*, u.*, r.*,i.*
-                FROM onelove.registrations r
-                LEFT JOIN address a ON r.address_id = a.address_id
-                LEFT JOIN contact_details c ON r.contact_id = c.contact_id
-                LEFT JOIN users u ON r.user_id = u.user_id
-                LEFT JOIN images i ON r.image_id = i.image_id WHERE r.reg_id=?`;
-    const [data] = await connection.query(sql,[reg_id]);
+//     const sql =`SELECT a.*, c.*, u.*, r.*,i.*
+//                 FROM onelove.registrations r
+//                 LEFT JOIN address a ON r.address_id = a.address_id
+//                 LEFT JOIN contact_details c ON r.contact_id = c.contact_id
+//                 LEFT JOIN users u ON r.user_id = u.user_id
+//                 LEFT JOIN images i ON r.image_id = i.image_id WHERE r.reg_id=?`;
+//     const [data] = await connection.query(sql,[reg_id]);
 
-    if (data.length === 0) {
-        return res.status(200).json({ message: messages.NO_DATA });
-    }
+//     if (data.length === 0) {
+//         return res.status(200).json({ message: messages.NO_DATA });
+//     }
 
-    return res.status(200).json({
-        registrationData: data,
-        message: messages.SUCCESS_MESSAGE
-    });
+//     return res.status(200).json({
+//         registrationData: data,
+//         message: messages.SUCCESS_MESSAGE
+//     });
 
-}catch(error){
-    logger.error("Error", error);
-    return res.status(400).json({ message:messages.FAILURE_MESSAGE});
-}
+// }catch(error){
+//     logger.error("Error", error);
+//     return res.status(400).json({ message:messages.FAILURE_MESSAGE});
+// }
 
-});
+// });
 
 
   registration.post('/logout', async (req, res) => {
@@ -278,6 +278,7 @@ registration.post('/registration-mobile-number', async (req, res) => {
         a.lan_cords,
         c.mobile_number,
         c.email,
+        c.password,
         s.store_name,
         c1.clinic_name,
         i.image_type,
@@ -400,6 +401,7 @@ registration.post('/login', async (req, res) => {
               a.lan_cords,
               c.mobile_number,
               c.email,
+              c.password,
               s.store_name,
               c1.clinic_name,
               i.image_type,
@@ -532,21 +534,21 @@ registration.put('/update-password', async (req, res) => {
   
 
 
-registration.delete('/delete-registration-data',jwtMiddleware.verifyToken, async (req, res) => {
-    const reg_id = req.query.reg_id;
-    const sql = 'DELETE FROM `registrations` WHERE `reg_id`=?';
+// registration.delete('/delete-registration-data',jwtMiddleware.verifyToken, async (req, res) => {
+//     const reg_id = req.query.reg_id;
+//     const sql = 'DELETE FROM `registrations` WHERE `reg_id`=?';
 
-    try {
-        const [result] = await connection.query(sql, reg_id);
-        return res.status(200).json({
-            deletedData: result,
-            message: messages.DATA_DELETED
-        });
-    } catch (err) {
-        logger.error("Error deleting data", err.message);
-        return res.status(400).json({ message: messages.FAILED_TO_DELETE });
-    }
-});
+//     try {
+//         const [result] = await connection.query(sql, reg_id);
+//         return res.status(200).json({
+//             deletedData: result,
+//             message: messages.DATA_DELETED
+//         });
+//     } catch (err) {
+//         logger.error("Error deleting data", err.message);
+//         return res.status(400).json({ message: messages.FAILED_TO_DELETE });
+//     }
+// });
 
 
 module.exports=registration;

@@ -71,30 +71,30 @@ async function isOrderNoUnique(order_no) {
  
 
 
-orders.get('/all-orders',jwtMiddleware.verifyToken,async(req,res)=>{
-    try{
-        const sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
-        FROM onelove.orders o
-        LEFT JOIN users u ON o.user_id = u.user_id
-        LEFT JOIN address a ON u.address_id = a.address_id
-        LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-        LEFT JOIN store s ON o.store_id = s.store_id
-        LEFT JOIN address sa ON s.address_id = sa.address_id
-        LEFT JOIN contact_details sc ON s.contact_id = sc.contact_id`
-        const [result] = await db.query(sql);
-        const ordersData = JSON.parse(JSON.stringify(result));
-        res.status(200).json({
-            data: ordersData,
-            message: messages.SUCCESS_MESSAGE
-        });
+// orders.get('/all-orders',jwtMiddleware.verifyToken,async(req,res)=>{
+//     try{
+//         const sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
+//         FROM onelove.orders o
+//         LEFT JOIN users u ON o.user_id = u.user_id
+//         LEFT JOIN address a ON u.address_id = a.address_id
+//         LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+//         LEFT JOIN store s ON o.store_id = s.store_id
+//         LEFT JOIN address sa ON s.address_id = sa.address_id
+//         LEFT JOIN contact_details sc ON s.contact_id = sc.contact_id`
+//         const [result] = await db.query(sql);
+//         const ordersData = JSON.parse(JSON.stringify(result));
+//         res.status(200).json({
+//             data: ordersData,
+//             message: messages.SUCCESS_MESSAGE
+//         });
 
-    }catch(err){
-        logger.error('Error posting data:', err.message);
-        res.status(400).json({
-            message: messages.FAILURE_MESSAGE
-        });
-    }
-});
+//     }catch(err){
+//         logger.error('Error posting data:', err.message);
+//         res.status(400).json({
+//             message: messages.FAILURE_MESSAGE
+//         });
+//     }
+// });
 
 
 
