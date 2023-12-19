@@ -8,7 +8,7 @@ const actuator = require('express-actuator');
 const cors = require('cors')
 
 app.use(cors({
-    origin:'https://onelove-80825b023778.herokuapp.com'
+    origin:"*"
 }));
 
 
