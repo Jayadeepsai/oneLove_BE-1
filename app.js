@@ -7,9 +7,9 @@ const fileUpload = require('express-fileupload');
 const actuator = require('express-actuator');
 const cors = require('cors')
 
-// app.use(cors({
-//     origin:'https://onelove-80825b023778.herokuapp.com'
-// }));
+app.use(cors({
+    origin:'https://onelove-80825b023778.herokuapp.com'
+}));
 
 
 const items = require('./src/store/item');
