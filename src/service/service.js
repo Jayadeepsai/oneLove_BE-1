@@ -96,63 +96,63 @@ service.get('/service',jwtMiddleware.verifyToken, async(req,res)=>{
 });
 
 
-// service.get('/service-user-id',jwtMiddleware.verifyToken, async (req, res) => {
+service.get('/service-user-id',jwtMiddleware.verifyToken, async (req, res) => {
 
-//     const { userType } = req;
-//     if (userType !== 'pet_owner'&& userType !== 'pet_trainer') {
-//         return res.status(403).json({ message: messages.FORBID });
-//     }
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
 
-//     const userId = req.query.user_id;
+    const userId = req.query.user_id;
 
-//     if (!userId) {
-//         return res.status(400).json({
-//             message: messages.INVALID_ID,
-//         });
-//     }
+    if (!userId) {
+        return res.status(400).json({
+            message: messages.INVALID_ID,
+        });
+    }
 
-//     const sql = `
-//     SELECT  s.*, u.*, a.*, c.*, i.*
-//     FROM users u
-//     LEFT JOIN service s ON u.service_id = s.service_id
-//     LEFT JOIN address a ON u.address_id = a.address_id
-//     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
-//     LEFT JOIN images i ON u.image_id = i.image_id
-//     WHERE u.user_id = ?`;
+    const sql = `
+    SELECT  s.*, u.*, a.*, c.*, i.*
+    FROM users u
+    LEFT JOIN service s ON u.service_id = s.service_id
+    LEFT JOIN address a ON u.address_id = a.address_id
+    LEFT JOIN contact_details c ON u.contact_id = c.contact_id
+    LEFT JOIN images i ON u.image_id = i.image_id
+    WHERE u.user_id = ?`;
 
-//     try {
-//         const [results] = await db.query(sql, [userId]);
-//         const servicesData = JSON.parse(JSON.stringify(results));
+    try {
+        const [results] = await db.query(sql, [userId]);
+        const servicesData = JSON.parse(JSON.stringify(results));
 
-//         if (servicesData.length > 0) {
-//             const convertedServicesData = servicesData.map(item => ({
-//                 ...item,
-//                 pet_walking: item.pet_walking === 1,
-//                 pet_sitting: item.pet_sitting === 1,
-//                 pet_boarding: item.pet_boarding === 1,
-//                 event_training: item.event_training === 1,
-//                 training_workshop: item.training_workshop === 1,
-//                 adoption_drives: item.adoption_drives === 1,
-//                 pet_intelligence_rank_card: item.pet_intelligence_rank_card === 1,
-//                 pet_grooming: item.pet_grooming === 1,
-//             }));
+        if (servicesData.length > 0) {
+            const convertedServicesData = servicesData.map(item => ({
+                ...item,
+                pet_walking: item.pet_walking === 1,
+                pet_sitting: item.pet_sitting === 1,
+                pet_boarding: item.pet_boarding === 1,
+                event_training: item.event_training === 1,
+                training_workshop: item.training_workshop === 1,
+                adoption_drives: item.adoption_drives === 1,
+                pet_intelligence_rank_card: item.pet_intelligence_rank_card === 1,
+                pet_grooming: item.pet_grooming === 1,
+            }));
 
-//             res.status(200).json({
-//                 servicesData: convertedServicesData,
-//                 message: messages.SUCCESS_MESSAGE,
-//             });
-//         } else {
-//             res.status(200).json({
-//                 message: messages.NO_DATA,
-//             });
-//         }
-//     } catch (err) {
-//         logger.error('Error fetching data:', err);
-//         res.status(400).json({
-//             message: messages.FAILURE_MESSAGE,
-//         });
-//     }
-// });
+            res.status(200).json({
+                servicesData: convertedServicesData,
+                message: messages.SUCCESS_MESSAGE,
+            });
+        } else {
+            res.status(200).json({
+                message: messages.NO_DATA,
+            });
+        }
+    } catch (err) {
+        logger.error('Error fetching data:', err);
+        res.status(400).json({
+            message: messages.FAILURE_MESSAGE,
+        });
+    }
+});
 
 
 
