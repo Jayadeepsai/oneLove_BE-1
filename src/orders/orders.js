@@ -43,7 +43,7 @@ orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
         const mess = "New order for pet products! Process it now";
         const uniqId = external_id; 
         const Heading = "New Product orders"
-        const endpoint = `Orders`
+        const endpoint = `Orders?tabIndex=0`
 
         await notification.sendnotification(mess, uniqId,Heading,endpoint);
 
@@ -186,7 +186,7 @@ if(status === "Cancelled"){
         const mess = "Someone has cancelled their order!!Check it now";
         const uniqId = external_id; 
         const Heading = "Order Cancellation"
-        const endpoint = `Orders`
+        const endpoint = `Orders?tabIndex=2`
 
         await notification.sendnotification(mess, uniqId,Heading,endpoint);
 }
