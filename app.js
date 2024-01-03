@@ -27,7 +27,7 @@ const video = require('./src/imagesS3/video');
 const ratings = require('./src/ratings_reviews/ratings');
 const orders = require('./src/orders/orders');
 const message = require('./src/messages/message');
-
+const appoint = require('./src/appointment/appointment');
 
 
 app.use(actuator());
@@ -47,6 +47,7 @@ app.use('/onelove/video',video);
 app.use('/onelove/ratings',ratings);
 app.use('/onelove/order',orders);
 app.use('/onelove/message',message);
+app.use('/onelove/appointment',appoint);
 
 
 
