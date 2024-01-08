@@ -162,7 +162,7 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         }
 
         const {address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords} = req.body;
-        const { mobile_number, email } = req.body;
+        const { mobile_number, email, password } = req.body;
         const { user_name, external_id } = req.body;
         const { store_name, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale } = req.body;  
         const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time} = req.body;
@@ -242,7 +242,7 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         await db.query(addressSql, addressValues);
     }
 
-    if(mobile_number || email){
+    if(mobile_number || email || password){
 
         let contact_detailsSql = 'UPDATE contact_details SET';
         const contactDetailsValues = [];
@@ -254,6 +254,10 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         if (email !== undefined) {
             contact_detailsSql += ' email=?,';
             contactDetailsValues.push(email);
+        }
+        if (password !== undefined) {
+            contact_detailsSql += ' password=?,';
+            contactDetailsValues.push(password);
         }
     
         contact_detailsSql = contact_detailsSql.slice(0, -1);

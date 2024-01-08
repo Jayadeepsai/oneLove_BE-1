@@ -14,7 +14,7 @@ appoint.use(express.urlencoded({ extended: true }));
 
 
 
-appoint.post('/appointment',async(req,res)=>{
+appoint.post('/appointment',jwtMiddleware.verifyToken,async(req,res)=>{
 
     const { appointee, appointer, pet, timings, add_service } = req.body;
 
@@ -51,7 +51,7 @@ try{
 });
 
 
-appoint.get('/appointments', async (req, res) => {
+appoint.get('/appointments',jwtMiddleware.verifyToken, async (req, res) => {
     try {
       const appointeeId = req.query.appointee;
       
@@ -112,7 +112,7 @@ appoint.get('/appointments', async (req, res) => {
 
 
 
-  appoint.get('/appointment-history', async (req, res) => {
+  appoint.get('/appointment-history',jwtMiddleware.verifyToken, async (req, res) => {
     try {
       const appointerId = req.query.appointer;
   
@@ -174,7 +174,7 @@ appoint.get('/appointments', async (req, res) => {
   });
 
 
-  appoint.put('/appointment-status',async(req,res)=>{
+  appoint.put('/appointment-status',jwtMiddleware.verifyToken,async(req,res)=>{
 
     // const { userType } = req;
     // if (userType !== 'pet_store' && userType !== 'pet_owner') {
