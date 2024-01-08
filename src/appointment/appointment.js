@@ -13,15 +13,32 @@ appoint.use(express.json());
 appoint.use(express.urlencoded({ extended: true }));
 
 
+async function isAppoint(appointment_no) {
+  const sql = `SELECT COUNT(*) AS count FROM onelove.appointments WHERE appointment_no = ?`;
+  const [result] = await db.query(sql, [appointment_no]);
+  return result[0].count === 0;
+}
+
+function generateRandomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 
 appoint.post('/appointment',jwtMiddleware.verifyToken,async(req,res)=>{
 
     const { appointee, appointer, pet, timings, add_service } = req.body;
 
 try{
+  let appointment_no;
+        let isUnique = false;
 
-    const sql = `INSERT INTO onelove.appointments(appointee, appointer, pet, timings, add_service, app_status) VALUES(?, ?, ?, ?, ?, ?)`;
-    const values = [appointee, appointer, pet, timings, JSON.stringify(add_service), "Pending"];
+        while (!isUnique) {
+          appointment_no = generateRandomNumber(10000, 99999);
+            isUnique = await isAppoint(appointment_no);
+        }
+
+    const sql = `INSERT INTO onelove.appointments(appointee, appointer, pet, timings, add_service, app_status, appointment_no) VALUES(?, ?, ?, ?, ?, ?, ?)`;
+    const values = [appointee, appointer, pet, timings, JSON.stringify(add_service), "Pending", appointment_no];
     const [result] = await db.query(sql, values);
 
     const sql1 = `SELECT external_id FROM onelove.users WHERE user_id = ${appointee}`
@@ -44,8 +61,10 @@ try{
 }catch(err){
 
     logger.error('Error posting data:',err.message);
+    console.log(err.message)
     res.status(400).json({
-        message: messages.POST_FAILED
+        message: messages.POST_FAILED,
+        
     });
 }
 });
