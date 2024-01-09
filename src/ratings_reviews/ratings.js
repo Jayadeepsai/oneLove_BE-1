@@ -20,7 +20,7 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
 
     try {
         const { user_id, ratings_reviews } = req.body;          
-        const checkIfExistsQuery = 'SELECT ratings_reviews FROM onelove.rating_review WHERE user_id = ?';
+        const checkIfExistsQuery = 'SELECT ratings_reviews FROM onelove_v2.rating_review WHERE user_id = ?';
         const [existingRows] = await db.query(checkIfExistsQuery, [user_id]);
 
         let updatedReviews = [];
@@ -43,16 +43,16 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
                 }
             }
             
-            const updateQuery = 'UPDATE onelove.rating_review SET ratings_reviews = ? WHERE user_id = ?';
+            const updateQuery = 'UPDATE onelove_v2.rating_review SET ratings_reviews = ? WHERE user_id = ?';
             const updateValues = [JSON.stringify(updatedReviews), user_id];
             await db.query(updateQuery, updateValues);
         } else {
-            const insertQuery = 'INSERT INTO onelove.rating_review (user_id, ratings_reviews) VALUES (?, ?)';
+            const insertQuery = 'INSERT INTO onelove_v2.rating_review (user_id, ratings_reviews) VALUES (?, ?)';
             const insertValues = [user_id, JSON.stringify(ratings_reviews)];
             await db.query(insertQuery, insertValues);
         }
 
-        const sql1 = `SELECT external_id FROM onelove.users WHERE user_id = ${user_id}`
+        const sql1 = `SELECT external_id FROM onelove_v2.users WHERE user_id = ${user_id}`
         const [sql1Result] = await db.query(sql1)
         const external_id=sql1Result[0].external_id;
         logger.info('external id',external_id)
@@ -79,7 +79,7 @@ ratings.post('/rating-review',jwtMiddleware.verifyToken, async (req, res) => {
 // ratings.get('/rating-review',jwtMiddleware.verifyToken,async(req,res)=>{
 //    try{
 //     const sql = `SELECT r.*,u.*,a.*,c.*,s.*,i.image_id AS user_image_id,i.image_url as user_image_url
-//     FROM onelove.rating_review r
+//     FROM onelove_v2.rating_review r
 //     LEFT JOIN users u ON r.user_id = u.user_id
 //     LEFT JOIN address a ON u.address_id = a.address_id
 //     LEFT JOIN contact_details c ON u.contact_id = c.contact_id
@@ -113,7 +113,7 @@ ratings.get('/rating-review-user',jwtMiddleware.verifyToken,async(req,res)=>{
 
     try{
      const sql = `SELECT r.*,u.*,a.*,c.*,s.*,i.image_id AS user_image_id,i.image_url as user_image_url
-     FROM onelove.rating_review r
+     FROM onelove_v2.rating_review r
      LEFT JOIN users u ON r.user_id = u.user_id
      LEFT JOIN address a ON u.address_id = a.address_id
      LEFT JOIN contact_details c ON u.contact_id = c.contact_id

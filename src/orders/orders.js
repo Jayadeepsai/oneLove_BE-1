@@ -31,11 +31,11 @@ orders.post('/order',jwtMiddleware.verifyToken, async (req, res) => {
         }
         const current_time =new Date();
 
-        const sql = `INSERT INTO onelove.orders(store_id, user_id, orders, order_no, status, ordered_time) VALUES(?, ?, ?, ?, ?, ?)`;
+        const sql = `INSERT INTO onelove_v2.orders(store_id, user_id, orders, order_no, status, ordered_time) VALUES(?, ?, ?, ?, ?, ?)`;
         const values = [store_id, user_id, JSON.stringify(orders), order_no, status, current_time];
         const [result] = await db.query(sql, values);
 
-        const sql1 = `SELECT external_id FROM onelove.users WHERE store_id = ${store_id}`
+        const sql1 = `SELECT external_id FROM onelove_v2.users WHERE store_id = ${store_id}`
         const [sql1Result] = await db.query(sql1)
         const external_id=sql1Result[0].external_id;
         console.log('external id',external_id)
@@ -64,7 +64,7 @@ function generateRandomNumber(min, max) {
 }
 
 async function isOrderNoUnique(order_no) {
-    const sql = `SELECT COUNT(*) AS count FROM onelove.orders WHERE order_no = ?`;
+    const sql = `SELECT COUNT(*) AS count FROM onelove_v2.orders WHERE order_no = ?`;
     const [result] = await db.query(sql, [order_no]);
     return result[0].count === 0;
 }
@@ -74,7 +74,7 @@ async function isOrderNoUnique(order_no) {
 // orders.get('/all-orders',jwtMiddleware.verifyToken,async(req,res)=>{
 //     try{
 //         const sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
-//         FROM onelove.orders o
+//         FROM onelove_v2.orders o
 //         LEFT JOIN users u ON o.user_id = u.user_id
 //         LEFT JOIN address a ON u.address_id = a.address_id
 //         LEFT JOIN contact_details c ON u.contact_id = c.contact_id
@@ -111,7 +111,7 @@ orders.get('/orders',jwtMiddleware.verifyToken, async (req, res) => {
 
         if (user_id) {
             sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
-            FROM onelove.orders o
+            FROM onelove_v2.orders o
             LEFT JOIN users u ON o.user_id = u.user_id
             LEFT JOIN address a ON u.address_id = a.address_id
             LEFT JOIN contact_details c ON u.contact_id = c.contact_id
@@ -123,7 +123,7 @@ orders.get('/orders',jwtMiddleware.verifyToken, async (req, res) => {
             values = [user_id];
         } else if (order_id) {
             sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
-            FROM onelove.orders o
+            FROM onelove_v2.orders o
             LEFT JOIN users u ON o.user_id = u.user_id
             LEFT JOIN address a ON u.address_id = a.address_id
             LEFT JOIN contact_details c ON u.contact_id = c.contact_id
@@ -135,7 +135,7 @@ orders.get('/orders',jwtMiddleware.verifyToken, async (req, res) => {
             values = [order_id];
         } else if (store_id) {
             sql = `SELECT o.*, u.*, s.*, a.*, c.*, sa.address_id as store_address_id, sa.address as store_address, sa.city as store_city, sa.state as store_state, sa.zip as store_zip, sa.country as store_country, sa.landmark as store_landmark, sa.address_type as store_address_type, sc.contact_id as store_contact_id, sc.email as store_email, sc.mobile_number as store_mobile_number
-            FROM onelove.orders o
+            FROM onelove_v2.orders o
             LEFT JOIN users u ON o.user_id = u.user_id
             LEFT JOIN address a ON u.address_id = a.address_id
             LEFT JOIN contact_details c ON u.contact_id = c.contact_id
@@ -173,12 +173,12 @@ orders.put('/update-status',jwtMiddleware.verifyToken,async(req,res)=>{
     const store_id = req.body.store_id
     const status = req.body.status;
  try{
-       const sql = `UPDATE onelove.orders SET status = ? WHERE order_id = ?`;
+       const sql = `UPDATE onelove_v2.orders SET status = ? WHERE order_id = ?`;
        const values = [status, order_id];
        const [result] = await db.query(sql,values);
 
 if(status === "Cancelled"){
-       const sql1 = `SELECT external_id FROM onelove.users WHERE store_id = ${store_id}`
+       const sql1 = `SELECT external_id FROM onelove_v2.users WHERE store_id = ${store_id}`
         const [sql1Result] = await db.query(sql1)
         const external_id=sql1Result[0].external_id;
         console.log('external id',external_id)

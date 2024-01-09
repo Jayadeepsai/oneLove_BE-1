@@ -16,7 +16,7 @@ async function serviceQueries(req, res) {
         await db.beginTransaction();
 
         const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time} = req.body;
-        const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const serviceQuery = 'INSERT INTO onelove_v2.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time];
 
         await db.query(serviceQuery, serviceValues);
@@ -161,7 +161,7 @@ service.get('/service-user-id',jwtMiddleware.verifyToken, async (req, res) => {
 //     try {
 //         const service_id = req.query.service_id;
 //         const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time } = req.body;
-//         let serviceSql = 'UPDATE onelove.service SET'
+//         let serviceSql = 'UPDATE onelove_v2.service SET'
 //         const serviceValues = []
 
 //         if (pet_walking !== undefined) {

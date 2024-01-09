@@ -18,20 +18,20 @@ async function performTransaction(req, res) {
         await db.beginTransaction();
 
         const { image_type, image_url } = req.body;
-        const imageSql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
+        const imageSql = `INSERT INTO onelove_v2.images (image_type, image_url) VALUES (?, ?)`;
         const imageValues = [image_type, JSON.stringify(image_url)];
         const [imageResult] = await db.query(imageSql, imageValues);
         const image_id = imageResult.insertId;
 
         const { brand_name, product_title, pet_type_product, item_description, product_details, store_id, quantity, sub_category_name, collection_name } = req.body;
-        const itemSql = `INSERT INTO onelove.items (brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, quantity, sub_category_name, collection_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const itemSql = `INSERT INTO onelove_v2.items (brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, quantity, sub_category_name, collection_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const itemValues = [brand_name, product_title, pet_type_product, item_description, product_details, store_id, image_id, JSON.stringify(quantity), sub_category_name, collection_name];
         const [itemResult] = await db.query(itemSql, itemValues);
         const item_id = itemResult.insertId;
 
         await db.commit();
 
-        const notifSql = `SELECT external_id FROM onelove.users WHERE user_type = 'pet_owner'`;
+        const notifSql = `SELECT external_id FROM onelove_v2.users WHERE user_type = 'pet_owner'`;
         const [notifSqlResult] = await db.query(notifSql);
 
         if (notifSqlResult && notifSqlResult.length > 0) {
@@ -78,7 +78,7 @@ items.post('/item-entry',jwtMiddleware.verifyToken,(req,res)=>{
 // items.get('/products',jwtMiddleware.verifyToken,async(req,res)=>{
 
 //     const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
-//                  FROM onelove.items i
+//                  FROM onelove_v2.items i
 //                  LEFT JOIN store s1 ON i.store_id = s1.store_id
 //                  LEFT JOIN address a ON s1.address_id = a.address_id
 //                  LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
@@ -107,7 +107,7 @@ items.get('/products-id',jwtMiddleware.verifyToken,async(req,res)=>{
     }
     const item_id = req.query.item_id
     const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
-                 FROM onelove.items i
+                 FROM onelove_v2.items i
                  LEFT JOIN store s1 ON i.store_id = s1.store_id
                  LEFT JOIN address a ON s1.address_id = a.address_id
                  LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
@@ -142,7 +142,7 @@ items.get('/products-store-id',jwtMiddleware.verifyToken,async(req,res)=>{
     const store_id = req.query.store_id
 
     const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
-                 FROM onelove.items i
+                 FROM onelove_v2.items i
                  LEFT JOIN store s1 ON i.store_id = s1.store_id
                  LEFT JOIN address a ON s1.address_id = a.address_id
                  LEFT JOIN contact_details c ON s1.contact_id = c.contact_id
@@ -204,7 +204,7 @@ items.get('/products-store-id',jwtMiddleware.verifyToken,async(req,res)=>{
 //         }
 
 //         let sql = `SELECT i.*,s1.*,i1.*
-//         FROM onelove.items i
+//         FROM onelove_v2.items i
 //         LEFT JOIN store s1 ON i.store_id = s1.store_id
 //         LEFT JOIN images i1 ON i.image_id = i1.image_id`;
         
@@ -250,7 +250,7 @@ items.put('/update-item',jwtMiddleware.verifyToken, async (req, res) => {
 
         if (brand_name || product_title || pet_type_product || item_description || product_details || store_id || quantity || sub_category_name || collection_name) {
 
-            let itemSql = 'UPDATE onelove.items SET';
+            let itemSql = 'UPDATE onelove_v2.items SET';
             const itemValues = [];
 
             if (brand_name !== undefined) {
@@ -346,7 +346,7 @@ items.delete('/delete-items',jwtMiddleware.verifyToken, async (req, res) => {
             return;
         }
 
-        const sql = `DELETE FROM onelove.items WHERE item_id IN (?)`; // Use IN clause for multiple IDs
+        const sql = `DELETE FROM onelove_v2.items WHERE item_id IN (?)`; // Use IN clause for multiple IDs
         const [result] = await db.query(sql, [itemIds]); 
        
         if (result.affectedRows === 0) {

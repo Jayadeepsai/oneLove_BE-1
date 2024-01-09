@@ -47,12 +47,12 @@ users.get('/users-id',jwtMiddleware.verifyToken,async(req,res)=>{
     s.dog_service,
     s.breader_adoption_sale
 FROM
-    onelove.users u
-    LEFT JOIN onelove.address a ON u.address_id = a.address_id
-    LEFT JOIN onelove.contact_details c ON u.contact_id = c.contact_id
-    LEFT JOIN onelove.store s ON u.store_id = s.store_id
-    LEFT JOIN onelove.clinics c1 ON u.clinic_id = c1.clinic_id
-    LEFT JOIN onelove.images i ON u.image_id = i.image_id
+    onelove_v2.users u
+    LEFT JOIN onelove_v2.address a ON u.address_id = a.address_id
+    LEFT JOIN onelove_v2.contact_details c ON u.contact_id = c.contact_id
+    LEFT JOIN onelove_v2.store s ON u.store_id = s.store_id
+    LEFT JOIN onelove_v2.clinics c1 ON u.clinic_id = c1.clinic_id
+    LEFT JOIN onelove_v2.images i ON u.image_id = i.image_id
 WHERE
     u.user_id=?;`
 try{

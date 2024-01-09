@@ -20,14 +20,14 @@ pets.post('/pet-post',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const { pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, spay_neuter, image_type, image_url, user_id } = req.body;
 
-        const sql = `INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)`;
+        const sql = `INSERT INTO onelove_v2.images (image_type, image_url) VALUES (?, ?)`;
         const imageValues = [image_type,JSON.stringify(image_url)];
         const [imageResult] = await db.query(sql, imageValues);
 
         const image_id = imageResult.insertId;
 
         const sql2 = `
-            INSERT INTO onelove.pet 
+            INSERT INTO onelove_v2.pet 
             (pet_type, pet_name, pet_breed, pet_gender, pet_weight, pet_description, pet_dob, spay_neuter, image_id, user_id) 
             VALUES 
             (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
@@ -51,7 +51,7 @@ pets.get('/pets',jwtMiddleware.verifyToken, async (req, res) => {
 
     try {
         const sql = `SELECT p.*, v.*, a.*, i1.image_id AS pet_image_id, i1.image_url AS pet_image_url, u.* , i2.image_id AS user_image_id, i2.image_url AS user_image_url,c.*
-        FROM onelove.pet p
+        FROM onelove_v2.pet p
         LEFT JOIN vaccination v ON p.vaccination_id = v.vaccination_id
         LEFT JOIN images i1 ON p.image_id = i1.image_id
         LEFT JOIN users u ON p.user_id = u.user_id
@@ -90,7 +90,7 @@ pets.put('/update-pet',jwtMiddleware.verifyToken, async (req, res) => {
         await db.beginTransaction();
 
         if(pet_type || pet_name || pet_breed || pet_gender || pet_weight || pet_description || vaccination_id || pet_dob || image_id || user_id || spay_neuter){
-        let sql = 'UPDATE onelove.pet SET';
+        let sql = 'UPDATE onelove_v2.pet SET';
 
         const values = [];
 
@@ -185,9 +185,9 @@ pets.put('/update-pet',jwtMiddleware.verifyToken, async (req, res) => {
 //         const { image_type, image_url } = req.body;
   
 //         const updateImageSql = `
-//             UPDATE onelove.images
+//             UPDATE onelove_v2.images
 //             SET image_type = ?, image_url = ?
-//             WHERE image_id = (SELECT image_id FROM onelove.pet WHERE pet_id = ?)`;
+//             WHERE image_id = (SELECT image_id FROM onelove_v2.pet WHERE pet_id = ?)`;
 //         const updateImageValues = [image_type, JSON.stringify(image_url), pet_id];
 
 //         const [updateImageResult] = await db.query(updateImageSql, updateImageValues);
@@ -246,7 +246,7 @@ pets.get('/pets-users',jwtMiddleware.verifyToken, async (req, res) => {
         i2.image_url AS user_image_url,
         COUNT(po.post_id) AS post_count
     FROM
-        onelove.pet p
+        onelove_v2.pet p
     LEFT JOIN
         vaccination v ON p.vaccination_id = v.vaccination_id
     LEFT JOIN

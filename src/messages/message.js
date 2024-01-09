@@ -46,16 +46,16 @@ io.on('connection', (socket) => {
       }
       logger.info('Message saved and sent:', data);
       
-      const sql1 = `SELECT external_id FROM onelove.users WHERE user_id = ${receiver_id}`
+      const sql1 = `SELECT external_id FROM onelove_v2.users WHERE user_id = ${receiver_id}`
       const [sql1Result] = await db.query(sql1)
       const external_id=sql1Result[0].external_id;
       console.log('external id',external_id)
 
-      const sql2 = `SELECT user_name FROM onelove.users WHERE user_id = ${sender_id}`
+      const sql2 = `SELECT user_name FROM onelove_v2.users WHERE user_id = ${sender_id}`
       const [sql2Result] = await db.query(sql2);
       const user_name = sql2Result[0].user_name
 
-      const sql3 = `SELECT user_name FROM onelove.users WHERE user_id = ${receiver_id}`
+      const sql3 = `SELECT user_name FROM onelove_v2.users WHERE user_id = ${receiver_id}`
       const [sql3Result] = await db.query(sql3);
       const user_type = sql3Result[0].user_type
 
@@ -91,7 +91,7 @@ message.put('/message-status', jwtMiddleware.verifyToken, async (req, res) => {
   try {
     const { read } = req.body;
     const {message_id} = req.query;
-    const sql = 'UPDATE onelove.messages SET `read` = ? WHERE message_id = ?';
+    const sql = 'UPDATE onelove_v2.messages SET `read` = ? WHERE message_id = ?';
 
     await db.query(sql, [read, message_id]);
 

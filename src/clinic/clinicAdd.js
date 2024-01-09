@@ -17,7 +17,7 @@ clinic.use(express.urlencoded({ extended: true }));
 //     await db.beginTransaction();
 
 //         const {clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time} = req.body;
-//         const clinicQuery ='INSERT INTO onelove.clinics(clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+//         const clinicQuery ='INSERT INTO onelove_v2.clinics(clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 //         const clinicValues = [clinic_name, JSON.stringify(specialisation), clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time]
 
 //         await db.query(clinicQuery,clinicValues)
@@ -138,7 +138,7 @@ clinic.get('/clinic-user-id',jwtMiddleware.verifyToken, async(req,res)=>{
 //     try {
 //         const { clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time } = req.body;
 
-//         let clinicSql = 'UPDATE onelove.clinics SET';
+//         let clinicSql = 'UPDATE onelove_v2.clinics SET';
 
 //         const values = [];
 

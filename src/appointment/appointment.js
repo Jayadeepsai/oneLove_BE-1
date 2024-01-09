@@ -14,7 +14,7 @@ appoint.use(express.urlencoded({ extended: true }));
 
 
 async function isAppoint(appointment_no) {
-  const sql = `SELECT COUNT(*) AS count FROM onelove.appointments WHERE appointment_no = ?`;
+  const sql = `SELECT COUNT(*) AS count FROM onelove_v2.appointments WHERE appointment_no = ?`;
   const [result] = await db.query(sql, [appointment_no]);
   return result[0].count === 0;
 }
@@ -38,11 +38,11 @@ try{
             isUnique = await isAppoint(appointment_no);
         }
 
-    const sql = `INSERT INTO onelove.appointments(appointee, appointer, pet, timings, add_service, app_status, appointment_no) VALUES(?, ?, ?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO onelove_v2.appointments(appointee, appointer, pet, timings, add_service, app_status, appointment_no) VALUES(?, ?, ?, ?, ?, ?, ?)`;
     const values = [appointee, appointer, pet, timings, JSON.stringify(add_service), "Pending", appointment_no];
     const [result] = await db.query(sql, values);
 
-    const sql1 = `SELECT external_id FROM onelove.users WHERE user_id = ${appointee}`
+    const sql1 = `SELECT external_id FROM onelove_v2.users WHERE user_id = ${appointee}`
         const [sql1Result] = await db.query(sql1)
         const external_id=sql1Result[0].external_id;
         console.log('external id',external_id)
@@ -204,12 +204,12 @@ appoint.get('/appointments',jwtMiddleware.verifyToken, async (req, res) => {
     const appointment_id = req.query.appointment_id;
     const app_status = req.body.app_status;
  try{
-       const sql = `UPDATE onelove.appointments SET app_status = ? WHERE appointment_id = ?`;
+       const sql = `UPDATE onelove_v2.appointments SET app_status = ? WHERE appointment_id = ?`;
        const values = [app_status, appointment_id];
        const [result] = await db.query(sql,values);
 
 // if(app_status === "Cancelled"){
-//        const sql1 = `SELECT external_id FROM onelove.users WHERE store_id = ${store_id}`
+//        const sql1 = `SELECT external_id FROM onelove_v2.users WHERE store_id = ${store_id}`
 //         const [sql1Result] = await db.query(sql1)
 //         const external_id=sql1Result[0].external_id;
 //         console.log('external id',external_id)

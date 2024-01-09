@@ -17,7 +17,7 @@ async function performTransaction(req, res) {
         await connection.beginTransaction();
         
         const { mobile_number } = req.body;
-        const checkQuery = 'SELECT contact_id FROM onelove.contact_details WHERE mobile_number = ?';
+        const checkQuery = 'SELECT contact_id FROM onelove_v2.contact_details WHERE mobile_number = ?';
         const [checkResult] = await connection.query(checkQuery, [mobile_number]);
 
         if (checkResult.length > 0) {
@@ -25,7 +25,7 @@ async function performTransaction(req, res) {
         }
 
         const { email } = req.body;
-        const emailCheckQuery = 'SELECT contact_id FROM onelove.contact_details WHERE email = ?';
+        const emailCheckQuery = 'SELECT contact_id FROM onelove_v2.contact_details WHERE email = ?';
         const [emailCheckResult] = await connection.query(emailCheckQuery, [email]);
 
         if (emailCheckResult.length > 0) {
@@ -33,13 +33,13 @@ async function performTransaction(req, res) {
         }
 
        const { address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords } = req.body;
-       const addressQuery = 'INSERT INTO onelove.address (address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+       const addressQuery = 'INSERT INTO onelove_v2.address (address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
        const addressValues = [address, city, state, zip, country, landmark, address_type, lat_cords, lan_cords];
        const [addressResult] = await connection.query(addressQuery, addressValues);
        const address_id = addressResult.insertId;
 
        const { password } = req.body;
-       const contactQuery = 'INSERT INTO onelove.contact_details (mobile_number, email, password) VALUES (?, ?, ?)';
+       const contactQuery = 'INSERT INTO onelove_v2.contact_details (mobile_number, email, password) VALUES (?, ?, ?)';
        const contactValues = [mobile_number, email, password];
        const [contactResult] = await connection.query(contactQuery, contactValues);
        const contact_id = contactResult.insertId;
@@ -48,7 +48,7 @@ async function performTransaction(req, res) {
        const { image_type, image_url } = req.body;
 
        if (image_type && image_url) {
-           const imageQuery = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
+           const imageQuery = 'INSERT INTO onelove_v2.images (image_type, image_url) VALUES (?, ?)';
            const imageValues = [image_type, JSON.stringify(image_url)];
 
         try {
@@ -67,11 +67,11 @@ async function performTransaction(req, res) {
 
         switch (user_type) {
             case 'pet_owner':
-                const userQuery = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const userQuery = 'INSERT INTO onelove_v2.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
                 const userValues = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, JSON.stringify(external_id)];
                 const [userResult] = await connection.query(userQuery, userValues);
                 const user_id = userResult.insertId;
-                const regQuery = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
+                const regQuery = 'INSERT INTO onelove_v2.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
                 const regValues = [user_id, address_id, contact_id, image_id];
 
                 await connection.query(regQuery, regValues);
@@ -79,15 +79,15 @@ async function performTransaction(req, res) {
 
             case 'pet_trainer':
                const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time} = req.body;
-               const serviceQuery = 'INSERT INTO onelove.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+               const serviceQuery = 'INSERT INTO onelove_v2.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
                const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time];
                const [serviceResult] = await connection.query(serviceQuery, serviceValues);
                service_id = serviceResult.insertId;
-               const userQuery1 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+               const userQuery1 = 'INSERT INTO onelove_v2.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
                const userValues1 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, JSON.stringify(external_id)];
                const [userResult1] = await connection.query(userQuery1, userValues1);
                const user_id1 = userResult1.insertId;
-               const regQuery1 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
+               const regQuery1 = 'INSERT INTO onelove_v2.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
                const regValues1 = [user_id1, address_id, contact_id, image_id];
 
                await connection.query(regQuery1, regValues1);
@@ -95,15 +95,15 @@ async function performTransaction(req, res) {
 
             case 'pet_doctor':
                 const { clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time } = req.body;
-                const clinicQuery = 'INSERT INTO onelove.clinics (clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const clinicQuery = 'INSERT INTO onelove_v2.clinics (clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
                 const clinicValues = [clinic_name, JSON.stringify(specialisation), clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time];
                 const [clinicResult] = await connection.query(clinicQuery, clinicValues);
                 clinic_id = clinicResult.insertId;
-                const userQuery2 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const userQuery2 = 'INSERT INTO onelove_v2.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
                 const userValues2 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, JSON.stringify(external_id)];
                 const [userResult2] = await connection.query(userQuery2, userValues2);
                 const user_id2 = userResult2.insertId;
-                const regQuery2 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
+                const regQuery2 = 'INSERT INTO onelove_v2.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
                 const regValues2 = [user_id2, address_id, contact_id, image_id];
     
                 await connection.query(regQuery2, regValues2);
@@ -111,15 +111,15 @@ async function performTransaction(req, res) {
 
             case 'pet_store':
                 const { store_name, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale } = req.body;
-                const storeQuery = 'INSERT INTO onelove.store (store_name, address_id, contact_id, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const storeQuery = 'INSERT INTO onelove_v2.store (store_name, address_id, contact_id, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
                 const storeValues =[ store_name, address_id, contact_id, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale ];
                 const [storeResult] = await connection.query(storeQuery,storeValues);
                 store_id = storeResult.insertId;
-                const userQuery3 = 'INSERT INTO onelove.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const userQuery3 = 'INSERT INTO onelove_v2.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
                 const userValues3 = [user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, JSON.stringify(external_id)];
                 const [userResult3] = await connection.query(userQuery3, userValues3);
                 const user_id3 = userResult3.insertId;
-                const regQuery3 = 'INSERT INTO onelove.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
+                const regQuery3 = 'INSERT INTO onelove_v2.registrations (user_id, address_id, contact_id, image_id) VALUES (?, ?, ?, ?)';
                 const regValues3 = [user_id3, address_id, contact_id, image_id];
  
                 await connection.query(regQuery3, regValues3);
@@ -155,7 +155,7 @@ registration.post('/registration', (req, res) => {
 // registration.get('/registration',jwtMiddleware.verifyToken, async (req, res) => {
 //     try {
 //         const sql = `SELECT a.*, c.*, u.*, r.*,i.*
-//                      FROM onelove.registrations r
+//                      FROM onelove_v2.registrations r
 //                      LEFT JOIN address a ON r.address_id = a.address_id
 //                      LEFT JOIN contact_details c ON r.contact_id = c.contact_id
 //                      LEFT JOIN users u ON r.user_id = u.user_id
@@ -184,7 +184,7 @@ registration.post('/registration', (req, res) => {
 //     }
 
 //     const sql =`SELECT a.*, c.*, u.*, r.*,i.*
-//                 FROM onelove.registrations r
+//                 FROM onelove_v2.registrations r
 //                 LEFT JOIN address a ON r.address_id = a.address_id
 //                 LEFT JOIN contact_details c ON r.contact_id = c.contact_id
 //                 LEFT JOIN users u ON r.user_id = u.user_id
@@ -211,7 +211,7 @@ registration.post('/registration', (req, res) => {
   registration.post('/logout', async (req, res) => {
     try {
         const user = req.body.user_id;
-        const sql = `SELECT external_id FROM onelove.users WHERE user_id =?`;
+        const sql = `SELECT external_id FROM onelove_v2.users WHERE user_id =?`;
         const [sqlResult] = await connection.query(sql, user);
         logger.info("sqlResult", sqlResult);
         const uuId = sqlResult[0].external_id;
@@ -290,12 +290,12 @@ registration.post('/registration-mobile-number', async (req, res) => {
         s.dog_service,
         s.breader_adoption_sale
     FROM
-        onelove.users u
-        LEFT JOIN onelove.address a ON u.address_id = a.address_id
-        LEFT JOIN onelove.contact_details c ON u.contact_id = c.contact_id
-        LEFT JOIN onelove.store s ON u.store_id = s.store_id
-        LEFT JOIN onelove.clinics c1 ON u.clinic_id = c1.clinic_id
-        LEFT JOIN onelove.images i ON u.image_id = i.image_id
+        onelove_v2.users u
+        LEFT JOIN onelove_v2.address a ON u.address_id = a.address_id
+        LEFT JOIN onelove_v2.contact_details c ON u.contact_id = c.contact_id
+        LEFT JOIN onelove_v2.store s ON u.store_id = s.store_id
+        LEFT JOIN onelove_v2.clinics c1 ON u.clinic_id = c1.clinic_id
+        LEFT JOIN onelove_v2.images i ON u.image_id = i.image_id
     WHERE
         c.mobile_number=?;`
 
@@ -337,7 +337,7 @@ registration.post('/registration-mobile-number', async (req, res) => {
         const userType = userData[0].user_type;
         const token = jwtMiddleware.generateToken(userId, userType);
         const refreshToken = jwtMiddleware.generateRefreshToken(userId, userType);
-        const updateExternalIdSql = 'UPDATE onelove.users SET external_id = ? WHERE user_id = ?';
+        const updateExternalIdSql = 'UPDATE onelove_v2.users SET external_id = ? WHERE user_id = ?';
         await connection.query(updateExternalIdSql, [serializedExternalId, userId]);
 
         return res.status(200).json({
@@ -413,12 +413,12 @@ registration.post('/login', async (req, res) => {
               s.dog_service,
               s.breader_adoption_sale
             FROM
-              onelove.users u
-              LEFT JOIN onelove.address a ON u.address_id = a.address_id
-              LEFT JOIN onelove.contact_details c ON u.contact_id = c.contact_id
-              LEFT JOIN onelove.store s ON u.store_id = s.store_id
-              LEFT JOIN onelove.clinics c1 ON u.clinic_id = c1.clinic_id
-              LEFT JOIN onelove.images i ON u.image_id = i.image_id
+              onelove_v2.users u
+              LEFT JOIN onelove_v2.address a ON u.address_id = a.address_id
+              LEFT JOIN onelove_v2.contact_details c ON u.contact_id = c.contact_id
+              LEFT JOIN onelove_v2.store s ON u.store_id = s.store_id
+              LEFT JOIN onelove_v2.clinics c1 ON u.clinic_id = c1.clinic_id
+              LEFT JOIN onelove_v2.images i ON u.image_id = i.image_id
             WHERE
               ${condition} AND c.password = ?
           `;
@@ -455,7 +455,7 @@ registration.post('/login', async (req, res) => {
 
     const token = jwtMiddleware.generateToken(userId, userType);
     const refreshToken = jwtMiddleware.generateRefreshToken(userId, userType);
-    const updateExternalIdSql = 'UPDATE onelove.users SET external_id = ? WHERE user_id = ?';
+    const updateExternalIdSql = 'UPDATE onelove_v2.users SET external_id = ? WHERE user_id = ?';
     await connection.query(updateExternalIdSql, [serializedExternalId, userId]);
 
       const modifiedData = user.map((row) => ({

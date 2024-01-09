@@ -19,7 +19,7 @@ loveIndx.post('/like-post',jwtMiddleware.verifyToken, async (req, res) => {
     const { user_id, user_name } = req.body;
     const { love_index_id } = req.query;
     try {
-        const existingLikesSql = 'SELECT likes FROM onelove.love_index WHERE love_index_id = ?';
+        const existingLikesSql = 'SELECT likes FROM onelove_v2.love_index WHERE love_index_id = ?';
         const [existingLikesResult] = await db.query(existingLikesSql, [love_index_id]);
         if (existingLikesResult.length === 0) {
             return res.status(200).json({ message:messages.NO_DATA });
@@ -33,7 +33,7 @@ loveIndx.post('/like-post',jwtMiddleware.verifyToken, async (req, res) => {
         }
 
         existingLikes.push({ user_id, user_name });
-        const updateLikesSql = 'UPDATE onelove.love_index SET likes = ? WHERE love_index_id = ?';
+        const updateLikesSql = 'UPDATE onelove_v2.love_index SET likes = ? WHERE love_index_id = ?';
         const updateLikesValues = [JSON.stringify(existingLikes), love_index_id];
         await db.query(updateLikesSql, updateLikesValues);
         const likeCount = existingLikes.length;
@@ -56,7 +56,7 @@ loveIndx.post('/unlike-post',jwtMiddleware.verifyToken, async (req, res) => {
     const { user_id } = req.body;
     const { love_index_id } = req.query;
     try {
-        const existingLikesSql = 'SELECT likes FROM onelove.love_index WHERE love_index_id = ?';
+        const existingLikesSql = 'SELECT likes FROM onelove_v2.love_index WHERE love_index_id = ?';
         const [existingLikesResult] = await db.query(existingLikesSql, [love_index_id]);
 
         if (existingLikesResult.length === 0) {
@@ -77,7 +77,7 @@ loveIndx.post('/unlike-post',jwtMiddleware.verifyToken, async (req, res) => {
 
         existingLikes.splice(userLikedIndex, 1);
 
-        const updateLikesSql = 'UPDATE onelove.love_index SET likes = ? WHERE love_index_id = ?';
+        const updateLikesSql = 'UPDATE onelove_v2.love_index SET likes = ? WHERE love_index_id = ?';
         const updateLikesValues = [JSON.stringify(existingLikes), love_index_id];
         await db.query(updateLikesSql, updateLikesValues);
 
@@ -103,7 +103,7 @@ loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
     const { comments } = req.body;
 
     try {
-        const existingCommentsSql = 'SELECT comments FROM onelove.love_index WHERE love_index_id = ?';
+        const existingCommentsSql = 'SELECT comments FROM onelove_v2.love_index WHERE love_index_id = ?';
         const [existingCommentsResult] = await db.query(existingCommentsSql, [love_index_id]);
 
         let updatedComments = [];
@@ -128,12 +128,12 @@ loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
                 }
             }
 
-            const updateQuery = 'UPDATE onelove.love_index SET comments = ? WHERE love_index_id = ?';
+            const updateQuery = 'UPDATE onelove_v2.love_index SET comments = ? WHERE love_index_id = ?';
             const updateValues = [JSON.stringify(updatedComments), love_index_id];
             await db.query(updateQuery, updateValues);
 
         } else {
-            const insertQuery = 'INSERT INTO onelove.love_index (comments) VALUES (?)';
+            const insertQuery = 'INSERT INTO onelove_v2.love_index (comments) VALUES (?)';
             const insertValues = [JSON.stringify(comments)];
             await db.query(insertQuery, insertValues);
         }
@@ -154,7 +154,7 @@ loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
 //     const { love_index_id, user_id } = req.query;
 
 //     try {
-//         const existingCommentsSql = 'SELECT comments FROM onelove.love_index WHERE love_index_id = ?';
+//         const existingCommentsSql = 'SELECT comments FROM onelove_v2.love_index WHERE love_index_id = ?';
 //         const [existingCommentsResult] = await db.query(existingCommentsSql, [love_index_id]);
 
 //         if (existingCommentsResult.length === 0) {
@@ -178,7 +178,7 @@ loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
 //         }
 //         existingComments.splice(commentIndex, 1);
 
-//         const updateCommentsSql = 'UPDATE onelove.love_index SET comments = ? WHERE love_index_id = ?';
+//         const updateCommentsSql = 'UPDATE onelove_v2.love_index SET comments = ? WHERE love_index_id = ?';
 //         const updateCommentsValues = [JSON.stringify(existingComments), love_index_id];
 //         await db.query(updateCommentsSql, updateCommentsValues);
 
@@ -194,7 +194,7 @@ loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
 // loveIndx.get('/love_index_data',jwtMiddleware.verifyToken, async (req, res) => {
 //         const post_id = req.query.post_id;
 //         try {
-//             const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = (SELECT love_index_id FROM onelove.posts WHERE post_id = ?)`;
+//             const sql = `SELECT * FROM onelove_v2.love_index WHERE love_index_id = (SELECT love_index_id FROM onelove_v2.posts WHERE post_id = ?)`;
 //             const [results] = await db.query(sql, [post_id]);
 //             const postData = JSON.parse(JSON.stringify(results));
     
@@ -232,7 +232,7 @@ loveIndx.post('/comment',jwtMiddleware.verifyToken, async (req, res) => {
 
 // loveIndx.get('/loveIndexDataByCondition/:love_index_id',jwtMiddleware.verifyToken, (req, res) => { 
 //     const love_index_id = req.params.love_index_id;
-//     const sql = `SELECT * FROM onelove.love_index WHERE love_index_id = ?`;
+//     const sql = `SELECT * FROM onelove_v2.love_index WHERE love_index_id = ?`;
 
 //     db.query(sql, love_index_id, function (err, result, fields) {
 //         if (!err) {

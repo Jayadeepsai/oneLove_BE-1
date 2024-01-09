@@ -15,12 +15,12 @@ async function performTransaction(req, res) {
         await db.beginTransaction();
         const { likes, comments, image_url, image_type } = req.body;
 
-        const loveIndexSql = 'INSERT INTO onelove.love_index ( likes, comments) VALUES ( ?, ?)';
+        const loveIndexSql = 'INSERT INTO onelove_v2.love_index ( likes, comments) VALUES ( ?, ?)';
         const loveIndexValues = [JSON.stringify(likes), JSON.stringify(comments)];
         const [loveIndexResult] = await db.query(loveIndexSql, loveIndexValues);
         const love_index_id = loveIndexResult.insertId;
 
-        const imageInsertSql = 'INSERT INTO onelove.images (image_type, image_url) VALUES (?, ?)';
+        const imageInsertSql = 'INSERT INTO onelove_v2.images (image_type, image_url) VALUES (?, ?)';
         const imageValues = [image_type, JSON.stringify(image_url)];
             const [imageResult] = await db.query(imageInsertSql, imageValues);
             const image_id = imageResult.insertId;
@@ -28,7 +28,7 @@ async function performTransaction(req, res) {
         const { video_type, video_url} = req.body;
         let video_id = null;
         if(video_type && video_url){
-            const videoSql = 'INSERT INTO onelove.videos (video_type, video_url) VALUES (?, ?)';
+            const videoSql = 'INSERT INTO onelove_v2.videos (video_type, video_url) VALUES (?, ?)';
             const videoValues = [video_type, JSON.stringify(video_url)];
             const [videoResult] = await db.query(videoSql, videoValues);
              video_id = videoResult.insertId;
@@ -36,7 +36,7 @@ async function performTransaction(req, res) {
      const encodedDescription = he.encode(req.body.post_description);
 
         const { post_type, user_id, pet_id } = req.body;
-        const postSql = 'INSERT INTO onelove.posts (post_type, post_description, video_id, love_index_id, image_id, user_id, pet_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        const postSql = 'INSERT INTO onelove_v2.posts (post_type, post_description, video_id, love_index_id, image_id, user_id, pet_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
         const postValues = [post_type, encodedDescription, video_id, love_index_id, image_id, user_id, pet_id];
         const [postResult] = await db.query(postSql, postValues);
         const post_id = postResult.insertId;
@@ -80,7 +80,7 @@ posts.get('/posts',jwtMiddleware.verifyToken,async (req,res)=>{
      i2.image_url AS pet_image_url, i1.image_id AS post_image_id,
      i3.image_id AS user_image_id, i3.image_url AS user_image_url,
      i1.image_url AS post_image_url,l.*,v.video_id AS post_video_id, v.video_url AS post_video_url
-     FROM onelove.posts p
+     FROM onelove_v2.posts p
      LEFT JOIN users u ON p.user_id = u.user_id
      LEFT JOIN contact_details c ON u.contact_id = c.contact_id
      LEFT JOIN pet p1 ON p.pet_id = p1.pet_id
@@ -132,7 +132,7 @@ posts.get('/postsPagination', jwtMiddleware.verifyToken, async (req, res) => {
             i3.image_id AS user_image_id, i3.image_url AS user_image_url,
             i1.image_url AS post_image_url, l.*, v.video_id AS post_video_id, v.video_url AS post_video_url
         FROM
-            onelove.posts p
+            onelove_v2.posts p
             LEFT JOIN users u ON p.user_id = u.user_id
             LEFT JOIN contact_details c ON u.contact_id = c.contact_id
             LEFT JOIN pet p1 ON p.pet_id = p1.pet_id
@@ -189,7 +189,7 @@ posts.get('/posts-id',jwtMiddleware.verifyToken, async (req, res) => {
     i2.image_url AS pet_image_url, i1.image_id AS post_image_id,
     i3.image_id AS user_image_id, i3.image_url AS user_image_url,
     i1.image_url AS post_image_url,l.*
-    FROM onelove.posts p
+    FROM onelove_v2.posts p
     LEFT JOIN users u ON p.user_id = u.user_id
     LEFT JOIN pet p1 ON p.pet_id = p1.pet_id
     LEFT JOIN images i1 ON p.image_id = i1.image_id
@@ -241,7 +241,7 @@ posts.get('/user-posts',jwtMiddleware.verifyToken, async (req, res) => {
     i2.image_url AS pet_image_url, i1.image_id AS post_image_id,
     i3.image_id AS user_image_id, i3.image_url AS user_image_url,
     i1.image_url AS post_image_url,l.*
-    FROM onelove.posts p
+    FROM onelove_v2.posts p
     LEFT JOIN users u ON p.user_id = u.user_id
     LEFT JOIN pet p1 ON p.pet_id = p1.pet_id
     LEFT JOIN images i1 ON p.image_id = i1.image_id
@@ -314,7 +314,7 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
         i2.image_url AS pet_image_url, i1.image_id AS post_image_id,
         i3.image_id AS user_image_id, i3.image_url AS user_image_url,
         i1.image_url AS post_image_url,l.*
-        FROM onelove.posts p
+        FROM onelove_v2.posts p
         LEFT JOIN users u ON p.user_id = u.user_id
         LEFT JOIN address a ON u.address_id = a.address_id
         LEFT JOIN pet p1 ON p.pet_id = p1.pet_id
@@ -367,7 +367,7 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
 //         const {
 //             post_type, post_description, love_index_id, image_id, user_id} = req.body;
 
-//         let sql = 'UPDATE onelove.posts SET';
+//         let sql = 'UPDATE onelove_v2.posts SET';
 //         const values = [];
 
 //         if (post_type !== undefined) {
@@ -418,7 +418,7 @@ posts.delete('/delete-post',jwtMiddleware.verifyToken, async (req, res) => {
 
     try {
         const post_id = req.query.post_id;
-        const sql = `DELETE FROM onelove.posts WHERE post_id = ?`;
+        const sql = `DELETE FROM onelove_v2.posts WHERE post_id = ?`;
         const [result] = await db.query(sql, [post_id]); 
 
         if (result.affectedRows === 0) {
