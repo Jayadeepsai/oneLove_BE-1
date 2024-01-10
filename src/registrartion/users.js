@@ -165,8 +165,8 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         const { mobile_number, email, password } = req.body;
         const { user_name, external_id } = req.body;
         const { store_name, food_treats, accessories, toys, health_care, dog_service, breader_adoption_sale } = req.body;  
-        const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time} = req.body;
-        const { clinic_name, specialisation, clinic_license, experience, education , week_start_day, week_end_day, start_time, end_time} = req.body;
+        const { services, trainer_experience, dates, mon, tue, wed, thu, fri, sat, sun } = req.body;
+        const { clinic_name, specialisation, clinic_license, experience, education, avail_dates, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body;
         const { image_type, image_url} =req.body;
 
         await db.beginTransaction();
@@ -329,70 +329,52 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         await db.query(storeSql, storeValues);
     }
 
-    if(pet_walking || pet_sitting || pet_boarding || event_training || training_workshop || adoption_drives || pet_intelligence_rank_card || pet_grooming || trainer_experience || service_start_day || service_end_day || service_start_time || service_end_time){
+    if(services || trainer_experience || dates || mon || tue || wed || thu || fri || sat || sun){
 
-      
-    
         let serviceSql = 'UPDATE service SET';
         const serviceValues = [];
 
-        if (pet_walking !== undefined) {
-            serviceSql += ' pet_walking=?,';
-            serviceValues.push(pet_walking);
-        }
-        if (pet_sitting !== undefined) {
-            serviceSql += ' pet_sitting=?,';
-            serviceValues.push(pet_sitting);
-        }
-        if (pet_boarding !== undefined) {
-            serviceSql += ' pet_boarding=?,';
-            serviceValues.push(pet_boarding);
-        }
-        if (event_training !== undefined) {
-            serviceSql += ' event_training=?,';
-            serviceValues.push(event_training);
-        }
-        if (training_workshop !== undefined) {
-            serviceSql += ' training_workshop=?,';
-            serviceValues.push(training_workshop);
-        }
-        if (adoption_drives !== undefined) {
-            serviceSql += ' adoption_drives=?,';
-            serviceValues.push(adoption_drives);
-        }
-        if (pet_intelligence_rank_card !== undefined) {
-            serviceSql += ' pet_intelligence_rank_card=?,';
-            serviceValues.push(pet_intelligence_rank_card);
-        }
-        if (pet_grooming !== undefined) {
-            serviceSql += ' pet_grooming=?,';
-            serviceValues.push(pet_grooming);
+        if (services !== undefined) {
+            serviceSql += ' services=?,';
+            serviceValues.push(JSON.stringify(services));
         }
         if (trainer_experience !== undefined) {
             serviceSql += ' trainer_experience=?,';
             serviceValues.push(trainer_experience);
         }
-        if (trainer_experience !== undefined) {
-            serviceSql += ' trainer_experience=?,';
-            serviceValues.push(trainer_experience);
+        if (dates !== undefined) {
+            serviceSql += ' dates=?,';
+            serviceValues.push(JSON.stringify(dates));
         }
-        if (service_start_day !== undefined) {
-            serviceSql += ' service_start_day=?,';
-            serviceValues.push(service_start_day);
+        if (mon !== undefined) {
+            serviceSql += ' mon=?,';
+            serviceValues.push(JSON.stringify(mon));
         }
-        if (service_end_day !== undefined) {
-            serviceSql += ' service_end_day=?,';
-            serviceValues.push(service_end_day);
+        if (tue !== undefined) {
+            serviceSql += ' tue=?,';
+            serviceValues.push(JSON.stringify(tue));
         }
-        if (service_start_time !== undefined) {
-            serviceSql += ' service_start_time=?,';
-            serviceValues.push(service_start_time);
+        if (wed !== undefined) {
+            serviceSql += ' wed=?,';
+            serviceValues.push(JSON.stringify(wed));
         }
-        if (service_end_time !== undefined) {
-            serviceSql += ' service_end_time=?,';
-            serviceValues.push(service_end_time);
+        if (thu !== undefined) {
+            serviceSql += ' thu=?,';
+            serviceValues.push(JSON.stringify(thu));
         }
-
+        if (fri !== undefined) {
+            serviceSql += ' fri=?,';
+            serviceValues.push(JSON.stringify(fri));
+        }
+        if (sat !== undefined) {
+            serviceSql += ' sat=?,';
+            serviceValues.push(JSON.stringify(sat));
+        }
+        if (sun !== undefined) {
+            serviceSql += ' sun=?,';
+            serviceValues.push(JSON.stringify(sun));
+        }
+       
         serviceSql = serviceSql.slice(0, -1);
         serviceSql += ' WHERE service_id=(SELECT service_id FROM users WHERE user_id=?)';
         serviceValues.push(user_id);
@@ -400,7 +382,7 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         await db.query(serviceSql, serviceValues);
     }
 
-    if(clinic_name || specialisation || clinic_license || experience || education || week_start_day || week_end_day || start_time || end_time){
+    if(clinic_name || specialisation || clinic_license || experience || education || avail_dates || monday || tuesday || wednesday || thursday || friday || saturday || sunday ){
 
 
         let clinicSql = 'UPDATE clinics SET';
@@ -424,26 +406,42 @@ users.put('/update-user-profile',jwtMiddleware.verifyToken,async(req,res)=>{
         }
         if (education !== undefined) {
             clinicSql += ' education=?,';
-            clinicValues.push(education);
+            clinicValues.push(JSON.stringify(education));
         }
-        if (week_start_day !== undefined) {
-            clinicSql += ' week_start_day=?,';
-            clinicValues.push(week_start_day);
+        if (avail_dates !== undefined) {
+            clinicSql += ' avail_dates=?,';
+            clinicValues.push(JSON.stringify(avail_dates));
         }
-        if (week_end_day !== undefined) {
-            clinicSql += ' week_end_day=?,';
-            clinicValues.push(week_end_day);
+        if (monday !== undefined) {
+            clinicSql += ' monday=?,';
+            clinicValues.push(JSON.stringify(monday));
         }
-        if (start_time !== undefined) {
-            clinicSql += ' start_time=?,';
-            clinicValues.push(start_time);
+        if (tuesday !== undefined) {
+            clinicSql += ' tuesday=?,';
+            clinicValues.push(JSON.stringify(tuesday));
         }
-        if (end_time !== undefined) {
-            clinicSql += ' end_time=?,';
-            clinicValues.push(end_time);
+        if (wednesday !== undefined) {
+            clinicSql += ' wednesday=?,';
+            clinicValues.push(JSON.stringify(wednesday));
         }
+        if (thursday !== undefined) {
+            clinicSql += ' thursday=?,';
+            clinicValues.push(JSON.stringify(thursday));
+        }
+        if (friday !== undefined) {
+            clinicSql += ' friday=?,';
+            clinicValues.push(JSON.stringify(friday));
+        }
+        if (saturday !== undefined) {
+            clinicSql += ' saturday=?,';
+            clinicValues.push(JSON.stringify(saturday));
+        }
+        if (sunday !== undefined) {
+            clinicSql += ' sunday=?,';
+            clinicValues.push(JSON.stringify(sunday));
+        }
+        
  
-
         clinicSql = clinicSql.slice(0, -1);
         clinicSql += ' WHERE clinic_id=(SELECT clinic_id FROM users WHERE user_id=?)';
         clinicValues.push(user_id);

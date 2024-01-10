@@ -27,7 +27,7 @@ function generateRandomNumber(min, max) {
 
 appoint.post('/appointment',jwtMiddleware.verifyToken,async(req,res)=>{
 
-    const { appointee, appointer, pet, timings, add_service } = req.body;
+    const { appointee, appointer, pet, timings, add_service, pet_issue } = req.body;
 
 try{
   let appointment_no;
@@ -38,8 +38,8 @@ try{
             isUnique = await isAppoint(appointment_no);
         }
 
-    const sql = `INSERT INTO onelove_v2.appointments(appointee, appointer, pet, timings, add_service, app_status, appointment_no) VALUES(?, ?, ?, ?, ?, ?, ?)`;
-    const values = [appointee, appointer, pet, timings, JSON.stringify(add_service), "Pending", appointment_no];
+    const sql = `INSERT INTO onelove_v2.appointments(appointee, appointer, pet, timings, add_service, app_status, appointment_no, pet_issue) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
+    const values = [appointee, appointer, pet, timings, JSON.stringify(add_service), "Pending", appointment_no, pet_issue];
     const [result] = await db.query(sql, values);
 
     const sql1 = `SELECT external_id FROM onelove_v2.users WHERE user_id = ${appointee}`
@@ -203,24 +203,40 @@ appoint.get('/appointments',jwtMiddleware.verifyToken, async (req, res) => {
 
     const appointment_id = req.query.appointment_id;
     const app_status = req.body.app_status;
+    const appointee = req.body.appointee;
+    const appointer = req.body.appointer;
  try{
        const sql = `UPDATE onelove_v2.appointments SET app_status = ? WHERE appointment_id = ?`;
        const values = [app_status, appointment_id];
        const [result] = await db.query(sql,values);
 
-// if(app_status === "Cancelled"){
-//        const sql1 = `SELECT external_id FROM onelove_v2.users WHERE store_id = ${store_id}`
-//         const [sql1Result] = await db.query(sql1)
-//         const external_id=sql1Result[0].external_id;
-//         console.log('external id',external_id)
+if(app_status === "Cancelled by appointee"){
+       const sql1 = `SELECT external_id FROM onelove_v2.users WHERE user_id = ${appointer}`
+        const [sql1Result] = await db.query(sql1)
+        const external_id=sql1Result[0].external_id;
+        console.log('external id',external_id)
 
-//         const mess = "Someone has cancelled their order!!Check it now";
-//         const uniqId = external_id; 
-//         const Heading = "Order Cancellation"
-//         const endpoint = `Orders?tabIndex=2`
+        const mess = "Seems to be occupied, Please reschedule your appointment";
+        const uniqId = external_id; 
+        const Heading = "Appointment to be Rescheduled"
+        const endpoint = `Orders?tabIndex=2`
 
-//         await notification.sendnotification(mess, uniqId,Heading,endpoint);
-// }
+        await notification.sendnotification(mess, uniqId,Heading,endpoint);
+}
+
+if(app_status === "Cancelled by appointer"){
+  const sql1 = `SELECT external_id FROM onelove_v2.users WHERE user_id = ${appointee}`
+   const [sql1Result] = await db.query(sql1)
+   const external_id=sql1Result[0].external_id;
+   console.log('external id',external_id)
+
+   const mess = "Appointment has been cancelled by appointer";
+   const uniqId = external_id; 
+   const Heading = "Appointment Cancellation"
+   const endpoint = `Orders?tabIndex=2`
+
+   await notification.sendnotification(mess, uniqId,Heading,endpoint);
+}
 
     return res.status(200).json({
     message: messages.DATA_UPDATED,

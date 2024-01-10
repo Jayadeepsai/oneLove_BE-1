@@ -78,9 +78,9 @@ async function performTransaction(req, res) {
                 break;
 
             case 'pet_trainer':
-               const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time} = req.body;
-               const serviceQuery = 'INSERT INTO onelove_v2.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-               const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time];
+               const { services, trainer_experience, dates, mon, tue, wed, thu, fri, sat, sun } = req.body;
+               const serviceQuery = 'INSERT INTO onelove_v2.service (services, trainer_experience, dates, mon, tue, wed, thu, fri, sat, sun) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? )';
+               const serviceValues = [JSON.stringify(services), trainer_experience, JSON.stringify(dates), JSON.stringify(mon), JSON.stringify(tue), JSON.stringify(wed), JSON.stringify(thu), JSON.stringify(fri), JSON.stringify(sat), JSON.stringify(sun)];
                const [serviceResult] = await connection.query(serviceQuery, serviceValues);
                service_id = serviceResult.insertId;
                const userQuery1 = 'INSERT INTO onelove_v2.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
@@ -94,9 +94,9 @@ async function performTransaction(req, res) {
                break;
 
             case 'pet_doctor':
-                const { clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time } = req.body;
-                const clinicQuery = 'INSERT INTO onelove_v2.clinics (clinic_name, specialisation, clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-                const clinicValues = [clinic_name, JSON.stringify(specialisation), clinic_license, experience, education, week_start_day, week_end_day, start_time, end_time];
+                const { clinic_name, specialisation, clinic_license, experience, education, avail_dates, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body;
+                const clinicQuery = 'INSERT INTO onelove_v2.clinics (clinic_name, specialisation, clinic_license, experience, education, avail_dates, monday, tuesday, wednesday, thursday, friday, saturday, sunday ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                const clinicValues = [clinic_name, JSON.stringify(specialisation), clinic_license, experience, JSON.stringify(education), JSON.stringify(avail_dates), JSON.stringify(monday), JSON.stringify(tuesday), JSON.stringify(wednesday), JSON.stringify(thursday), JSON.stringify(friday), JSON.stringify(saturday), JSON.stringify(sunday)];
                 const [clinicResult] = await connection.query(clinicQuery, clinicValues);
                 clinic_id = clinicResult.insertId;
                 const userQuery2 = 'INSERT INTO onelove_v2.users (user_type, user_name, address_id, contact_id, service_id, clinic_id, store_id, image_id, external_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';

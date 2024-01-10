@@ -354,58 +354,58 @@ posts.get('/posts-pet-user',jwtMiddleware.verifyToken, async (req, res) => {
 });
 
 
-// posts.put('/update-post',jwtMiddleware.verifyToken, async (req, res) => {
+posts.put('/update-post',jwtMiddleware.verifyToken, async (req, res) => {
 
-//     const { userType } = req;
-//     if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
-//         return res.status(403).json({ message: messages.FORBID });
-//     }
+    const { userType } = req;
+    if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+        return res.status(403).json({ message: messages.FORBID });
+    }
 
-//     try {
-//         const post_id = req.query.post_id;
+    try {
+        const post_id = req.query.post_id;
 
-//         const {
-//             post_type, post_description, love_index_id, image_id, user_id} = req.body;
+        const {
+            post_type, post_description, love_index_id, image_id, user_id} = req.body;
 
-//         let sql = 'UPDATE onelove_v2.posts SET';
-//         const values = [];
+        let sql = 'UPDATE onelove_v2.posts SET';
+        const values = [];
 
-//         if (post_type !== undefined) {
-//             sql += ' post_type=?,';
-//             values.push(post_type);
-//         }
-//         if (post_description !== undefined) {
-//             sql += ' post_description=?,';
-//             values.push(post_description);
-//         }
-//         if (love_index_id !== undefined) {
-//             sql += ' love_index_id=?,';
-//             values.push(love_index_id);
-//         }
-//         if (image_id !== undefined) {
-//             sql += ' image_id=?,';
-//             values.push(image_id);
-//         }
-//         if (user_id !== undefined) {
-//             sql += ' user_id=?,';
-//             values.push(user_id);
-//         }
+        if (post_type !== undefined) {
+            sql += ' post_type=?,';
+            values.push(post_type);
+        }
+        if (post_description !== undefined) {
+            sql += ' post_description=?,';
+            values.push(post_description);
+        }
+        if (love_index_id !== undefined) {
+            sql += ' love_index_id=?,';
+            values.push(love_index_id);
+        }
+        if (image_id !== undefined) {
+            sql += ' image_id=?,';
+            values.push(image_id);
+        }
+        if (user_id !== undefined) {
+            sql += ' user_id=?,';
+            values.push(user_id);
+        }
 
-//         sql = sql.slice(0, -1);
-//         sql += ' WHERE post_id=?';
-//         values.push(post_id);
+        sql = sql.slice(0, -1);
+        sql += ' WHERE post_id=?';
+        values.push(post_id);
 
-//         const [result] = await db.query(sql, values);
+        const [result] = await db.query(sql, values);
 
-//         res.status(200).json({
-//             updatedData: result,
-//             message: messages.DATA_UPDATED,
-//         });
-//     } catch (err) {
-//         logger.error('Error updating data:', err.message);
-//         res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
-//     }
-// });
+        res.status(200).json({
+            updatedData: result,
+            message: messages.DATA_UPDATED,
+        });
+    } catch (err) {
+        logger.error('Error updating data:', err.message);
+        res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
+    }
+});
 
 
 
