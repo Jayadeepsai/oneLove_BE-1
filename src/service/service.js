@@ -15,9 +15,9 @@ async function serviceQueries(req, res) {
     try {
         await db.beginTransaction();
 
-        const { pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time} = req.body;
-        const serviceQuery = 'INSERT INTO onelove_v2.service (pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        const serviceValues = [pet_walking, pet_sitting, pet_boarding, event_training, training_workshop, adoption_drives, pet_intelligence_rank_card, pet_grooming, trainer_experience, service_start_day, service_end_day, service_start_time, service_end_time];
+        const { services, trainer_experience, dates, mon, tue, wed, thu, fri, sat, sun} = req.body;
+        const serviceQuery = 'INSERT INTO onelove_v2.service (services, trainer_experience, dates, mon, tue, wed, thu, fri, sat, sun) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const serviceValues = [JSON.stringify(services), trainer_experience, JSON.stringify(dates), JSON.stringify(mon), JSON.stringify(tue),JSON.stringify(wed), JSON.stringify(thu), JSON.stringify(fri), JSON.stringify(sat), JSON.stringify(sun)];
 
         await db.query(serviceQuery, serviceValues);
         await db.commit();
@@ -64,28 +64,10 @@ service.get('/service',jwtMiddleware.verifyToken, async(req,res)=>{
         const [results] = await db.query(sql);
         const servicesData = JSON.parse(JSON.stringify(results));
 
-        if (servicesData.length > 0) {
-            const convertedServicesData = servicesData.map(item => ({
-                ...item,
-                pet_walking: item.pet_walking === 1,
-                pet_sitting: item.pet_sitting === 1,
-                pet_boarding: item.pet_boarding === 1,
-                event_training: item.event_training === 1,
-                training_workshop: item.training_workshop === 1,
-                adoption_drives: item.adoption_drives === 1,
-                pet_intelligence_rank_card: item.pet_intelligence_rank_card === 1,
-                pet_grooming: item.pet_grooming === 1,
-            }));
-
             res.status(200).json({
-                servicesData: convertedServicesData,
+                servicesData: servicesData,
                 message: messages.SUCCESS_MESSAGE,
             });
-        } else {
-            res.status(200).json({
-                message: messages.NO_DATA,
-            });
-        }
 
     }catch(err){
         logger.error('Error fetching data:', err);
@@ -99,7 +81,7 @@ service.get('/service',jwtMiddleware.verifyToken, async(req,res)=>{
 service.get('/service-user-id',jwtMiddleware.verifyToken, async (req, res) => {
 
     const { userType } = req;
-    if (userType !== 'pet_owner'&& userType !== 'pet_trainer') {
+    if (userType !== 'pet_owner'&& userType !== 'pet_trainer'&& userType !== 'pet_doctor') {
         return res.status(403).json({ message: messages.FORBID });
     }
 
@@ -124,28 +106,11 @@ service.get('/service-user-id',jwtMiddleware.verifyToken, async (req, res) => {
         const [results] = await db.query(sql, [userId]);
         const servicesData = JSON.parse(JSON.stringify(results));
 
-        if (servicesData.length > 0) {
-            const convertedServicesData = servicesData.map(item => ({
-                ...item,
-                pet_walking: item.pet_walking === 1,
-                pet_sitting: item.pet_sitting === 1,
-                pet_boarding: item.pet_boarding === 1,
-                event_training: item.event_training === 1,
-                training_workshop: item.training_workshop === 1,
-                adoption_drives: item.adoption_drives === 1,
-                pet_intelligence_rank_card: item.pet_intelligence_rank_card === 1,
-                pet_grooming: item.pet_grooming === 1,
-            }));
-
             res.status(200).json({
-                servicesData: convertedServicesData,
+                servicesData: servicesData,
                 message: messages.SUCCESS_MESSAGE,
             });
-        } else {
-            res.status(200).json({
-                message: messages.NO_DATA,
-            });
-        }
+       
     } catch (err) {
         logger.error('Error fetching data:', err);
         res.status(400).json({
