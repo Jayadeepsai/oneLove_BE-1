@@ -74,7 +74,6 @@ items.post('/item-entry',jwtMiddleware.verifyToken,(req,res)=>{
 });
 
 
-
 // items.get('/products',jwtMiddleware.verifyToken,async(req,res)=>{
 
 //     const sql = `SELECT i.*,s1.*,i1.*,a.*,c.*
