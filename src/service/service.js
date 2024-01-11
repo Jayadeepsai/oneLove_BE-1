@@ -31,6 +31,7 @@ async function serviceQueries(req, res) {
 };
 
 
+
 service.post('/service',jwtMiddleware.verifyToken, (req, res) => {
     serviceQueries(req, res)
         .then(() => {
