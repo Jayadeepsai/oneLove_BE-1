@@ -22,7 +22,6 @@ try{
     const values = [name, mail, messages, formattedDate];
     const [result] = await db.query(sql, values);
 
-
     res.status(200).json({
         data: result,
         message: text.POST_SUCCESS
