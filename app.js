@@ -28,6 +28,7 @@ const ratings = require('./src/ratings_reviews/ratings');
 const orders = require('./src/orders/orders');
 // const message = require('./src/messages/message');
 const appoint = require('./src/appointment/appointment');
+const feedback = require('./src/feedback/feedback');
 
 
 app.use(actuator());
@@ -48,6 +49,7 @@ app.use('/onelove/ratings',ratings);
 app.use('/onelove/order',orders);
 // app.use('/onelove/message',message);
 app.use('/onelove/appointment',appoint);
+app.use('/onelove/feedback',feedback);
 
 
 
