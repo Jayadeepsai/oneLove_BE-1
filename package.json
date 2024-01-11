@@ -30,7 +30,6 @@
     "node-cron": "^3.0.2",
     "prettier": "^3.0.1",
     "sinon": "^17.0.1",
-    "socket.io": "^4.7.2",
     "typescript": "^5.1.6",
     "winston": "^3.11.0"
   },
