@@ -141,7 +141,7 @@ appoint.get('/appointments',jwtMiddleware.verifyToken, async (req, res) => {
       }
   
       const sql = `
-        SELECT
+      SELECT
           a.*,
           u_appointee.user_id AS appointee_id,
           u_appointee.user_name AS appointee_name,
@@ -171,15 +171,22 @@ appoint.get('/appointments',jwtMiddleware.verifyToken, async (req, res) => {
           cd.mobile_number,
           cd.email,
           i.image_id,
-          i.image_url AS service_provider_image
-        FROM appointments a
-        JOIN users u_appointee ON a.appointee = u_appointee.user_id
-        JOIN pet p ON a.pet = p.pet_id
-        LEFT JOIN address ad ON u_appointee.address_id = ad.address_id
-        LEFT JOIN contact_details cd ON u_appointee.contact_id = cd.contact_id
-        LEFT JOIN images i ON u_appointee.image_id = i.image_id
-        WHERE a.appointer = ?
-      `;
+          i.image_url AS service_provider_or_doctor_image,
+          c.clinic_name,
+          c.specialisation,
+          c.clinic_license,
+          c.experience,
+          c.education,
+          c.avail_dates
+      FROM appointments a
+      JOIN users u_appointee ON a.appointee = u_appointee.user_id
+      JOIN pet p ON a.pet = p.pet_id
+      LEFT JOIN address ad ON u_appointee.address_id = ad.address_id
+      LEFT JOIN contact_details cd ON u_appointee.contact_id = cd.contact_id
+      LEFT JOIN images i ON u_appointee.image_id = i.image_id
+      LEFT JOIN clinics c ON u_appointee.clinic_id = c.clinic_id
+      WHERE a.appointer = ?;
+  `;
   
       const [result] = await db.query(sql, [appointerId]);
   

@@ -16,7 +16,6 @@ try{
     const currentDate = new Date();
       
         const formattedDate = currentDate.toLocaleString();
-        console.log(formattedDate)
 
     const sql = `INSERT INTO onelove_v2.feedback(name, mail, messages, date_time) VALUES(?, ?, ?, ?)`;
     const values = [name, mail, messages, formattedDate];
