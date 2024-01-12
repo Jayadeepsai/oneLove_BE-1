@@ -245,6 +245,20 @@ if(app_status === "Cancelled by appointer"){
    await notification.sendnotification(mess, uniqId,Heading,endpoint);
 }
 
+if(app_status === "Accepted"){
+  const sql1 = `SELECT external_id FROM onelove_v2.users WHERE user_id = ${appointer}`
+   const [sql1Result] = await db.query(sql1)
+   const external_id=sql1Result[0].external_id;
+   console.log('external id',external_id)
+
+   const mess = "Appointment has been accepted by appointee";
+   const uniqId = external_id; 
+   const Heading = "Appointment accepted"
+   const endpoint = `Orders?tabIndex=2`
+
+   await notification.sendnotification(mess, uniqId,Heading,endpoint);
+}
+
     return res.status(200).json({
     message: messages.DATA_UPDATED,
     result

@@ -364,8 +364,7 @@ posts.put('/update-post',jwtMiddleware.verifyToken, async (req, res) => {
     try {
         const post_id = req.query.post_id;
 
-        const {
-            post_type, post_description, love_index_id, image_id, user_id} = req.body;
+        const {post_type, post_description, love_index_id, image_id, user_id} = req.body;
 
         let sql = 'UPDATE onelove_v2.posts SET';
         const values = [];
