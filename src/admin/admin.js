@@ -58,6 +58,13 @@ admin.put('/admin-update',async(req,res)=>{
 
     try{
 
+        const checkUniqueSql = 'SELECT admin_id FROM onelove_v2.admin_data WHERE (mail = ? OR mobile = ?) AND admin_id <> ?';
+        const [duplicateCheck] = await db.query(checkUniqueSql, [mail, mobile, admin_id]);
+
+        if (duplicateCheck.length > 0) {
+            return res.status(400).json({ message: 'Mail or mobile already exists for another admin.' });
+        }
+
         if(mail || mobile || pass || admin_name){
 
             let admin_detailsSql = 'UPDATE onelove_v2.admin_data SET';
@@ -94,7 +101,7 @@ admin.put('/admin-update',async(req,res)=>{
         });
 
     }catch(err){
-        
+
         await db.rollback();
         logger.error('Error updating data:', err);
         return res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
