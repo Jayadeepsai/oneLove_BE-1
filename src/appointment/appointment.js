@@ -27,7 +27,7 @@ function generateRandomNumber(min, max) {
 
 appoint.post('/appointment',jwtMiddleware.verifyToken,async(req,res)=>{
 
-    const { appointee, appointer, pet, timings, add_service, pet_issue } = req.body;
+    const { appointee, appointer, pet, timings, add_service, pet_issue, rescheduled } = req.body;
 
 try{
   let appointment_no;
@@ -38,8 +38,8 @@ try{
             isUnique = await isAppoint(appointment_no);
         }
 
-    const sql = `INSERT INTO onelove_v2.appointments(appointee, appointer, pet, timings, add_service, app_status, appointment_no, pet_issue) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
-    const values = [appointee, appointer, pet, timings, JSON.stringify(add_service), "Pending", appointment_no, pet_issue];
+    const sql = `INSERT INTO onelove_v2.appointments(appointee, appointer, pet, timings, add_service, app_status, appointment_no, pet_issue, rescheduled) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const values = [appointee, appointer, pet, timings, JSON.stringify(add_service), "Pending", appointment_no, pet_issue, rescheduled];
     const [result] = await db.query(sql, values);
 
     const sql1 = `SELECT external_id FROM onelove_v2.users WHERE user_id = ${appointee}`
@@ -177,7 +177,14 @@ appoint.get('/appointments',jwtMiddleware.verifyToken, async (req, res) => {
           c.clinic_license,
           c.experience,
           c.education,
-          c.avail_dates
+          c.avail_dates,
+          c.monday,
+            c.tuesday,
+            c.wednesday,
+            c.thursday,
+            c.friday,
+            c.saturday,
+            c.sunday
       FROM appointments a
       JOIN users u_appointee ON a.appointee = u_appointee.user_id
       JOIN pet p ON a.pet = p.pet_id
@@ -203,19 +210,18 @@ appoint.get('/appointments',jwtMiddleware.verifyToken, async (req, res) => {
 
   appoint.put('/appointment-status',jwtMiddleware.verifyToken,async(req,res)=>{
 
-    // const { userType } = req;
-    // if (userType !== 'pet_store' && userType !== 'pet_owner') {
-    //     return res.status(403).json({ message: messages.FORBID });
-    // }
 
     const appointment_id = req.query.appointment_id;
     const app_status = req.body.app_status;
     const appointee = req.body.appointee;
     const appointer = req.body.appointer;
+    const reason_for_cancellation = req.body.reason_for_cancellation;
+
+
  try{
-       const sql = `UPDATE onelove_v2.appointments SET app_status = ? WHERE appointment_id = ?`;
-       const values = [app_status, appointment_id];
-       const [result] = await db.query(sql,values);
+  const sql = `UPDATE onelove_v2.appointments SET app_status = ?, reason_for_cancellation = ? WHERE appointment_id = ?`;
+  const values = [app_status, reason_for_cancellation, appointment_id];
+  const [result] = await db.query(sql, values);
 
 if(app_status === "Cancelled by appointee"){
        const sql1 = `SELECT external_id FROM onelove_v2.users WHERE user_id = ${appointer}`
@@ -263,11 +269,14 @@ if(app_status === "Accepted"){
     message: messages.DATA_UPDATED,
     result
     });
+   
  }catch(err){
     
       logger.error('Error updating data:', err.message);
+      console.log(err.message)
       return res.status(400).json({ message: messages.DATA_UPDATE_FALIED });
  }
+ 
 });
 
 
