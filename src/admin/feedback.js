@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const text = require('../messages/constants');
 const db = require('../../dbConnection');
 const logger = require('../../logger');
+const jwtAdmin = require('../../jwtAdmin');
+
 
 feedback.use(express.json());
 feedback.use(express.urlencoded({ extended: true }));
@@ -39,7 +41,7 @@ try{
 
 
 
-feedback.get('/feedbacks',async(req,res)=>{
+feedback.get('/feedbacks',jwtAdmin.verifyTokenAdmin,async(req,res)=>{
 
     const sql = `
     SELECT 

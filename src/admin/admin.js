@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const messages = require('../messages/constants');
 const db = require('../../dbConnection');
 const logger = require('../../logger');
+const jwtAdmin = require('../../jwtAdmin');
 
 admin.use(express.json());
 admin.use(express.urlencoded({ extended: true }));
@@ -34,10 +35,15 @@ admin.post('/admin-login',async(req,res)=>{
     }
 
     const adminDetails = results[0]; 
+    const adminId = results[0].admin_id;
+    const token = jwtAdmin.generateTokenAdmin(adminId);
+    const refreshToken = jwtAdmin.generateRefreshTokenAdmin(adminId);
 
     res.status(200).json({
         message: 'Login successful.',
             adminDetails,
+            token,
+            refreshToken
     });
 } catch (err) {
     console.error('Error during admin login:', err.message);
@@ -46,7 +52,42 @@ admin.post('/admin-login',async(req,res)=>{
 });
 
 
-admin.put('/admin-update',async(req,res)=>{
+
+admin.post('/refresh-token-admin', (req, res) => {
+
+    const refreshTokenValue = req.body.refreshToken;
+    jwtAdmin.refreshTokenAdmin(req, res, (err, newAccessToken) => {
+        if (err) {
+            return res.status(403).json({ message: messages.FORBID});
+        }
+        res.status(200).json({ accessToken: newAccessToken });
+    });
+});
+
+
+admin.post('/logout-admin', async (req, res) => {
+    try {
+        const admin = req.body.admin_id;
+        const sql = `SELECT admin_name FROM onelove_v2.admin_data WHERE admin_id =?`;
+        const [sqlResult] = await db.query(sql, admin);
+        logger.info("sqlResult", sqlResult);
+
+        const tokenHeader = req.headers.authorization;
+        if (tokenHeader) {
+            const token = tokenHeader.split(' ')[1];
+            jwtAdmin.addToBlacklistAdmin(token);
+        }
+        return res.status(200).json({
+            message: messages.LOGOUT
+        });
+    } catch (err) {
+        logger.error("Error", err);
+        return res.status(400).json({ message: messages.LOGOUT_FAILED });
+    }
+});
+
+
+admin.put('/admin-update',jwtAdmin.verifyTokenAdmin,async(req,res)=>{
 
     const admin_id = req.query.admin_id;
 
