@@ -27,7 +27,7 @@ admin.post('/admin-login',async(req,res)=>{
         condition = { mobile };
     }
 
-    const sql = `SELECT * FROM admin_data WHERE ? AND pass = ?`;
+    const sql = `SELECT admin_id,mail,mobile,admin_name FROM admin_data WHERE ? AND pass = ?`;
     const [results] = await db.query(sql, [condition, pass]);
 
     if (results.length === 0) {
@@ -41,7 +41,7 @@ admin.post('/admin-login',async(req,res)=>{
 
     res.status(200).json({
         message: 'Login successful.',
-            adminDetails,
+           adminData: adminDetails,
             token,
             refreshToken
     });
