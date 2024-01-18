@@ -14,7 +14,7 @@ const secretKey = process.env.SECRET_KEY_JWT;
             return decoded.exp;
         }
     } catch (err) {
-        // Handle decoding errors
+      logger.error('Error decoding token:', err.message);
     }
     return null;
 }

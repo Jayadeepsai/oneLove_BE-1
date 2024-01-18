@@ -408,33 +408,80 @@ posts.put('/update-post',jwtMiddleware.verifyToken, async (req, res) => {
 
 
 
-posts.delete('/delete-post',jwtMiddleware.verifyToken, async (req, res) => {
+// posts.delete('/delete-post',jwtMiddleware.verifyToken, async (req, res) => {
 
+//     const { userType } = req;
+//     if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+//         return res.status(403).json({ message: messages.FORBID });
+//     }
+
+//     try {
+//         const post_id = req.query.post_id;
+//         const sql = `DELETE FROM onelove_v2.posts WHERE post_id = ?`;
+//         const [result] = await db.query(sql, [post_id]); 
+
+//         if (result.affectedRows === 0) {
+//             res.status(400).json({
+//                 message: messages.INVALID_ID,
+//             });
+//         } else {
+//             res.status(200).json({
+//                 message: messages.DATA_DELETED,
+//             });
+//         }
+//     } catch (err) {
+//         logger.error('Error deleting post:', err);
+//         res.status(400).json({
+//             message: messages.FAILED_TO_DELETE,
+//         });
+//     }
+// });
+
+
+posts.delete('/delete-post', jwtMiddleware.verifyToken, async (req, res) => {
     const { userType } = req;
-    if (userType !== 'pet_owner'&& userType !== 'pet_doctor'&& userType !== 'pet_trainer') {
+    if (userType !== 'pet_owner' && userType !== 'pet_doctor' && userType !== 'pet_trainer') {
         return res.status(403).json({ message: messages.FORBID });
     }
 
     try {
         const post_id = req.query.post_id;
-        const sql = `DELETE FROM onelove_v2.posts WHERE post_id = ?`;
-        const [result] = await db.query(sql, [post_id]); 
-
-        if (result.affectedRows === 0) {
-            res.status(400).json({
+        
+        // Fetch love_index_id associated with the post
+        const getLoveIndexIdQuery = `SELECT love_index_id FROM onelove_v2.posts WHERE post_id = ?`;
+        const [loveIndexResult] = await db.query(getLoveIndexIdQuery, [post_id]);
+        
+        if (loveIndexResult.length === 0) {
+            return res.status(400).json({
                 message: messages.INVALID_ID,
             });
-        } else {
-            res.status(200).json({
-                message: messages.DATA_DELETED,
-            });
         }
+
+        const love_index_id = loveIndexResult[0].love_index_id;
+
+        // Delete the post and corresponding love_index entry
+        const deletePostQuery = `DELETE FROM onelove_v2.posts WHERE post_id = ?`;
+        const deleteLoveIndexQuery = `DELETE FROM onelove_v2.love_index WHERE love_index_id = ?`;
+
+        await db.beginTransaction();
+
+        await db.query(deletePostQuery, [post_id]);
+        await db.query(deleteLoveIndexQuery, [love_index_id]);
+
+        await db.commit();
+
+        res.status(200).json({
+            message: messages.DATA_DELETED,
+        });
     } catch (err) {
+        await db.rollback();
+
         logger.error('Error deleting post:', err);
         res.status(400).json({
             message: messages.FAILED_TO_DELETE,
         });
     }
 });
+
 
 module.exports=posts;

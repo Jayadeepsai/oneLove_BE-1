@@ -40,7 +40,7 @@ admin.post('/admin-login',async(req,res)=>{
     const refreshToken = jwtAdmin.generateRefreshTokenAdmin(adminId);
 
     res.status(200).json({
-        message: 'Login successful.',
+        message: 'Login successful',
            adminData: adminDetails,
             token,
             refreshToken
@@ -81,7 +81,7 @@ admin.post('/logout-admin', async (req, res) => {
             message: messages.LOGOUT
         });
     } catch (err) {
-        logger.error("Error", err);
+        logger.error("Error", err.message);
         return res.status(400).json({ message: messages.LOGOUT_FAILED });
     }
 });
