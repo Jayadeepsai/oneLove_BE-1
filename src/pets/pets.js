@@ -261,6 +261,8 @@ pets.get('/pets-users',jwtMiddleware.verifyToken, async (req, res) => {
         p.user_id = ?
     GROUP BY
         p.pet_id
+        ORDER BY
+        p.pet_id DESC
 `;
     
     try {
